@@ -7,6 +7,19 @@
     Shell.FlyoutBehavior="Locked"
     Title="AppLauncherMAUI">
 
+    <Shell.FlyoutHeader>
+        <Grid>
+            <Image Aspect="AspectFill"
+                   Source="todo2.png"
+                   Opacity="0.6" />
+            <Label Text="App name"
+                   TextColor="Gray"
+                   FontAttributes="Bold"
+                   HorizontalTextAlignment="Center"
+                   VerticalTextAlignment="Center" />
+        </Grid>
+    </Shell.FlyoutHeader>
+
     <FlyoutItem Title="MainPage">
         <Tab>
             <ShellContent ContentTemplate="{DataTemplate local:MainPageView}"/>
@@ -25,4 +38,11 @@
         </Tab>
     </FlyoutItem>
 
+    <Shell.FlyoutFooter>
+        <Label Text="Version"
+               FontSize="10"
+               HorizontalTextAlignment="Center"
+               FontAttributes="Bold" 
+               Margin="0 0 10 0" />
+    </Shell.FlyoutFooter>
 </Shell>
