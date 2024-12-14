@@ -43,6 +43,6 @@
                FontSize="10"
                HorizontalTextAlignment="Center"
                FontAttributes="Bold" 
-               Margin="0 0 10 0" />
+               Margin="0,0,10,0" />
     </Shell.FlyoutFooter>
 </Shell>
