@@ -1,10 +1,10 @@
 ﻿namespace AppLauncherMAUI.MVVM.Views;
 
-public partial class MainPageView : ContentPage
+public partial class MainPage : ContentPage
 {
     int count = 0;
 
-    public MainPageView()
+    public MainPage()
     {
         InitializeComponent();
     }

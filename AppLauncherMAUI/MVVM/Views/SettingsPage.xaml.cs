@@ -1,8 +1,8 @@
 namespace AppLauncherMAUI.MVVM.Views;
 
-public partial class SettingsView : ContentPage
+public partial class SettingsPage : ContentPage
 {
-    public SettingsView()
+    public SettingsPage()
     {
         InitializeComponent();
 

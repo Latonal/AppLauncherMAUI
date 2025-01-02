@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-namespace AppLauncherMAUI.ViewModels;
+namespace AppLauncherMAUI.MVVM.ViewModels;
 
 public partial class ExampleViewModel : INotifyPropertyChanged
 {
