@@ -1,3 +1,6 @@
+using AppLauncherMAUI.Resources.Styles;
+using System.Diagnostics;
+
 namespace AppLauncherMAUI.MVVM.Views;
 
 public partial class SettingsPage : ContentPage
@@ -6,7 +9,7 @@ public partial class SettingsPage : ContentPage
     {
         InitializeComponent();
 
-        ThemePicker.SelectedIndex = GetCurrentThemeIndex();
+        ThemePicker.SelectedIndex = Preferences.Get("AppTheme", 0);
     }
 
     private void OnThemePickerChanged(object sender, EventArgs e)
@@ -14,35 +17,37 @@ public partial class SettingsPage : ContentPage
         if (ThemePicker.SelectedIndex == -1)
             return;
 
-        switch (ThemePicker.SelectedIndex)
-        {
-            case 1:
-                if (Application.Current is not null)
-                    Application.Current.UserAppTheme = AppTheme.Light;
-                break;
-            case 2:
-                if (Application.Current is not null)
-                    Application.Current.UserAppTheme = AppTheme.Dark;
-                break;
-            case 0:
-            default:
-                if (Application.Current is not null)
-                    Application.Current.UserAppTheme = AppTheme.Unspecified;
-                break;
-        }
-
-        Preferences.Set("AppTheme", ThemePicker.SelectedIndex);
+        ChangeTheme(ThemePicker.SelectedIndex);
     }
 
-    private static int GetCurrentThemeIndex()
+    public static void ChangeTheme(int themeCode)
     {
-        AppTheme currentTheme = Application.Current is not null ? Application.Current.RequestedTheme : AppTheme.Unspecified;
-
-        return currentTheme switch
+        if (Application.Current is not null)
         {
-            AppTheme.Light => 1,
-            AppTheme.Dark => 2,
-            _ => 0, // Default - System
-        };
+            ICollection<ResourceDictionary> mergedDictionaries = Application.Current.Resources.MergedDictionaries;
+            if (mergedDictionaries != null)
+            {
+                mergedDictionaries.Clear();
+
+                switch (themeCode)
+                {
+                    case 1:
+                        mergedDictionaries.Add(new LightTheme());
+                        Preferences.Set("AppTheme", 1);
+                        break;
+                    case 2:
+                        mergedDictionaries.Add(new DarkTheme());
+                        Preferences.Set("AppTheme", 2);
+                        break;
+                    case 0:
+                    default:
+                        mergedDictionaries.Add(new LightTheme());
+                        Preferences.Set("AppTheme", 0);
+                        break;
+                }
+
+                mergedDictionaries.Add(new AppStyles());
+            }
+        }
     }
 }

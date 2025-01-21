@@ -1,4 +1,6 @@
-﻿namespace AppLauncherMAUI
+﻿using AppLauncherMAUI.MVVM.Views;
+
+namespace AppLauncherMAUI
 {
     public partial class App : Application
     {
@@ -7,19 +9,18 @@
             InitializeComponent();
 
             SetTheme();
-
-            MainPage = new AppShell();
         }
 
-        private void SetTheme()
+        protected override Window CreateWindow(IActivationState? activationState)
+        {
+            return new Window(new AppShell());
+        }
+
+        private static void SetTheme()
         {
             int savedTheme = Preferences.Get("AppTheme", 0);
-            UserAppTheme = savedTheme switch
-            {
-                1 => AppTheme.Light,
-                2 => AppTheme.Dark,
-                _ => AppTheme.Unspecified,
-            };
+
+            SettingsPage.ChangeTheme(savedTheme);
         }
     }
 }
