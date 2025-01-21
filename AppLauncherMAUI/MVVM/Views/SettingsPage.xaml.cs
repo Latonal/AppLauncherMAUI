@@ -40,8 +40,8 @@ public partial class SettingsPage : ContentPage
                         Preferences.Set("AppTheme", 2);
                         break;
                     case 0:
-                    default:
-                        mergedDictionaries.Add(new LightTheme());
+                    default: // apply style depending of preference in system (only light/dark mode)
+                        mergedDictionaries.Add(Application.Current.RequestedTheme == AppTheme.Light ? new LightTheme() : new DarkTheme());
                         Preferences.Set("AppTheme", 0);
                         break;
                 }

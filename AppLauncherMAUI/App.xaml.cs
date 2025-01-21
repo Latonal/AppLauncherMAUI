@@ -8,6 +8,8 @@ namespace AppLauncherMAUI
         {
             InitializeComponent();
 
+            RequestedThemeChanged += (s, a) => SetTheme();
+
             SetTheme();
         }
 

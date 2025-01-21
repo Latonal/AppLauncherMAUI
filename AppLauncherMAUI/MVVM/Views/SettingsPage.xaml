@@ -19,5 +19,8 @@
                 </x:Array>
             </Picker.ItemsSource>
         </Picker>
+
+        <Label
+            Text="Create a shortcut after a download" /> <!-- TODO -->
     </VerticalStackLayout>
 </ContentPage>
