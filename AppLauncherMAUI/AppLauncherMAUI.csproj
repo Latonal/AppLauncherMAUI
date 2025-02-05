@@ -57,9 +57,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.Maui.Controls" Version="9.0.21" />
-		<PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="9.0.21" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.0" />
+		<PackageReference Include="Microsoft.Maui.Controls" Version="9.0.0" />
+		<PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="9.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.1" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -67,22 +67,31 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Compile Update="MVVM\Views\ExamplePage.xaml.cs">
-	    <DependentUpon>ExamplePage.xaml</DependentUpon>
+	  <Compile Update="MVVM\Views\ExampleView.xaml.cs">
+	    <DependentUpon>ExampleView.xaml</DependentUpon>
 	  </Compile>
-	  <Compile Update="MVVM\Views\MainPage.xaml.cs">
-	    <DependentUpon>MainPage.xaml</DependentUpon>
+	  <Compile Update="MVVM\Views\HomeView.xaml.cs">
+	    <DependentUpon>HomeView.xaml</DependentUpon>
 	  </Compile>
-	  <Compile Update="MVVM\Views\SettingsPage.xaml.cs">
-	    <DependentUpon>SettingsPage.xaml</DependentUpon>
+	  <Compile Update="SideNavigation.xaml.cs">
+	    <DependentUpon>SideNavigation.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="MVVM\Views\SettingsView.xaml.cs">
+	    <DependentUpon>SettingsView.xaml</DependentUpon>
 	  </Compile>
 	</ItemGroup>
 
 	<ItemGroup>
-	  <MauiXaml Update="MVVM\Views\ExamplePage.xaml">
+	  <MauiXaml Update="MVVM\Views\ExampleView.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="MVVM\Views\SettingsPage.xaml">
+	  <MauiXaml Update="SideNavigation.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="MVVM\Views\SettingsView.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="MVVM\Views\SingleAppView.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Resources\Styles\AppStyles.xaml">

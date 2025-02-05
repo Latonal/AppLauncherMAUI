@@ -36,7 +36,10 @@
 
     <Color x:Key="FlyoutBackgroundColor">#141414</Color>
 
+    <Color x:Key="TitleBarBackgroundColor">#444</Color>
+    <Color x:Key="TitleBarForegroundColor">#FFF</Color>
 
+    
     <Color x:Key="Primary">#512BD4</Color>
     <Color x:Key="PrimaryDark">#ac99ea</Color>
     <Color x:Key="PrimaryDarkText">#242424</Color>

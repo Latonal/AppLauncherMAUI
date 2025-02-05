@@ -1,7 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="AppLauncherMAUI.MVVM.Views.MainPage">
+             x:Class="AppLauncherMAUI.MVVM.Views.HomeView"
+             xmlns:local="clr-namespace:AppLauncherMAUI.MVVM.ViewModels"
+             x:DataType="local:HomeViewModel">
 
     <ScrollView>
         <VerticalStackLayout
@@ -24,13 +26,22 @@
                 SemanticProperties.HeadingLevel="Level2"
                 SemanticProperties.Description="Welcome to dot net Multi platform App U I" />
 
-            <Button
-                x:Name="CounterBtn"
-                Text="Click me" 
-                SemanticProperties.Hint="Counts the number of times you click"
-                Clicked="OnCounterClicked"
-                HorizontalOptions="Fill" />
+            <StackLayout>
+                <StackLayout Orientation="Horizontal">
+                    <Label>Clicks:</Label>
+                    <Label Text="{Binding ClicksReceived}"/>
+                </StackLayout>
+            </StackLayout>
+            <Button Text="Click here" Command="{Binding ActionClickedCommand}" />
+
+            <Label
+                Text="e"
+                TextColor="Red"/>
+
+            <Button Text="Go to app"
+                    Clicked="GoToSingleAppView"
+                    CommandParameter="16"/>
         </VerticalStackLayout>
     </ScrollView>
 
-</ContentPage>
+</ContentView>

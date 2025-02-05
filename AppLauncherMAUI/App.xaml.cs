@@ -1,4 +1,5 @@
 ﻿using AppLauncherMAUI.MVVM.Views;
+using AppLauncherMAUI.Utilities;
 
 namespace AppLauncherMAUI
 {
@@ -8,21 +9,20 @@ namespace AppLauncherMAUI
         {
             InitializeComponent();
 
-            RequestedThemeChanged += (s, a) => SetTheme();
+            RequestedThemeChanged += (s, a) => ThemeHandler.SetSavedTheme();
+            ThemeHandler.SetSavedTheme();
 
-            SetTheme();
+            // Debug
+            Microsoft.Maui.Controls.Application.Current.Dispatcher.Dispatch(() =>
+            {
+                AppDomain.CurrentDomain.UnhandledException += (sender, e) =>
+                    Console.WriteLine($"Unhandled Exception: {e.ExceptionObject}");
+            });
         }
 
         protected override Window CreateWindow(IActivationState? activationState)
         {
-            return new Window(new AppShell());
-        }
-
-        private static void SetTheme()
-        {
-            int savedTheme = Preferences.Get("AppTheme", 0);
-
-            SettingsPage.ChangeTheme(savedTheme);
+            return new Window(new SideNavigation());
         }
     }
 }

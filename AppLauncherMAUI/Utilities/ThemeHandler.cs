@@ -1,27 +1,28 @@
-using AppLauncherMAUI.Resources.Styles;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using AppLauncherMAUI.Resources.Styles;
 
-namespace AppLauncherMAUI.MVVM.Views;
+namespace AppLauncherMAUI.Utilities;
 
-public partial class SettingsPage : ContentPage
+static class ThemeHandler
 {
-    public SettingsPage()
+    public static void SetSavedTheme()
     {
-        InitializeComponent();
+        int savedTheme = Preferences.Get("AppTheme", 0);
 
-        ThemePicker.SelectedIndex = Preferences.Get("AppTheme", 0);
-    }
+        Debug.WriteLine("Set theme: " + savedTheme);
 
-    private void OnThemePickerChanged(object sender, EventArgs e)
-    {
-        if (ThemePicker.SelectedIndex == -1)
-            return;
-
-        ChangeTheme(ThemePicker.SelectedIndex);
+        ChangeTheme(savedTheme);
     }
 
     public static void ChangeTheme(int themeCode)
     {
+        Debug.WriteLine("About to change theme for: " + themeCode);
+
         if (Application.Current is not null)
         {
             ICollection<ResourceDictionary> mergedDictionaries = Application.Current.Resources.MergedDictionaries;

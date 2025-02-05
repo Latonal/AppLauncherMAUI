@@ -1,8 +1,8 @@
 namespace AppLauncherMAUI.MVVM.Views;
 
-public partial class ExamplePage : ContentPage
+public partial class ExampleView : ContentView
 {
-	public ExamplePage()
+	public ExampleView()
 	{
 		InitializeComponent();
 	}

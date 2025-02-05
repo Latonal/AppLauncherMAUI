@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="AppLauncherMAUI.Resources.Styles.AppStyles">
 
-    <Style TargetType="ActivityIndicator">
+    <!-- <Style TargetType="ActivityIndicator">
         <Setter Property="Color" Value="{StaticResource ActivityIndicator}" />
     </Style>
 
@@ -408,6 +408,7 @@
         <Setter Property="Shell.TabBarForegroundColor" Value="{StaticResource ShellTabTitleColor}" />
         <Setter Property="Shell.TabBarTitleColor" Value="{StaticResource ShellTabTitleColor}" />
         <Setter Property="Shell.TabBarUnselectedColor" Value="{StaticResource RefreshTextColor}" />
+
         <Setter Property="Shell.FlyoutBackground" Value="{StaticResource FlyoutBackgroundColor}" />
     </Style>
 
@@ -425,29 +426,93 @@
     </Style>
 
     <Style TargetType="TitleBar">
-        <Setter Property="BackgroundColor" Value="#000" />
-        <Setter Property="ForegroundColor" Value="#000" />
+        <Setter Property="VisualStateManager.VisualStateGroups">
+            <VisualStateGroupList>
+                <VisualStateGroup x:Name="TitleActiveStates">
+                    <VisualState x:Name="TitleBarTitleActive">
+                        <VisualState.Setters>
+                            <Setter Property="BackgroundColor" Value="{StaticResource TitleBarBackgroundColor}" />
+                            <Setter Property="ForegroundColor" Value="{StaticResource TitleBarForegroundColor}" />
+                        </VisualState.Setters>
+                    </VisualState>
+                    <VisualState x:Name="TitleBarTitleInactive">
+                        <VisualState.Setters>
+                            <Setter Property="BackgroundColor" Value="{StaticResource FlyoutBackgroundColor}" />
+                            <Setter Property="ForegroundColor" Value="{StaticResource Magenta}" />
+                        </VisualState.Setters>
+                    </VisualState>
+                </VisualStateGroup>
+            </VisualStateGroupList>
+        </Setter>
+        <Setter Property="TrailingContent" Value="{StaticResource Magenta}" />
+    </Style> -->
+
+    <!-- <Style TargetType="TitleBar">
+        <Setter Property="BackgroundColor" Value="{StaticResource TitleBarBackgroundColor}" />
+        <Setter Property="ForegroundColor" Value="{StaticResource TitleBarForegroundColor}" />
+    </Style> -->
+
+    <!-- <Style TargetType="Shell" ApplyToDerivedTypes="True">
+        <Setter Property="Shell.FlyoutBackground" Value="Magenta" />
     </Style>
 
-    <Style TargetType="Label"
-       Class="FlyoutItemLabelStyle">
-        <Setter Property="TextColor"
-            Value="Black" />
-        <Setter Property="HeightRequest"
-            Value="100" />
+    <Style x:Key="DomesticShell" TargetType="Element">
+        <Setter Property="Shell.BackgroundColor" Value="Red" />
+        <Setter Property="Shell.ForegroundColor" Value="Blue" />
     </Style>
 
-    <Style TargetType="Image"
-       Class="FlyoutItemImageStyle">
-        <Setter Property="Aspect"
-            Value="Fill" />
+    <Style TargetType="Label" x:Key="FlyoutText">
+        <Setter Property="TextColor" Value="Black" />
+        <Setter Property="FontSize" Value="32" />
+        <Setter Property="HorizontalOptions" Value="Center" />
+        <Setter Property="HorizontalTextAlignment" Value="Center" />
     </Style>
 
-    <Style TargetType="Layout"
-       Class="FlyoutItemLayoutStyle"
-       ApplyToDerivedTypes="True">
-        <Setter Property="BackgroundColor"
-            Value="Teal" />
+    <Style TargetType="Label" Class="FlyoutItemLabelStyle">
+        <Setter Property="TextColor" Value="Blue" />
+        <Setter Property="FontSize" Value="20" />
+        <Setter Property="HeightRequest" Value="100" />
+    </Style>
+
+    <Style TargetType="Label">
+        <Setter Property="TextColor" Value="{StaticResource TextColor}" />
+        <Setter Property="BackgroundColor" Value="Transparent" />
+        <Setter Property="FontFamily" Value="OpenSansRegular" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="VisualStateManager.VisualStateGroups">
+            <VisualStateGroupList>
+                <VisualStateGroup x:Name="CommonStates">
+                    <VisualState x:Name="Normal" />
+                    <VisualState x:Name="Disabled">
+                        <VisualState.Setters>
+                            <Setter Property="TextColor" Value="{StaticResource DefaultDisabledColor}" />
+                        </VisualState.Setters>
+                    </VisualState>
+                </VisualStateGroup>
+            </VisualStateGroupList>
+        </Setter>
+    </Style> -->
+
+    <Style TargetType="Span">
+        <Setter Property="TextColor" Value="{StaticResource TextColor}" />
+    </Style>
+
+    <Style TargetType="Label" x:Key="Headline">
+        <Setter Property="TextColor" Value="{StaticResource LabelHeadlineTextColor}" />
+        <Setter Property="FontSize" Value="32" />
+        <Setter Property="HorizontalOptions" Value="Center" />
+        <Setter Property="HorizontalTextAlignment" Value="Center" />
+    </Style>
+
+    <Style TargetType="Label" x:Key="SubHeadline">
+        <Setter Property="TextColor" Value="{StaticResource LabelHeadlineTextColor}" />
+        <Setter Property="FontSize" Value="24" />
+        <Setter Property="HorizontalOptions" Value="Center" />
+        <Setter Property="HorizontalTextAlignment" Value="Center" />
+    </Style>
+
+    <Style TargetType="Label">
+        <Setter Property="TextColor" Value="{StaticResource TextColor}" />
     </Style>
 
 </ResourceDictionary>
