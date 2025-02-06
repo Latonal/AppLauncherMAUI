@@ -7,6 +7,12 @@
     <!-- Note: For Android please see also Platforms\Android\Resources\values\colors.xml -->
     
     <Color x:Key="TextColor">#FFF</Color>
+    <Color x:Key="MainBackgroundColor">#0D0E11</Color>
+    <Color x:Key="SecondBackgroundColor">#1C1B1F</Color>
+
+
+
+
     <Color x:Key="ToolTextColor">#FFF</Color>
     <Color x:Key="LabelHeadlineTextColor">#FFF</Color>
     <Color x:Key="RefreshTextColor">#C8C8C8</Color>

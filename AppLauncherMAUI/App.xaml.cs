@@ -13,11 +13,8 @@ namespace AppLauncherMAUI
             ThemeHandler.SetSavedTheme();
 
             // Debug
-            Microsoft.Maui.Controls.Application.Current.Dispatcher.Dispatch(() =>
-            {
-                AppDomain.CurrentDomain.UnhandledException += (sender, e) =>
-                    Console.WriteLine($"Unhandled Exception: {e.ExceptionObject}");
-            });
+            AppDomain.CurrentDomain.UnhandledException += (sender, e) =>
+                Console.WriteLine($"Unhandled Exception: {e.ExceptionObject}");
         }
 
         protected override Window CreateWindow(IActivationState? activationState)

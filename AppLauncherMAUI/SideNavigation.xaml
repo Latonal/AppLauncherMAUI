@@ -4,18 +4,23 @@
              xmlns:local="clr-namespace:AppLauncherMAUI.MVVM.Views"
              x:Class="AppLauncherMAUI.MVVM.Views.SideNavigation">
     <Grid ColumnDefinitions="250, *">
-        <StackLayout Padding="10">
-            <Label Text="Navigation" 
+        <StackLayout Style="{DynamicResource SideNavigation}">
+            <Label Text="Name of application" 
                    FontSize="20" 
                    FontAttributes="Bold"
-                   HorizontalTextAlignment="Center"/>
+                   HorizontalTextAlignment="Center"
+                   Style="{StaticResource SideNavigationTitle}"/>
             <Button Text="MainPage"
-                    Clicked="GoToHomeView"/>
+                    Clicked="GoToHomeView"
+                    Style="{DynamicResource SideNavigationButton}"/>
             <Button Text="Settings"
-                    Clicked="GoToSettingsView"/>
+                    Clicked="GoToSettingsView"
+                    Style="{DynamicResource SideNavigationButton}"/>
         </StackLayout>
 
-        <ContentView x:Name="PageContainer" Grid.Column="1"/>
+        <ContentView x:Name="PageContainer"
+                     Grid.Column="1"
+                     Style="{DynamicResource View}"/>
 
     </Grid>
 </ContentPage>

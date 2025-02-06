@@ -14,15 +14,11 @@ static class ThemeHandler
     {
         int savedTheme = Preferences.Get("AppTheme", 0);
 
-        Debug.WriteLine("Set theme: " + savedTheme);
-
         ChangeTheme(savedTheme);
     }
 
     public static void ChangeTheme(int themeCode)
     {
-        Debug.WriteLine("About to change theme for: " + themeCode);
-
         if (Application.Current is not null)
         {
             ICollection<ResourceDictionary> mergedDictionaries = Application.Current.Resources.MergedDictionaries;
