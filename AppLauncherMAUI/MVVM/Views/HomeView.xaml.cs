@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using AppLauncherMAUI.MVVM.ViewModels;
+using AppLauncherMAUI.Utilities;
 
 namespace AppLauncherMAUI.MVVM.Views;
 
@@ -13,6 +14,10 @@ public partial class HomeView : ContentView
         InitializeComponent();
 
         BindingContext = new HomeViewModel();
+
+        //ViewManager vm = ViewManager.Instance;
+        //vm.ChangeActiveView(new SingleAppView(2));
+
         //SetMessage(number);
     }
 

@@ -1,10 +1,4 @@
 ﻿using AppLauncherMAUI.Utilities;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace AppLauncherMAUI.MVVM.ViewModels;
@@ -18,21 +12,11 @@ internal partial class HomeViewModel : ExtendedBindableObject
 
     public HomeViewModel()
     {
-        //Message = "Test";
-        //ChangeMessageCommand = new Command(ChangeMessage);
-        ActionClickedCommand = new Command(OnActionClicked);
+        ActionClickedCommand ??= new Command(OnActionClicked);
     }
 
     private void OnActionClicked(object obj)
     {
         ClicksReceived++;
     }
-
-    //private void ChangeMessage()
-    //{
-    //    Message = "eeee";
-    //}
-
-    //public ICommand ChangeMessageCommand { get; }
-
 }

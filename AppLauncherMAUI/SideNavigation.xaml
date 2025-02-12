@@ -3,24 +3,26 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:AppLauncherMAUI.MVVM.Views"
              x:Class="AppLauncherMAUI.MVVM.Views.SideNavigation">
-    <Grid ColumnDefinitions="250, *">
-        <StackLayout Style="{DynamicResource SideNavigation}">
-            <Label Text="Name of application" 
+    <ContentPage.Content>
+        <Grid ColumnDefinitions="250, *">
+            <StackLayout Style="{DynamicResource SideNavigation}">
+                <Label Text="Name of application" 
                    FontSize="20" 
                    FontAttributes="Bold"
                    HorizontalTextAlignment="Center"
                    Style="{StaticResource SideNavigationTitle}"/>
-            <Button Text="MainPage"
+                <Button Text="MainPage"
                     Clicked="GoToHomeView"
                     Style="{DynamicResource SideNavigationButton}"/>
-            <Button Text="Settings"
+                <Button Text="Settings"
                     Clicked="GoToSettingsView"
                     Style="{DynamicResource SideNavigationButton}"/>
-        </StackLayout>
 
-        <ContentView x:Name="PageContainer"
+            </StackLayout>
+
+            <ContentView x:Name="PageContainer"
                      Grid.Column="1"
                      Style="{DynamicResource View}"/>
-
-    </Grid>
+        </Grid>
+    </ContentPage.Content>
 </ContentPage>

@@ -3,12 +3,14 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="AppLauncherMAUI.MVVM.Views.HomeView"
              xmlns:local="clr-namespace:AppLauncherMAUI.MVVM.ViewModels"
+             xmlns:controls="clr-namespace:AppLauncherMAUI.MVVM.Views.Controls"
              x:DataType="local:HomeViewModel">
 
     <ScrollView>
         <VerticalStackLayout
             Padding="30,0"
             Spacing="25">
+
             <Image
                 Source="dotnet_bot.png"
                 HeightRequest="185"
@@ -26,6 +28,16 @@
                 SemanticProperties.HeadingLevel="Level2"
                 SemanticProperties.Description="Welcome to dot net Multi platform App U I" />
 
+            <HorizontalStackLayout>
+                <controls:AppCard AppCardText="Another test"
+                                  ControlTemplate="{StaticResource AppCardControlTemplate}"
+                                  AppCardId="1"/>
+                <controls:AppCard AppCardText="Another test"
+                                  ControlTemplate="{StaticResource AppCardControlTemplate}"
+                                  AppCardId="2"/>
+            </HorizontalStackLayout>
+
+
             <StackLayout>
                 <StackLayout Orientation="Horizontal">
                     <Label>Clicks:</Label>
@@ -41,6 +53,7 @@
             <Button Text="Go to app"
                     Clicked="GoToSingleAppView"
                     CommandParameter="16"/>
+
         </VerticalStackLayout>
     </ScrollView>
 

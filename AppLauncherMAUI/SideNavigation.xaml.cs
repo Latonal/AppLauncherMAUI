@@ -1,3 +1,7 @@
+using AppLauncherMAUI.Utilities;
+using Microsoft.Maui.Handlers;
+using System.Diagnostics;
+
 namespace AppLauncherMAUI.MVVM.Views;
 
 public partial class SideNavigation : ContentPage
@@ -5,35 +9,18 @@ public partial class SideNavigation : ContentPage
     public SideNavigation()
     {
         InitializeComponent();
+        _ = new ViewManager(PageContainer);
 
-        //PageContainer.Content = new MainPage();
-        //LoadPage(new MainPage());
-        GoToHomeView(null, null);
+        ViewManager.ChangeActiveView(new HomeView());
     }
 
-    public void LoadPage(View view)
+    private void GoToHomeView(object sender, EventArgs e)
     {
-        if (view == null) return;
-
-        if (PageContainer.Content is View oldView)
-        {
-            oldView.BindingContext = null;
-            oldView.Handler?.DisconnectHandler();
-        }
-
-        PageContainer.Content = view;
-
-        GC.Collect();
-        GC.WaitForPendingFinalizers();
-    }
-
-    private void GoToHomeView(object? sender, EventArgs? e)
-    {
-        LoadPage(new HomeView());
+        ViewManager.ChangeActiveView(new HomeView());
     }
 
     private void GoToSettingsView(object sender, EventArgs e)
     {
-        LoadPage(new SettingsView());
+        ViewManager.ChangeActiveView(new SettingsView());
     }
 }
