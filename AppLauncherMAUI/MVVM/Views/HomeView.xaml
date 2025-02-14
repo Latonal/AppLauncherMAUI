@@ -28,15 +28,14 @@
                 SemanticProperties.HeadingLevel="Level2"
                 SemanticProperties.Description="Welcome to dot net Multi platform App U I" />
 
-            <HorizontalStackLayout>
-                <controls:AppCard AppCardText="Another test"
-                                  ControlTemplate="{StaticResource AppCardControlTemplate}"
-                                  AppCardId="1"/>
-                <controls:AppCard AppCardText="Another test"
-                                  ControlTemplate="{StaticResource AppCardControlTemplate}"
-                                  AppCardId="2"/>
-            </HorizontalStackLayout>
-
+            <CollectionView ItemsSource="{Binding AppCardList}"
+                            ItemsLayout="HorizontalList">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="controls:AppCard">
+                        <controls:AppCard AppCardId="{Binding AppCardId}" />
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
 
             <StackLayout>
                 <StackLayout Orientation="Horizontal">
@@ -45,14 +44,6 @@
                 </StackLayout>
             </StackLayout>
             <Button Text="Click here" Command="{Binding ActionClickedCommand}" />
-
-            <Label
-                Text="e"
-                TextColor="Red"/>
-
-            <Button Text="Go to app"
-                    Clicked="GoToSingleAppView"
-                    CommandParameter="16"/>
 
         </VerticalStackLayout>
     </ScrollView>

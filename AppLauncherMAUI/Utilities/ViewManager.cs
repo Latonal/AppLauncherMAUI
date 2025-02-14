@@ -30,8 +30,6 @@ public sealed class ViewManager
             lock (padlock)
             {
                 instance ??= new ViewManager();
-                Debug.WriteLine("access instance through padlock: " + instance.ToString());
-                Debug.WriteLine("Current contentview: " + ContentView.ToString());
                 return instance;
             }
         }

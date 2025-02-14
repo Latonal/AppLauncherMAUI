@@ -63,10 +63,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="MVVM\Models\" />
-	</ItemGroup>
-
-	<ItemGroup>
 	  <Compile Update="MVVM\Views\HomeView.xaml.cs">
 	    <DependentUpon>HomeView.xaml</DependentUpon>
 	  </Compile>
@@ -76,6 +72,12 @@
 	  <Compile Update="MVVM\Views\SettingsView.xaml.cs">
 	    <DependentUpon>SettingsView.xaml</DependentUpon>
 	  </Compile>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <MauiAsset Update="Resources\Raw\apps_data.json">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </MauiAsset>
 	</ItemGroup>
 
 	<ItemGroup>

@@ -4,27 +4,25 @@
              x:Class="AppLauncherMAUI.MVVM.Views.Controls.AppCard"
              xmlns:local="clr-namespace:AppLauncherMAUI.MVVM.Views.Controls"
              x:DataType="local:AppCard">
-    <ContentView.Resources>
-        <ControlTemplate x:Key="AppCardControlTemplate">
-            <Border WidthRequest="220"
-                    HeightRequest="300"
-                    BackgroundColor="AliceBlue"
-                    StrokeShape="RoundRectangle 7,7,7,7">
-                <Border.GestureRecognizers>
-                    <TapGestureRecognizer Tapped="OnBorderTapped"
-                                          CommandParameter="{TemplateBinding AppCardId}"/>
-                </Border.GestureRecognizers>
-                <StackLayout>
-                    <Label Text="{TemplateBinding AppCardText}"
-                           VerticalOptions="Center"
-                           HorizontalOptions="Center"
-                           TextColor="Green"/>
-                    <Label Text="{TemplateBinding AppCardId}"
-                           VerticalOptions="Center"
-                           HorizontalOptions="Center"
-                           TextColor="Green"/>
-                </StackLayout>
-            </Border>
-        </ControlTemplate>
-    </ContentView.Resources>
+    <ContentView.Content>
+        <Border WidthRequest="220"
+                HeightRequest="300"
+                BackgroundColor="AliceBlue"
+                StrokeShape="RoundRectangle 7,7,7,7">
+            <Border.GestureRecognizers>
+                <TapGestureRecognizer Tapped="OnBorderTapped"
+                                      CommandParameter="{Binding AppCardId}"/>
+            </Border.GestureRecognizers>
+            <StackLayout>
+                <Label Text="{Binding AppCardText}"
+                       VerticalOptions="Center"
+                       HorizontalOptions="Center"
+                       TextColor="Green"/>
+                <Label Text="{Binding AppCardId}"
+                       VerticalOptions="Center"
+                       HorizontalOptions="Center"
+                       TextColor="Green"/>
+            </StackLayout>
+        </Border>
+    </ContentView.Content>
 </ContentView>
