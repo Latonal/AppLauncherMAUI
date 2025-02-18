@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="AppLauncherMAUI.MVVM.Views.Controls.AppCard"
+             x:Class="AppLauncherMAUI.MVVM.Views.Controls.AppCardView"
              xmlns:local="clr-namespace:AppLauncherMAUI.MVVM.Views.Controls"
-             x:DataType="local:AppCard">
+             x:DataType="local:AppCardView">
     <ContentView.Content>
         <Border WidthRequest="220"
                 HeightRequest="300"
@@ -12,6 +12,8 @@
             <Border.GestureRecognizers>
                 <TapGestureRecognizer Tapped="OnBorderTapped"
                                       CommandParameter="{Binding AppCardId}"/>
+                <!--<PointerGestureRecognizer PointerEntered="OnPointerEntered"
+                                          PointerExited="OnPointerExited" />-->
             </Border.GestureRecognizers>
             <StackLayout>
                 <Label Text="{Binding AppCardText}"

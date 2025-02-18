@@ -2,10 +2,12 @@ using AppLauncherMAUI.Utilities;
 
 namespace AppLauncherMAUI.MVVM.Views.Controls;
 
-public partial class AppCard : ContentView
+public partial class AppCardView : ContentView
 {
-    public static readonly BindableProperty AppCardTextProperty = BindableProperty.Create(nameof(AppCardText), typeof(string), typeof(AppCard), string.Empty);
-    public static readonly BindableProperty AppCardIdProperty = BindableProperty.Create(nameof(AppCardId), typeof(int), typeof(AppCard), 0);
+    public static readonly BindableProperty AppCardTextProperty = BindableProperty.Create(nameof(AppCardText), typeof(string), typeof(AppCardView), string.Empty);
+    public static readonly BindableProperty AppCardIdProperty = BindableProperty.Create(nameof(AppCardId), typeof(int), typeof(AppCardView), 0);
+
+
 
     public string AppCardText
     {
@@ -19,7 +21,7 @@ public partial class AppCard : ContentView
         set => SetValue(AppCardIdProperty, value);
     }
 
-    public AppCard()
+    public AppCardView()
     {
         InitializeComponent();
     }
@@ -28,4 +30,14 @@ public partial class AppCard : ContentView
     {
         ViewManager.ChangeActiveView(new SingleAppView(AppCardId));
     }
+
+    //public void OnPointerEntered(object sender, System.EventArgs e)
+    //{
+
+    //}
+
+    //public void OnPointerExited(object sender, System.EventArgs e)
+    //{
+
+    //}
 }

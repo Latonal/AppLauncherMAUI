@@ -1,10 +1,14 @@
 [
   {
     "Id": 1,
-    "Name": "App 1 !!! yaaaaay"
+    "Name": "App 1 !!! yaaaaay",
+    "Text": "some text about the first app",
+    "SomeRandomNumber": 123456
   },
   {
     "Id": 3,
-    "Name": "App 2!!!"
+    "Name": "App 2!!!",
+    "Text": "not some text about the second app...... with id 3 btw",
+    "SomeRandomNumber": 789
   }
 ]

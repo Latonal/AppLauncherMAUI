@@ -12,7 +12,7 @@ internal partial class HomeViewModel : ExtendedBindableObject
     private int _clicksReceived = 0;
     public int ClicksReceived { get { return _clicksReceived; } set { _clicksReceived = value; RaisePropertyChanged(() => ClicksReceived); } }
     public ICommand ActionClickedCommand { get; set; }
-    public ObservableCollection<AppCard> AppCardList { get; set; }
+    public ObservableCollection<AppCardView> AppCardList { get; set; }
 
 
     public HomeViewModel()
@@ -29,12 +29,12 @@ internal partial class HomeViewModel : ExtendedBindableObject
 
     private async void GenerateAppsCards()
     {
-        List<AppDataModel> adms = await JsonFileManager.ReadDataAsync<List<AppDataModel>>(AppPaths.AppsDataJsonName);
+        List<MiniAppDataModel> adms = await JsonFileManager.ReadDataAsync<List<MiniAppDataModel>>(AppPaths.AppsDataJsonName);
         if (adms == null) return;
         AppCardList.Clear();
-        foreach (AppDataModel adm in adms)
+        foreach (MiniAppDataModel adm in adms)
         {
-            AppCardList.Add(new AppCard
+            AppCardList.Add(new AppCardView
             {
                 AppCardId = adm.Id,
                 AppCardText = adm.Name ?? "",

@@ -41,6 +41,8 @@ public sealed class ViewManager
 
         if (ContentView.Content is View oldView)
         {
+            if (newView.ToString() == oldView.ToString()) return;
+
             oldView.BindingContext = null;
             oldView.Handler?.DisconnectHandler();
         }
