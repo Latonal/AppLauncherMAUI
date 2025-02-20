@@ -5,15 +5,24 @@
              xmlns:local="clr-namespace:AppLauncherMAUI.MVVM.ViewModels"
              x:DataType="local:SingleAppViewModel">
     <VerticalStackLayout>
+        <Border BackgroundColor="Gray" 
+                HeightRequest="200"
+                SizeChanged="OnBannerSizeChanged">
+            <Image Source="{Binding BannerFullUrl}" Aspect="AspectFill"/>
+        </Border>
+        
         <Label 
             Text="Welcome to .NET MAUI!"
             VerticalOptions="Center" 
             HorizontalOptions="Center" />
 
-        <Label x:Name="TextAppId"
-               TextColor="Red"/>
-
         <Label Text="{Binding AppId}"
                TextColor="Green"/>
+
+        <Label Text="{Binding Name}"
+               TextColor="Red"/>
+
+        <Label Text="{Binding Text}"
+               TextColor="Red"/>
     </VerticalStackLayout>
 </ContentView>
