@@ -37,7 +37,7 @@ internal partial class HomeViewModel : ExtendedBindableObject
             AppCardList.Add(new AppCardView
             {
                 AppCardId = adm.Id,
-                AppCardName = adm.Name ?? "",
+                AppCardMiniBanner = adm.Banners?.Mini ?? "",
             });
         }
     }

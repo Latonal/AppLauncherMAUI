@@ -4,15 +4,15 @@ namespace AppLauncherMAUI.MVVM.Views.Controls;
 
 public partial class AppCardView : ContentView
 {
-    public static readonly BindableProperty AppCardNameProperty = BindableProperty.Create(nameof(AppCardName), typeof(string), typeof(AppCardView), string.Empty);
+    public static readonly BindableProperty AppCardMiniBannerProperty = BindableProperty.Create(nameof(AppCardMiniBanner), typeof(string), typeof(AppCardView), string.Empty);
     public static readonly BindableProperty AppCardIdProperty = BindableProperty.Create(nameof(AppCardId), typeof(int), typeof(AppCardView), 0);
 
 
 
-    public string AppCardName
+    public string AppCardMiniBanner
     {
-        get => (string)GetValue(AppCardNameProperty);
-        set => SetValue(AppCardNameProperty, value);
+        get => (string)GetValue(AppCardMiniBannerProperty);
+        set => SetValue(AppCardMiniBannerProperty, value);
     }
 
     public int AppCardId
@@ -31,13 +31,13 @@ public partial class AppCardView : ContentView
         ViewManager.ChangeActiveView(new SingleAppView(AppCardId));
     }
 
-    //public void OnPointerEntered(object sender, System.EventArgs e)
-    //{
+    public async void OnPointerEntered(object sender, System.EventArgs e)
+    {
+        await image.ScaleTo(1.1, 250);
+    }
 
-    //}
-
-    //public void OnPointerExited(object sender, System.EventArgs e)
-    //{
-
-    //}
+    public async void OnPointerExited(object sender, System.EventArgs e)
+    {
+        await image.ScaleTo(1, 250);
+    }
 }

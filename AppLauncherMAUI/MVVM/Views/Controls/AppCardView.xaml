@@ -5,26 +5,29 @@
              xmlns:local="clr-namespace:AppLauncherMAUI.MVVM.Views.Controls"
              x:DataType="local:AppCardView">
     <ContentView.Content>
-        <Border WidthRequest="220"
-                HeightRequest="300"
-                BackgroundColor="AliceBlue"
-                StrokeShape="RoundRectangle 7,7,7,7">
-            <Border.GestureRecognizers>
-                <TapGestureRecognizer Tapped="OnBorderTapped"
-                                      CommandParameter="{Binding AppCardId}"/>
-                <!--<PointerGestureRecognizer PointerEntered="OnPointerEntered"
-                                          PointerExited="OnPointerExited" />-->
-            </Border.GestureRecognizers>
-            <StackLayout>
-                <Label Text="{Binding AppCardName}"
-                       VerticalOptions="Center"
-                       HorizontalOptions="Center"
-                       TextColor="Green"/>
-                <Label Text="{Binding AppCardId}"
-                       VerticalOptions="Center"
-                       HorizontalOptions="Center"
-                       TextColor="Green"/>
-            </StackLayout>
-        </Border>
+        <Grid IsClippedToBounds="True">
+            <Border WidthRequest="220"
+                    HeightRequest="300"
+                    BackgroundColor="AliceBlue"
+                    StrokeShape="RoundRectangle 7,7,7,7"
+                    HorizontalOptions="Center"
+                    VerticalOptions="Center"
+                    x:Name="border">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnBorderTapped"
+                                          CommandParameter="{Binding AppCardId}"/>
+                    <PointerGestureRecognizer PointerEntered="OnPointerEntered"
+                                              PointerExited="OnPointerExited" />
+                </Border.GestureRecognizers>
+                <Grid>
+                    <Image Source="{Binding AppCardMiniBanner}"
+                           Aspect="AspectFill"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center"
+                           x:Name="image"
+                           SemanticProperties.Description=""/>
+                </Grid>
+            </Border>
+        </Grid>
     </ContentView.Content>
 </ContentView>
