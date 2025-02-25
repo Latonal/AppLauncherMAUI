@@ -4,4 +4,5 @@ public class MiniAppDataModel
 {
     public int Id { get; set; }
     public string? Name { get; set; }
+    public BannersModel? Banners { get; set; }
 }

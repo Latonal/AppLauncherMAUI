@@ -7,13 +7,17 @@ namespace AppLauncherMAUI.MVVM.ViewModels;
 
 internal partial class SingleAppViewModel : ExtendedBindableObject
 {
-    public int _appId = 0;
-    public int AppId {
-        get { return _appId; }
-        set { 
-            _appId = value; SetData(value);
-        }
-    }
+    private int _appId = 0;
+    public int AppId { get { return _appId; } set { _appId = value; SetData(value); } }
+
+    private string? _text;
+    public string? Text { get { return _text; } set { _text = value; RaisePropertyChanged(() => Text); } }
+
+    private string? _name;
+    public string? Name { get { return _name; } set { _name = value; RaisePropertyChanged(() => Name); } }
+
+    private string? _fullBanner;
+    public string? FullBanner { get { return _fullBanner; } set { _fullBanner = value; RaisePropertyChanged(() => FullBanner); } }
 
     public SingleAppViewModel(int appId)
 	{
@@ -23,13 +27,10 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
     private async void SetData(int id)
     {
         AppDataModel data = await GetData(id);
-        //Debug.WriteLine("should set Data");
-        //Debug.WriteLine(data.ToString());
-        //Debug.WriteLine(data.Id);
-        //Debug.WriteLine(data.Name);
-        //Debug.WriteLine(data.Text);
-        //Debug.WriteLine(data.SomeRandomNumber);
 
+        Name = data.Name;
+        Text = data.Text;
+        FullBanner = data.Banners?.Full;
     }
 
     private static async Task<AppDataModel> GetData(int id)

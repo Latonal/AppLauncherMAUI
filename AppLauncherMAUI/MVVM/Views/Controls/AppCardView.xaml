@@ -16,7 +16,7 @@
                                           PointerExited="OnPointerExited" />-->
             </Border.GestureRecognizers>
             <StackLayout>
-                <Label Text="{Binding AppCardText}"
+                <Label Text="{Binding AppCardName}"
                        VerticalOptions="Center"
                        HorizontalOptions="Center"
                        TextColor="Green"/>

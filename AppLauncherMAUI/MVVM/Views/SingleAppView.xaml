@@ -8,7 +8,7 @@
         <Border BackgroundColor="Gray" 
                 HeightRequest="200"
                 SizeChanged="OnBannerSizeChanged">
-            <Image Source="{Binding BannerFullUrl}" Aspect="AspectFill"/>
+            <Image Source="{Binding FullBanner}" Aspect="AspectFill"/>
         </Border>
         
         <Label 

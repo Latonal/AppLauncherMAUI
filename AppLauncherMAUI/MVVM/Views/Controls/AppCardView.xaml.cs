@@ -4,15 +4,15 @@ namespace AppLauncherMAUI.MVVM.Views.Controls;
 
 public partial class AppCardView : ContentView
 {
-    public static readonly BindableProperty AppCardTextProperty = BindableProperty.Create(nameof(AppCardText), typeof(string), typeof(AppCardView), string.Empty);
+    public static readonly BindableProperty AppCardNameProperty = BindableProperty.Create(nameof(AppCardName), typeof(string), typeof(AppCardView), string.Empty);
     public static readonly BindableProperty AppCardIdProperty = BindableProperty.Create(nameof(AppCardId), typeof(int), typeof(AppCardView), 0);
 
 
 
-    public string AppCardText
+    public string AppCardName
     {
-        get => (string)GetValue(AppCardTextProperty);
-        set => SetValue(AppCardTextProperty, value);
+        get => (string)GetValue(AppCardNameProperty);
+        set => SetValue(AppCardNameProperty, value);
     }
 
     public int AppCardId
