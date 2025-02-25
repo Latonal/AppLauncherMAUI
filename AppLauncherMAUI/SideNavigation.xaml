@@ -2,6 +2,7 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:AppLauncherMAUI.MVVM.Views"
+             xmlns:text="clr-namespace:AppLauncherMAUI.Resources.Languages"
              x:Class="AppLauncherMAUI.MVVM.Views.SideNavigation">
     <ContentPage.Content>
         <Grid ColumnDefinitions="250, *">
@@ -11,10 +12,10 @@
                    FontAttributes="Bold"
                    HorizontalTextAlignment="Center"
                    Style="{StaticResource SideNavigationTitle}"/>
-                <Button Text="MainPage"
+                <Button Text="{x:Static text:AppResources.ButtonHomePage}"
                     Clicked="GoToHomeView"
                     Style="{DynamicResource SideNavigationButton}"/>
-                <Button Text="Settings"
+                <Button Text="{x:Static text:AppResources.ButtonSettingsPage}"
                     Clicked="GoToSettingsView"
                     Style="{DynamicResource SideNavigationButton}"/>
 
