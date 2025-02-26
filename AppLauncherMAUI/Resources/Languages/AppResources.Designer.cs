@@ -59,7 +59,18 @@ namespace AppLauncherMAUI.Resources.Languages {
                 resourceCulture = value;
             }
         }
-        
+
+        /// <summary>
+        ///   Looks up a localized string similar to Settings.
+        /// </summary>
+        internal static string AppCardClickHint
+        {
+            get
+            {
+                return ResourceManager.GetString("AppCardClickHint", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to Applications.
         /// </summary>

@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="AppLauncherMAUI.MVVM.Views.Controls.AppCardView"
              xmlns:local="clr-namespace:AppLauncherMAUI.MVVM.Views.Controls"
+             xmlns:text="clr-namespace:AppLauncherMAUI.Resources.Languages"
              x:DataType="local:AppCardView">
     <ContentView.Content>
         <Grid IsClippedToBounds="True">
@@ -12,6 +13,7 @@
                     StrokeShape="RoundRectangle 7,7,7,7"
                     HorizontalOptions="Center"
                     VerticalOptions="Center"
+                    SemanticProperties.Hint="{x:Static text:AppResources.AppCardClickHint}"
                     x:Name="border">
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Tapped="OnBorderTapped"

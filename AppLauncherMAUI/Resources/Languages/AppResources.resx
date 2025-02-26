@@ -117,6 +117,10 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="AppCardClickHint" xml:space="preserve">
+    <value>Click to access a detailed view of the selected application.</value>
+    <comment>A sementic property to describe that the card can be clicked to get access to the related SingleAppView</comment>
+  </data>
   <data name="ButtonHomePage" xml:space="preserve">
     <value>Applications</value>
     <comment>The name of the button to get to the HomeView</comment>

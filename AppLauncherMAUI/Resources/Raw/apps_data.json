@@ -2,19 +2,41 @@
   {
     "Id": 1,
     "Name": "App 1 !!! yaaaaay",
-    "Text": "some text about the first app",
+    "Text": {
+      "Fr": "un peu de texte pour décrire l'app",
+      "En": "some text about the first app"
+    },
     "Banners": {
       "Mini": "",
-      "Full": "urltoimg"
+      "MiniDescription": {
+        "Fr": "Une description de l'application sélectionnée suivie d'une description de l'image.",
+        "En": "A description of the application followed by the description of the Mini picture."
+      },
+      "Full": "urltoimg",
+      "FullDescription": {
+        "Fr": "Description de l'image complète",
+        "En": "A description of the full picture"
+      }
     }
   },
   {
     "Id": 3,
     "Name": "App 2!!!",
-    "Text": "not some text about the second app...... with id 3 btw",
+    "Text": {
+      "Fr": "2 un peu de texte pour décrire l'app",
+      "En": "2 some text about the first app"
+    },
     "Banners": {
       "Mini": "dotnet_bot.png",
-      "Full": "dotnet_bot.png"
+      "MiniDescription": {
+        "Fr": "2 Une description de l'application sélectionnée suivie d'une description de l'image.",
+        "En": "2 A description of the application followed by the description of the Mini picture."
+      },
+      "Full": "dotnet_bot.png",
+      "FullDescription": {
+        "Fr": "2 Description de l'image complète",
+        "En": "2 A description of the full picture"
+      }
     }
   }
 ]

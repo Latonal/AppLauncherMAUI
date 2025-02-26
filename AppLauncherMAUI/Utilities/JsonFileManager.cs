@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Reflection;
+using System.Text.Json;
 
 namespace AppLauncherMAUI.Utilities;
 
@@ -12,7 +13,7 @@ internal class JsonFileManager
 
     public static async Task<T> ReadSingleDataAsync<T>(string filename, string nameOfValueToMatchWith, object valueToMatchWith)
     {
-        var property = typeof(T).GetProperty(nameOfValueToMatchWith) ?? throw new Exception($"(JsonFileManager) Property {nameOfValueToMatchWith} could not be found on type {typeof(T).Name}.");
+        PropertyInfo property = typeof(T).GetProperty(nameOfValueToMatchWith) ?? throw new Exception($"(JsonFileManager) Property {nameOfValueToMatchWith} could not be found on type {typeof(T).Name}.");
         List<T> json = await ReadDataAsync<List<T>>(filename) ?? throw new Exception();
 
         foreach (T obj in json)

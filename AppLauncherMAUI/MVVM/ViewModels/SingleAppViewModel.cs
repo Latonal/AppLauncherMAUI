@@ -29,8 +29,11 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
         AppDataModel data = await GetData(id);
 
         Name = data.Name;
-        Text = data.Text;
         FullBanner = data.Banners?.Full;
+
+        LanguagesModel? texts = data.Text;
+        if (texts != null)
+            Text = Common.GetTranslatedJsonText(texts);
     }
 
     private static async Task<AppDataModel> GetData(int id)
