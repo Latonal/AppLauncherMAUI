@@ -18,6 +18,10 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
 
     private string? _fullBanner;
     public string? FullBanner { get { return _fullBanner; } set { _fullBanner = value; RaisePropertyChanged(() => FullBanner); } }
+    private string? _appCardFullDescription;
+    public string? AppCardFullDescription { get { return _appCardFullDescription; } set { _appCardFullDescription = value; RaisePropertyChanged(() => AppCardFullDescription); } }
+
+
 
     public SingleAppViewModel(int appId)
 	{
@@ -34,6 +38,10 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
         LanguagesModel? texts = data.Text;
         if (texts != null)
             Text = Common.GetTranslatedJsonText(texts);
+
+        LanguagesModel? desc = data.Banners?.FullDescription;
+        if (desc != null)
+            AppCardFullDescription = Common.GetTranslatedJsonText(desc);
     }
 
     private static async Task<AppDataModel> GetData(int id)

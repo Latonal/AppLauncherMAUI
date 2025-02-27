@@ -34,11 +34,15 @@ internal partial class HomeViewModel : ExtendedBindableObject
         AppCardList.Clear();
         foreach (MiniAppDataModel adm in adms)
         {
+            LanguagesModel? texts = adm.Banners?.MiniDescription;
+            string desc = (texts != null) ? Common.GetTranslatedJsonText(texts) : "";
+
             AppCardList.Add(new AppCardView
             {
                 AppCardId = adm.Id,
                 AppCardMiniBanner = adm.Banners?.Mini ?? "",
+                AppCardMiniDescription = desc
             });
-        }
     }
+}
 }

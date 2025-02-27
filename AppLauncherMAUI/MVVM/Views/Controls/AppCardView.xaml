@@ -14,7 +14,7 @@
                     HorizontalOptions="Center"
                     VerticalOptions="Center"
                     SemanticProperties.Hint="{x:Static text:AppResources.AppCardClickHint}"
-                    x:Name="border">
+                    x:Name="AppBorder">
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Tapped="OnBorderTapped"
                                           CommandParameter="{Binding AppCardId}"/>
@@ -26,8 +26,9 @@
                            Aspect="AspectFill"
                            HorizontalOptions="Center"
                            VerticalOptions="Center"
-                           x:Name="image"
-                           SemanticProperties.Description=""/>
+                           SemanticProperties.Description="{Binding AppCardMiniDescription}"
+                           x:Name="AppImage"/>
+                     
                 </Grid>
             </Border>
         </Grid>
