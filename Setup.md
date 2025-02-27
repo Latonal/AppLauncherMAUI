@@ -1,0 +1,5 @@
+Will be formated at a later date
+
+- Update variables in Config/AppConfig.cs to customize the application
+- Change content in Resources/Raw/apps_data.json to your apps to download/manage
+- For localization, add the supported languages in MVVM/Models/LanguagesModel.cs, in the enum in Utilities/Common.cs, in Resources/Raw/apps_data.json and in AppResources.resx (add a new AppResources file for a new language).
