@@ -6,7 +6,8 @@
              xmlns:text="clr-namespace:AppLauncherMAUI.Resources.Languages"
              x:DataType="local:AppCardView">
     <ContentView.Content>
-        <Grid IsClippedToBounds="True">
+        <Grid IsClippedToBounds="True"
+              Margin="0,20,0,0">
             <Border WidthRequest="220"
                     HeightRequest="300"
                     BackgroundColor="AliceBlue"

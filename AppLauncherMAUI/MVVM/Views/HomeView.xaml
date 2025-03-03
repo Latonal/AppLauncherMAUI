@@ -28,9 +28,10 @@
                 SemanticProperties.HeadingLevel="Level2"
                 SemanticProperties.Description="Welcome to dot net Multi platform App U I" />
 
-            <CollectionView ItemsSource="{Binding AppCardList}">
+            <CollectionView ItemsSource="{Binding AppCardList}"
+                            SizeChanged="OnCollectionViewSizeChanged">
                 <CollectionView.ItemsLayout>
-                    <LinearItemsLayout Orientation="Horizontal" ItemSpacing="10" />
+                    <GridItemsLayout Orientation="Vertical" Span="4" />
                 </CollectionView.ItemsLayout>
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="controls:AppCardView">

@@ -38,5 +38,65 @@
         "En": "2 A description of the full picture"
       }
     }
+  },
+  {
+    "Id": 4,
+    "Name": "App 2!!!",
+    "Text": {
+      "Fr": "2 un peu de texte pour décrire l'app",
+      "En": "2 some text about the first app"
+    },
+    "Banners": {
+      "Mini": "dotnet_bot.png",
+      "MiniDescription": {
+        "Fr": "2 Une description de l'application sélectionnée suivie d'une description de l'image.",
+        "En": "2 A description of the application followed by the description of the Mini picture."
+      },
+      "Full": "dotnet_bot.png",
+      "FullDescription": {
+        "Fr": "2 Description de l'image complète",
+        "En": "2 A description of the full picture"
+      }
+    }
+  },
+  {
+    "Id": 5,
+    "Name": "App 2!!!",
+    "Text": {
+      "Fr": "2 un peu de texte pour décrire l'app",
+      "En": "2 some text about the first app"
+    },
+    "Banners": {
+      "Mini": "dotnet_bot.png",
+      "MiniDescription": {
+        "Fr": "2 Une description de l'application sélectionnée suivie d'une description de l'image.",
+        "En": "2 A description of the application followed by the description of the Mini picture."
+      },
+      "Full": "dotnet_bot.png",
+      "FullDescription": {
+        "Fr": "2 Description de l'image complète",
+        "En": "2 A description of the full picture"
+      }
+    }
+  },
+  {
+    "Id": 6,
+    "Name": "App 2!!!",
+    "Text": {
+      "Fr": "2 un peu de texte pour décrire l'app",
+      "En": "2 some text about the first app"
+    },
+    "Banners": {
+      "Mini": "dotnet_bot.png",
+      "MiniDescription": {
+        "Fr": "2 Une description de l'application sélectionnée suivie d'une description de l'image.",
+        "En": "2 A description of the application followed by the description of the Mini picture."
+      },
+      "Full": "dotnet_bot.png",
+      "FullDescription": {
+        "Fr": "2 Description de l'image complète",
+        "En": "2 A description of the full picture"
+      }
+    }
   }
 ]
