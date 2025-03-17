@@ -94,6 +94,9 @@
 	  <MauiXaml Update="MVVM\Views\Controls\AppCardView.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	  <MauiXaml Update="MVVM\Views\Controls\AppDownloadButton.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="SideNavigation.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>

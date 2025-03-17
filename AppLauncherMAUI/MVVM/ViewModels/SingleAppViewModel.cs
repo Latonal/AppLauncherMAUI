@@ -1,7 +1,8 @@
 using AppLauncherMAUI.Config;
 using AppLauncherMAUI.MVVM.Models;
+using AppLauncherMAUI.MVVM.Views.Controls;
 using AppLauncherMAUI.Utilities;
-using System.Diagnostics;
+using System.Windows.Input;
 
 namespace AppLauncherMAUI.MVVM.ViewModels;
 
@@ -21,11 +22,18 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
     private string? _appCardFullDescription;
     public string? AppCardFullDescription { get { return _appCardFullDescription; } set { _appCardFullDescription = value; RaisePropertyChanged(() => AppCardFullDescription); } }
 
+    private AppDownloadButtonState? _downloadButtonState;
+    public AppDownloadButtonState? DownloadButtonState { get { return _downloadButtonState; } set { _downloadButtonState = value; RaisePropertyChanged(() => DownloadButtonState); } }
+    public ICommand DownloadButtonStateCommand { get; set; }
+
 
 
     public SingleAppViewModel(int appId)
 	{
         AppId = appId;
+
+        DownloadButtonState = AppDownloadButtonState.ToDownload;
+        DownloadButtonStateCommand = new Command(ActionDownloadButtonClicked);
 	}
 
     private async void SetData(int id)
@@ -47,5 +55,11 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
     private static async Task<AppDataModel> GetData(int id)
     {
         return await JsonFileManager.ReadSingleDataAsync<AppDataModel>(AppPaths.AppsDataJsonName, "Id", id);
+    }
+
+    private void ActionDownloadButtonClicked()
+    {
+        if (DownloadButtonState == AppDownloadButtonState.ToDownload)
+            DownloadButtonState = AppDownloadButtonState.Downloading;
     }
 }

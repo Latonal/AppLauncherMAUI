@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="AppLauncherMAUI.MVVM.Views.SingleAppView"
              xmlns:local="clr-namespace:AppLauncherMAUI.MVVM.ViewModels"
+             xmlns:controls="clr-namespace:AppLauncherMAUI.MVVM.Views.Controls"
              x:DataType="local:SingleAppViewModel">
     <VerticalStackLayout>
         <Border BackgroundColor="Gray" 
@@ -10,6 +11,14 @@
                 SizeChanged="OnBannerSizeChanged">
             <Image Source="{Binding FullBanner}" Aspect="AspectFill"
                    SemanticProperties.Description="{Binding AppCardFullDescription}"/>
+        </Border>
+
+        <Border BackgroundColor="#3E3E3E"
+                HeightRequest="50">
+            <Grid VerticalOptions="Center">
+                <controls:AppDownloadButton ButtonState="{Binding DownloadButtonState, Mode=TwoWay}"
+                                            ButtonCommand="{Binding DownloadButtonStateCommand}"/>
+            </Grid>
         </Border>
         
         <Label 
