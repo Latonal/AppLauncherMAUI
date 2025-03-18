@@ -498,7 +498,7 @@
         <Setter Property="TextColor" Value="{StaticResource TextColor}" />
     </Style>
 
-    <Style TargetType="Label" x:Key="Headline">
+    <!-- <Style TargetType="Label" x:Key="Headline">
         <Setter Property="TextColor" Value="{StaticResource LabelHeadlineTextColor}" />
         <Setter Property="FontSize" Value="32" />
         <Setter Property="HorizontalOptions" Value="Center" />
@@ -510,7 +510,7 @@
         <Setter Property="FontSize" Value="24" />
         <Setter Property="HorizontalOptions" Value="Center" />
         <Setter Property="HorizontalTextAlignment" Value="Center" />
-    </Style>
+    </Style> -->
 
 
 

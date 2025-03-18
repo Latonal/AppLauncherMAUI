@@ -9,22 +9,13 @@ namespace AppLauncherMAUI.MVVM.ViewModels;
 
 internal partial class HomeViewModel : ExtendedBindableObject
 {
-    private int _clicksReceived = 0;
-    public int ClicksReceived { get { return _clicksReceived; } set { _clicksReceived = value; RaisePropertyChanged(() => ClicksReceived); } }
-    public ICommand ActionClickedCommand { get; set; }
     public ObservableCollection<AppCardView> AppCardList { get; set; }
 
 
     public HomeViewModel()
     {
-        ActionClickedCommand ??= new Command(OnActionClicked);
         AppCardList = [];
         GenerateAppsCards();
-    }
-
-    private void OnActionClicked(object obj)
-    {
-        ClicksReceived++;
     }
 
     private async void GenerateAppsCards()
