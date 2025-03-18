@@ -4,27 +4,19 @@ using System.Windows.Input;
 
 namespace AppLauncherMAUI.MVVM.Views.Controls;
 
-public partial class AppDownloadButton : Button
+public partial class AppDownloadButton : ContentView
 {
     public AppDownloadButton()
     {
         InitializeComponent();
-
-        Clicked += (s, e) =>
-        {
-            if (ButtonCommand != null && ButtonCommand.CanExecute(null))
-            {
-                ButtonCommand.Execute(null);
-            }
-        };
     }
 
-    public static readonly BindableProperty ButtonStateProperty = BindableProperty.Create(nameof(AppDownloadButtonState), typeof(AppDownloadButtonState), typeof(AppDownloadButton), AppDownloadButtonState.Disabled, propertyChanged: OnButtonStateChanged);
+    public static readonly BindableProperty ButtonStateProperty = BindableProperty.Create(nameof(AppDownloadButtonStates), typeof(AppDownloadButtonStates), typeof(AppDownloadButton), AppDownloadButtonStates.Disabled, propertyChanged: OnButtonStateChanged);
     public static readonly BindableProperty ButtonCommandProperty = BindableProperty.Create(nameof(ButtonCommand), typeof(ICommand), typeof(AppDownloadButton));
 
-    public AppDownloadButtonState ButtonState
+    public AppDownloadButtonStates ButtonState
     {
-        get => (AppDownloadButtonState)GetValue(ButtonStateProperty);
+        get => (AppDownloadButtonStates)GetValue(ButtonStateProperty);
         set => SetValue(ButtonStateProperty, value);
     }
 
@@ -42,12 +34,21 @@ public partial class AppDownloadButton : Button
 
     private void UpdateVisualState()
     {
+        Debug.WriteLine("Updating visual state to: " + ButtonState.ToString());
         string state = ButtonState.ToString();
-        VisualStateManager.GoToState(this, state);
+        VisualStateManager.GoToState(stackLayout, state);
+    }
+
+    private void ButtonClicked(object sender, EventArgs e)
+    {
+        if (ButtonCommand != null && ButtonCommand.CanExecute(null))
+        {
+            ButtonCommand.Execute(null);
+        }
     }
 }
 
-public enum AppDownloadButtonState
+public enum AppDownloadButtonStates
 {
     Disabled,
     ToDownload,

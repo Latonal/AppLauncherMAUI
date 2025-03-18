@@ -22,8 +22,8 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
     private string? _appCardFullDescription;
     public string? AppCardFullDescription { get { return _appCardFullDescription; } set { _appCardFullDescription = value; RaisePropertyChanged(() => AppCardFullDescription); } }
 
-    private AppDownloadButtonState? _downloadButtonState;
-    public AppDownloadButtonState? DownloadButtonState { get { return _downloadButtonState; } set { _downloadButtonState = value; RaisePropertyChanged(() => DownloadButtonState); } }
+    private AppDownloadButtonStates? _downloadButtonState;
+    public AppDownloadButtonStates? DownloadButtonState { get { return _downloadButtonState; } set { _downloadButtonState = value; RaisePropertyChanged(() => DownloadButtonState); } }
     public ICommand DownloadButtonStateCommand { get; set; }
 
 
@@ -32,8 +32,8 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
 	{
         AppId = appId;
 
-        DownloadButtonState = AppDownloadButtonState.ToDownload;
-        DownloadButtonStateCommand = new Command(ActionDownloadButtonClicked);
+        DownloadButtonState = AppDownloadButtonStates.ToDownload;
+        DownloadButtonStateCommand ??= new Command(ActionDownloadButtonClicked);
 	}
 
     private async void SetData(int id)
@@ -59,7 +59,7 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
 
     private void ActionDownloadButtonClicked()
     {
-        if (DownloadButtonState == AppDownloadButtonState.ToDownload)
-            DownloadButtonState = AppDownloadButtonState.Downloading;
+        if (DownloadButtonState == AppDownloadButtonStates.ToDownload)
+            DownloadButtonState = AppDownloadButtonStates.Downloading;
     }
 }

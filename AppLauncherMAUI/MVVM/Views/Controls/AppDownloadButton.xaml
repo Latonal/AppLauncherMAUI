@@ -1,64 +1,35 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<Button xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-        x:Class="AppLauncherMAUI.MVVM.Views.Controls.AppDownloadButton"
-        xmlns:local="clr-namespace:AppLauncherMAUI.MVVM.Views.Controls"
-        Command="{Binding ButtonCommand}"
-        Text="Test"
-        BackgroundColor="Red"
-        x:DataType="local:AppDownloadButton">
-    <VisualStateManager.VisualStateGroups>
-        <VisualStateGroup Name="AppDownloadButtonStates">
-            <VisualState Name="ToDownload">
-                <VisualState.Setters>
-                    <Setter Property="BackgroundColor" Value="Gray" />
-                    <Setter Property="Text" Value="To Download" />
-                </VisualState.Setters>
-            </VisualState>
-            <VisualState Name="Downloading">
-                <VisualState.Setters>
-                    <Setter Property="BackgroundColor" Value="Purple" />
-                    <Setter Property="Text" Value="Downloading" />
-                </VisualState.Setters>
-            </VisualState>
-        </VisualStateGroup>
-    </VisualStateManager.VisualStateGroups>
-</Button>
-
-
-<!-- <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="AppLauncherMAUI.MVVM.Views.Controls.AppDownloadButton"
-             xmlns:local="clr-namespace:AppLauncherMAUI.MVVM.ViewModels"
-             x:DataType="local:AppDownloadButtonViewModel">
-    <StackLayout>
-        <Button BackgroundColor="Purple">
-            <Button.Triggers> -->
-                <!--<DataTrigger TargetType="Button" Binding="{Binding ButtonState}" Value="{x:Static local:ButtonState.Disabled}">
-                    <Setter Property="BackgroundColor" Value="DarkRed" />
-                    <Setter Property="Text" Value="Disabled" />
-                </DataTrigger>
-                <DataTrigger TargetType="Button" Binding="{Binding ButtonState}" Value="{x:Static local:ButtonState.ToDownload}">
-                    <Setter Property="BackgroundColor" Value="Blue" />
-                    <Setter Property="Text" Value="To Download" />
-                </DataTrigger>
-                <DataTrigger TargetType="Button" Binding="{Binding ButtonState}" Value="{x:Static local:ButtonState.Downloading}">
-                    <Setter Property="BackgroundColor" Value="DarkGreen" />
-                    <Setter Property="Text" Value="Downloading" />
-                </DataTrigger>
-                <DataTrigger TargetType="Button" Binding="{Binding ButtonState}" Value="{x:Static local:ButtonState.Playable}">
-                    <Setter Property="BackgroundColor" Value="Green" />
-                    <Setter Property="Text" Value="Playable" />
-                </DataTrigger>
-                <DataTrigger TargetType="Button" Binding="{Binding ButtonState}" Value="{x:Static local:ButtonState.UpdateAvailable}">
-                    <Setter Property="BackgroundColor" Value="Yellow" />
-                    <Setter Property="Text" Value="UpdateAvailable" />
-                </DataTrigger>
-                <DataTrigger TargetType="Button" Binding="{Binding ButtonState}" Value="{x:Static local:ButtonState.Error}">
-                    <Setter Property="BackgroundColor" Value="Red" />
-                    <Setter Property="Text" Value="Error" />
-                </DataTrigger>-->
-            <!-- </Button.Triggers>
-        </Button>
+             xmlns:local="clr-namespace:AppLauncherMAUI.MVVM.Views.Controls"
+             x:DataType="local:AppDownloadButton">
+    <StackLayout x:Name="stackLayout">
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup Name="AppDownloadButtonState">
+                <VisualState Name="ToDownload">
+                    <VisualState.Setters>
+                        <Setter TargetName="defaultDownloadButton" Property="BackgroundColor" Value="Gray" />
+                        <Setter TargetName="defaultDownloadButton" Property="Button.Text" Value="Install" />
+                        <Setter TargetName="testlabel" Property="Label.Text" Value="workingggg" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState Name="Downloading">
+                    <VisualState.Setters>
+                        <Setter TargetName="defaultDownloadButton" Property="BackgroundColor" Value="Purple" />
+                        <Setter TargetName="defaultDownloadButton" Property="Button.Text" Value="Downloading" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+        <Button x:Name="defaultDownloadButton"
+                BackgroundColor="Red"
+                Text="Error loading the button"
+                Clicked="ButtonClicked"
+                IsVisible="True"/>
+        <Label Text="test"
+               x:Name="testlabel"/>
+
+
     </StackLayout>
-</ContentView> -->
+</ContentView>
