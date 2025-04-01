@@ -2,6 +2,7 @@ using AppLauncherMAUI.Config;
 using AppLauncherMAUI.MVVM.Models;
 using AppLauncherMAUI.MVVM.Views.Controls;
 using AppLauncherMAUI.Utilities;
+using System.Diagnostics;
 using System.Windows.Input;
 
 namespace AppLauncherMAUI.MVVM.ViewModels;
@@ -29,12 +30,12 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
 
 
     public SingleAppViewModel(int appId)
-	{
+    {
         AppId = appId;
 
-        DownloadButtonState = AppDownloadButtonStates.ToDownload;
-        DownloadButtonStateCommand ??= new Command(ActionDownloadButtonClicked);
-	}
+        DownloadButtonState = AppDownloadButtonStates.Install;
+        DownloadButtonStateCommand ??= new Command<AppDownloadButtonCommand?>(ActionDownloadButtonClicked);
+    }
 
     private async void SetData(int id)
     {
@@ -57,9 +58,75 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
         return await JsonFileManager.ReadSingleDataAsync<AppDataModel>(AppPaths.AppsDataJsonName, "Id", id);
     }
 
-    private void ActionDownloadButtonClicked()
+    private void ActionDownloadButtonClicked(AppDownloadButtonCommand? cmd)
     {
-        if (DownloadButtonState == AppDownloadButtonStates.ToDownload)
-            DownloadButtonState = AppDownloadButtonStates.Downloading;
+        if (AppDownloadButtonCommand.Next == cmd)
+        {
+            switch (DownloadButtonState)
+            {
+                case AppDownloadButtonStates.Install:
+                    Install();
+                    break;
+                case AppDownloadButtonStates.Playable:
+                    Launch();
+                    break;
+                case AppDownloadButtonStates.Update:
+                    Install();
+                    break;
+                case AppDownloadButtonStates.Delete:
+                    Delete();
+                    break;
+            }
+
+            ChangeAppDownloadButtonState();
+        }
+        else if (AppDownloadButtonCommand.Cancel == cmd)
+        {
+            if (DownloadButtonState == AppDownloadButtonStates.Downloading)
+                CancelInstall();
+        }
+        else if (AppDownloadButtonCommand.Launch == cmd)
+            Launch();
+        else if (AppDownloadButtonCommand.Delete == cmd)
+            Delete();
+    }
+
+    private void ChangeAppDownloadButtonState()
+    {
+        switch (DownloadButtonState)
+        {
+            case AppDownloadButtonStates.Install:
+                DownloadButtonState = AppDownloadButtonStates.Downloading;
+                break;
+            case AppDownloadButtonStates.Downloading:
+                DownloadButtonState = AppDownloadButtonStates.Playable;
+                break;
+            case AppDownloadButtonStates.Playable:
+                DownloadButtonState = AppDownloadButtonStates.Update;
+                break;
+            case AppDownloadButtonStates.Update:
+                DownloadButtonState = AppDownloadButtonStates.Install;
+                break;
+        }
+    }
+
+    private void Install()
+    {
+        Debug.WriteLine("Must install");
+    }
+
+    private void CancelInstall()
+    {
+        Debug.WriteLine("Must cancel install");
+    }
+
+    private void Launch()
+    {
+        Debug.WriteLine("Must launch");
+    }
+
+    private void Delete()
+    {
+        Debug.WriteLine("Must delete");
     }
 }

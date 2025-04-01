@@ -59,18 +59,70 @@ namespace AppLauncherMAUI.Resources.Languages {
                 resourceCulture = value;
             }
         }
-
+        
         /// <summary>
-        ///   Looks up a localized string similar to Settings.
+        ///   Looks up a localized string similar to Click to access a detailed view of the selected application..
         /// </summary>
-        internal static string AppCardClickHint
-        {
-            get
-            {
+        internal static string AppCardClickHint {
+            get {
                 return ResourceManager.GetString("AppCardClickHint", resourceCulture);
             }
         }
-
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Uninstall.
+        /// </summary>
+        internal static string ButtonDownloadDelete {
+            get {
+                return ResourceManager.GetString("ButtonDownloadDelete", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Downloading....
+        /// </summary>
+        internal static string ButtonDownloadDownloading {
+            get {
+                return ResourceManager.GetString("ButtonDownloadDownloading", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Install.
+        /// </summary>
+        internal static string ButtonDownloadInstall {
+            get {
+                return ResourceManager.GetString("ButtonDownloadInstall", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Launch.
+        /// </summary>
+        internal static string ButtonDownloadPlayable {
+            get {
+                return ResourceManager.GetString("ButtonDownloadPlayable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Repair.
+        /// </summary>
+        internal static string ButtonDownloadRepair {
+            get {
+                return ResourceManager.GetString("ButtonDownloadRepair", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Update.
+        /// </summary>
+        internal static string ButtonDownloadUpdate {
+            get {
+                return ResourceManager.GetString("ButtonDownloadUpdate", resourceCulture);
+            }
+        }
+        
         /// <summary>
         ///   Looks up a localized string similar to Applications.
         /// </summary>

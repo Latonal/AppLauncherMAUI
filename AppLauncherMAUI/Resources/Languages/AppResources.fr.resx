@@ -120,6 +120,24 @@
   <data name="AppCardClickHint" xml:space="preserve">
     <value>Cliquez pour accéder à une vue détaillée de l'application sélectionnée.</value>
   </data>
+  <data name="ButtonDownloadDelete" xml:space="preserve">
+    <value>Désinstaller</value>
+  </data>
+  <data name="ButtonDownloadDownloading" xml:space="preserve">
+    <value>Téléchargement en cours...</value>
+  </data>
+  <data name="ButtonDownloadInstall" xml:space="preserve">
+    <value>Installer</value>
+  </data>
+  <data name="ButtonDownloadPlayable" xml:space="preserve">
+    <value>Démarrer</value>
+  </data>
+  <data name="ButtonDownloadRepair" xml:space="preserve">
+    <value>Réparer</value>
+  </data>
+  <data name="ButtonDownloadUpdate" xml:space="preserve">
+    <value>Mettre à jour</value>
+  </data>
   <data name="ButtonHomePage" xml:space="preserve">
     <value>Applications</value>
   </data>

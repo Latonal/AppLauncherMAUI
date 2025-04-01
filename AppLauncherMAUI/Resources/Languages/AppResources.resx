@@ -121,6 +121,30 @@
     <value>Click to access a detailed view of the selected application.</value>
     <comment>A sementic property to describe that the card can be clicked to get access to the related SingleAppView</comment>
   </data>
+  <data name="ButtonDownloadDelete" xml:space="preserve">
+    <value>Uninstall</value>
+    <comment>Short text prompted to uninstall the application</comment>
+  </data>
+  <data name="ButtonDownloadDownloading" xml:space="preserve">
+    <value>Downloading...</value>
+    <comment>Short text to signify the application is being downloaded</comment>
+  </data>
+  <data name="ButtonDownloadInstall" xml:space="preserve">
+    <value>Install</value>
+    <comment>Short text prompted to install the selected application</comment>
+  </data>
+  <data name="ButtonDownloadPlayable" xml:space="preserve">
+    <value>Launch</value>
+    <comment>Short text to signify the application can be launched</comment>
+  </data>
+  <data name="ButtonDownloadRepair" xml:space="preserve">
+    <value>Repair</value>
+    <comment>Short text prompted to allow the user to download any missing file</comment>
+  </data>
+  <data name="ButtonDownloadUpdate" xml:space="preserve">
+    <value>Update</value>
+    <comment>Short text letting the user know they can update the application</comment>
+  </data>
   <data name="ButtonHomePage" xml:space="preserve">
     <value>Applications</value>
     <comment>The name of the button to get to the HomeView</comment>

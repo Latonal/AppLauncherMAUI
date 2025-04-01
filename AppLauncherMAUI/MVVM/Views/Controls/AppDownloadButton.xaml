@@ -1,34 +1,47 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="AppLauncherMAUI.MVVM.Views.Controls.AppDownloadButton"
              xmlns:local="clr-namespace:AppLauncherMAUI.MVVM.Views.Controls"
-             x:DataType="local:AppDownloadButton">
-    <StackLayout x:Name="stackLayout">
+             xmlns:text="clr-namespace:AppLauncherMAUI.Resources.Languages"
+             x:DataType="local:AppDownloadButton"
+             x:Class="AppLauncherMAUI.MVVM.Views.Controls.AppDownloadButton">
+    <StackLayout Orientation="Horizontal"
+                 x:Name="stackLayout">
         <VisualStateManager.VisualStateGroups>
             <VisualStateGroup Name="AppDownloadButtonState">
-                <VisualState Name="ToDownload">
+                <VisualState Name="Install">
                     <VisualState.Setters>
-                        <Setter TargetName="defaultDownloadButton" Property="BackgroundColor" Value="Gray" />
-                        <Setter TargetName="defaultDownloadButton" Property="Button.Text" Value="Install" />
-                        <Setter TargetName="testlabel" Property="Label.Text" Value="workingggg" />
+                        <Setter TargetName="defaultDownloadButton" Property="Button.Text" Value="{x:Static text:AppResources.ButtonDownloadInstall}" />
                     </VisualState.Setters>
                 </VisualState>
                 <VisualState Name="Downloading">
                     <VisualState.Setters>
-                        <Setter TargetName="defaultDownloadButton" Property="BackgroundColor" Value="Purple" />
-                        <Setter TargetName="defaultDownloadButton" Property="Button.Text" Value="Downloading" />
+                        <Setter TargetName="defaultDownloadButton" Property="Button.Text" Value="{x:Static text:AppResources.ButtonDownloadDownloading}" />
+                        <Setter TargetName="cancelButton" Property="IsVisible" Value="True" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState Name="Playable">
+                    <VisualState.Setters>
+                        <Setter TargetName="defaultDownloadButton" Property="Button.Text" Value="{x:Static text:AppResources.ButtonDownloadPlayable}" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState Name="Update">
+                    <VisualState.Setters>
+                        <Setter TargetName="defaultDownloadButton" Property="Button.Text" Value="{x:Static text:AppResources.ButtonDownloadUpdate}" />
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
         <Button x:Name="defaultDownloadButton"
-                BackgroundColor="Red"
                 Text="Error loading the button"
                 Clicked="ButtonClicked"
-                IsVisible="True"/>
-        <Label Text="test"
-               x:Name="testlabel"/>
+                CommandParameter="{x:Static local:AppDownloadButtonCommand.Next}"
+                Style="{StaticResource DownloadButton}"/>
+        <Button x:Name="cancelButton"
+                Text="Cancel"
+                Clicked="ButtonClicked"
+                CommandParameter="{x:Static local:AppDownloadButtonCommand.Cancel}"
+                Style="{StaticResource CancelButton}" />
 
 
     </StackLayout>

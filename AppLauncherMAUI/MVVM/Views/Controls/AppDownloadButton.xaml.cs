@@ -37,11 +37,17 @@ public partial class AppDownloadButton : ContentView
         Debug.WriteLine("Updating visual state to: " + ButtonState.ToString());
         string state = ButtonState.ToString();
         VisualStateManager.GoToState(stackLayout, state);
+        VisualStateManager.GoToState(defaultDownloadButton, state);
+        VisualStateManager.GoToState(cancelButton, state);
     }
 
     private void ButtonClicked(object sender, EventArgs e)
     {
-        if (ButtonCommand != null && ButtonCommand.CanExecute(null))
+        if (sender is Button button && button.CommandParameter is AppDownloadButtonCommand cmd)
+        {
+            ButtonCommand.Execute(cmd);
+        }
+        else if (ButtonCommand != null && ButtonCommand.CanExecute(null))
         {
             ButtonCommand.Execute(null);
         }
@@ -51,9 +57,19 @@ public partial class AppDownloadButton : ContentView
 public enum AppDownloadButtonStates
 {
     Disabled,
-    ToDownload,
+    Install,
     Downloading,
     Playable,
-    UpdateAvailable,
+    Update,
+    Delete,
+    Repair,
     Error
+}
+
+public enum AppDownloadButtonCommand
+{
+    Launch,
+    Cancel,
+    Delete,
+    Next
 }
