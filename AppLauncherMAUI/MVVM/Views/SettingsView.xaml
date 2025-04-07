@@ -12,7 +12,6 @@
         <Picker x:Name="ThemePicker"
                 Title="Select your theme"
                 SelectedIndexChanged="OnThemePickerChanged">
-                <!--SelectedIndex="{Binding CurrentThemeId}"-->
             <Picker.ItemsSource>
                 <x:Array Type="{x:Type x:String}">
                     <x:String>System</x:String>
@@ -21,21 +20,21 @@
                 </x:Array>
             </Picker.ItemsSource>
         </Picker>
+        <Picker x:Name="LanguagePicker"
+                Title="Choose your language"
+                ItemsSource="{Binding LanguageItems}"
+                ItemDisplayBinding="{Binding Name}"
+                SelectedItem="{Binding CurrentLanguageId, Mode=TwoWay}"
+                SelectedIndexChanged="OnLanguagePickerChanged">
+        </Picker>
+        <Label x:Name="PlsRestart"
+               Text="Application need to restart for your changes to be fully applied." 
+               IsVisible="False"/>
+
+
         <Label Text="Test color"
                VerticalOptions="Center"
                HorizontalOptions="Center" />
-
-        <!--<Picker x:Name="TestPicker"
-                Title="Test the Picker (not connected)"
-                SelectedIndexChanged="OnThemePickerChanged">
-            <Picker.ItemsSource>
-                <x:Array Type="{x:Type x:String}">
-                    <x:String>System</x:String>
-                    <x:String>Light</x:String>
-                    <x:String>Dark</x:String>
-                </x:Array>
-            </Picker.ItemsSource>
-        </Picker>-->
 
         <Label
             Text="Create a shortcut after a download" />

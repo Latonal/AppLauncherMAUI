@@ -16,7 +16,7 @@ internal static class Common
 
     public static string GetUserLanguage(bool useLong = false)
     {
-        CultureInfo currentCulture = CultureInfo.CurrentCulture;
+        CultureInfo currentCulture = CultureInfo.CurrentUICulture;
         return useLong ? currentCulture.Name : currentCulture.TwoLetterISOLanguageName;
     }
 

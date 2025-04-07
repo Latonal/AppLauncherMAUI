@@ -1,6 +1,4 @@
 using AppLauncherMAUI.Utilities;
-using Microsoft.Maui.Handlers;
-using System.Diagnostics;
 
 namespace AppLauncherMAUI.MVVM.Views;
 

@@ -11,6 +11,7 @@ namespace AppLauncherMAUI
 
             RequestedThemeChanged += (s, a) => ThemeHandler.SetSavedTheme();
             ThemeHandler.SetSavedTheme();
+            LanguageHandler.SetSavedLanguage();
 
             // Debug
             AppDomain.CurrentDomain.UnhandledException += (sender, e) =>

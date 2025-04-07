@@ -1,1 +1,2 @@
 - Set elements as focusable, notably in AppCardView.xaml: AppCard Border.GestureRecognizers can't be accessed with keyboard (tab + enter)
+- Change UI of SideNavigation when language is changed in Settings
