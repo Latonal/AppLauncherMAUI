@@ -110,22 +110,22 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
         }
     }
 
-    private void Install()
+    private static void Install()
     {
         Debug.WriteLine("Must install");
     }
 
-    private void CancelInstall()
+    private static void CancelInstall()
     {
         Debug.WriteLine("Must cancel install");
     }
 
-    private void Launch()
+    private static void Launch()
     {
         Debug.WriteLine("Must launch");
     }
 
-    private void Delete()
+    private static void Delete()
     {
         Debug.WriteLine("Must delete");
     }
