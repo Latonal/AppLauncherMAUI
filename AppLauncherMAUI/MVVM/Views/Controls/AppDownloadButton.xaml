@@ -9,6 +9,16 @@
                  x:Name="stackLayout">
         <VisualStateManager.VisualStateGroups>
             <VisualStateGroup Name="AppDownloadButtonState">
+                <VisualState Name="Loading">
+                    <VisualState.Setters>
+                        <Setter TargetName="defaultDownloadButton" Property="Button.Text" Value="{x:Static text:AppResources.ButtonDownloadLoading}" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState Name="Disabled">
+                    <VisualState.Setters>
+                        <Setter TargetName="defaultDownloadButton" Property="Button.Text" Value="{x:Static text:AppResources.ButtonDownloadNotAvailable}" />
+                    </VisualState.Setters>
+                </VisualState>
                 <VisualState Name="Install">
                     <VisualState.Setters>
                         <Setter TargetName="defaultDownloadButton" Property="Button.Text" Value="{x:Static text:AppResources.ButtonDownloadInstall}" />
@@ -17,6 +27,8 @@
                 <VisualState Name="Downloading">
                     <VisualState.Setters>
                         <Setter TargetName="defaultDownloadButton" Property="Button.Text" Value="{x:Static text:AppResources.ButtonDownloadDownloading}" />
+                        <Setter TargetName="defaultDownloadButton" Property="IsVisible" Value="False" />
+                        <Setter TargetName="downloadProgress" Property="IsVisible" Value="True" />
                         <Setter TargetName="cancelButton" Property="IsVisible" Value="True" />
                     </VisualState.Setters>
                 </VisualState>
@@ -33,10 +45,15 @@
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
         <Button x:Name="defaultDownloadButton"
-                Text="Error loading the button"
+                Text="{x:Static text:AppResources.ButtonDownloadLoading}"
                 Clicked="ButtonClicked"
                 CommandParameter="{x:Static local:AppDownloadButtonCommand.Next}"
                 Style="{StaticResource DownloadButton}"/>
+        <ProgressBar x:Name="downloadProgress"
+                     IsVisible="False"
+                     HeightRequest="10"
+                     Style="{StaticResource DownloadProgress}"/>
+                     <!--="{Binding ProgressValue}"-->
         <Button x:Name="cancelButton"
                 Text="Cancel"
                 Clicked="ButtonClicked"

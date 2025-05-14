@@ -129,6 +129,12 @@
   <data name="ButtonDownloadInstall" xml:space="preserve">
     <value>Installer</value>
   </data>
+  <data name="ButtonDownloadLoading" xml:space="preserve">
+    <value>Chargement...</value>
+  </data>
+  <data name="ButtonDownloadNotAvailable" xml:space="preserve">
+    <value>Pas disponible</value>
+  </data>
   <data name="ButtonDownloadPlayable" xml:space="preserve">
     <value>Démarrer</value>
   </data>

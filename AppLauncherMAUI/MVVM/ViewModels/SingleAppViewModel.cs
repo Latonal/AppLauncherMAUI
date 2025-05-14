@@ -17,6 +17,8 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
 
     private string? _name;
     public string? Name { get { return _name; } set { _name = value; RaisePropertyChanged(() => Name); } }
+    private string? _downloadUrl;
+    public string? DownloadUrl { get { return _downloadUrl; } set { _downloadUrl = value; SetLaunchButtonState(); } }
 
     private string? _fullBanner;
     public string? FullBanner { get { return _fullBanner; } set { _fullBanner = value; RaisePropertyChanged(() => FullBanner); } }
@@ -26,14 +28,17 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
     private AppDownloadButtonStates? _downloadButtonState;
     public AppDownloadButtonStates? DownloadButtonState { get { return _downloadButtonState; } set { _downloadButtonState = value; RaisePropertyChanged(() => DownloadButtonState); } }
     public ICommand DownloadButtonStateCommand { get; set; }
-
+    private double _progressValue = 0.0;
+    public double ProgressValue { get { return _progressValue; } set { _progressValue = value; RaisePropertyChanged(() => ProgressValue); } }
+    //private static readonly DownloadHandler downloadHandler = new();
 
 
     public SingleAppViewModel(int appId)
     {
         AppId = appId;
 
-        DownloadButtonState = AppDownloadButtonStates.Install;
+        //DownloadButtonState = SetLaunchButtonState();
+        //SetLaunchButtonState();
         DownloadButtonStateCommand ??= new Command<AppDownloadButtonCommand?>(ActionDownloadButtonClicked);
     }
 
@@ -43,6 +48,7 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
 
         Name = data.Name;
         FullBanner = data.Banners?.Full;
+        DownloadUrl = data.DownloadUrl;
 
         LanguagesModel? texts = data.Text;
         if (texts != null)
@@ -51,11 +57,34 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
         LanguagesModel? desc = data.Banners?.FullDescription;
         if (desc != null)
             AppCardFullDescription = Common.GetTranslatedJsonText(desc);
+
+        Debug.WriteLine("Finished assigning data");
     }
 
     private static async Task<AppDataModel> GetData(int id)
     {
         return await JsonFileManager.ReadSingleDataAsync<AppDataModel>(AppPaths.AppsDataJsonName, "Id", id);
+    }
+
+    private async void SetLaunchButtonState()
+    {
+        // if already downloaded : set on "playable"
+        // else : set on "disabled" by default
+        DownloadButtonState = AppDownloadButtonStates.Loading;
+        if (DownloadUrl == null) return;
+
+        // check if valid header
+        // if valid, NOT on "playable", set on "install"
+        // if valid, AND "playable", check if new version
+        // if yes, set on "updatable"
+        // else, don't change the button
+
+        if (await DownloadHandler.CheckIfValidHeader(DownloadUrl))
+            DownloadButtonState = AppDownloadButtonStates.Install;
+        else
+            DownloadButtonState= AppDownloadButtonStates.Disabled;
+
+        Debug.WriteLine("Button state:" + DownloadButtonState);
     }
 
     private void ActionDownloadButtonClicked(AppDownloadButtonCommand? cmd)

@@ -2,6 +2,7 @@
   {
     "Id": 1,
     "Name": "App 1 !!! yaaaaay",
+    "DownloadUrl": "https://www.youtube.com/",
     "Text": {
       "Fr": "un peu de texte pour décrire l'app",
       "En": "some text about the first app"
@@ -21,7 +22,8 @@
   },
   {
     "Id": 3,
-    "Name": "App 2!!!",
+    "Name": "Favs",
+    "DownloadUrl": "https://github.com/Latonal/Favs/archive/refs/heads/main.zip",
     "Text": {
       "Fr": "2 un peu de texte pour décrire l'app",
       "En": "2 some text about the first app"
@@ -42,6 +44,7 @@
   {
     "Id": 4,
     "Name": "App 2!!!",
+    "DownloadUrl": "",
     "Text": {
       "Fr": "2 un peu de texte pour décrire l'app",
       "En": "2 some text about the first app"

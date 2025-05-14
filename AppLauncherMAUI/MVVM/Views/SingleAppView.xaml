@@ -17,7 +17,8 @@
                 HeightRequest="50">
             <Grid VerticalOptions="Center">
                 <controls:AppDownloadButton ButtonState="{Binding DownloadButtonState, Mode=TwoWay}"
-                                            ButtonCommand="{Binding DownloadButtonStateCommand}"/>
+                                            ButtonCommand="{Binding DownloadButtonStateCommand}"
+                                            ProgressValue="{Binding ProgressValue}"/>
             </Grid>
         </Border>
         

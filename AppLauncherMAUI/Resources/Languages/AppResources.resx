@@ -133,6 +133,14 @@
     <value>Install</value>
     <comment>Short text prompted to install the selected application</comment>
   </data>
+  <data name="ButtonDownloadLoading" xml:space="preserve">
+    <value>Loading...</value>
+    <comment>Short text used for Loading the state of the download button</comment>
+  </data>
+  <data name="ButtonDownloadNotAvailable" xml:space="preserve">
+    <value>Not available</value>
+    <comment>Short text to prompt that the download is unavailable</comment>
+  </data>
   <data name="ButtonDownloadPlayable" xml:space="preserve">
     <value>Launch</value>
     <comment>Short text to signify the application can be launched</comment>

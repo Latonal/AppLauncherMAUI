@@ -97,6 +97,24 @@ namespace AppLauncherMAUI.Resources.Languages {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Loading....
+        /// </summary>
+        internal static string ButtonDownloadLoading {
+            get {
+                return ResourceManager.GetString("ButtonDownloadLoading", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Not available.
+        /// </summary>
+        internal static string ButtonDownloadNotAvailable {
+            get {
+                return ResourceManager.GetString("ButtonDownloadNotAvailable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Launch.
         /// </summary>
         internal static string ButtonDownloadPlayable {
