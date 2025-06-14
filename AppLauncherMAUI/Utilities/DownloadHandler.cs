@@ -1,6 +1,8 @@
-﻿using System.Diagnostics;
+﻿using AppLauncherMAUI.Config;
+using System.Diagnostics;
 using System.IO.Compression;
 using System.Security.Cryptography;
+using System.Xml.Linq;
 
 namespace AppLauncherMAUI.Utilities;
 
@@ -54,39 +56,59 @@ internal class DownloadHandler
         return DownloadableContentTypes.Contains(val);
     }
 
-    public static async Task DownloadFileAsync(Uri url, string destinationPath, IProgress<double>? progress = null)
+    public static async Task DownloadFileAsync(string url, string destinationPathName, IProgress<double>? progress = null)
     {
-        try
+        Debug.WriteLine(progress?.ToString());
+        for (int i = 1; i <= 100; i++)
         {
-            using var response = await client.GetAsync(url, HttpCompletionOption.ResponseHeadersRead);
-            response.EnsureSuccessStatusCode();
-
-            long totalBytes = response.Content.Headers.ContentLength ?? -1L;
-            bool canTrackProgress = totalBytes != -1 && progress != null;
-
-            using Stream stream = await response.Content.ReadAsStreamAsync();
-            int bufferSize = 4096;
-            using FileStream fileStream = new(destinationPath, FileMode.Create, FileAccess.Write, FileShare.None, bufferSize, true);
-
-            byte[] buffer = new byte[bufferSize];
-            long totalRead = 0;
-            int read;
-
-            while ((read = await stream.ReadAsync(buffer)) > 0)
-            {
-                await fileStream.WriteAsync(buffer.AsMemory(0, read));
-                totalRead += read;
-
-                if (canTrackProgress)
-                    progress?.Report((double)totalRead / totalBytes);
-            }
-
-            progress?.Report(1);
+            await Task.Delay(50);
+            progress?.Report(i / 100.0);
+            //Debug.WriteLine("Progress: " + i);
         }
-        catch (Exception e)
-        {
-            Debug.WriteLine("Message:{0}", e.Message);
-        }
+
+        //try
+        //{
+        //    string filePath = HandlePath(AppPaths.CacheDirectory, "TempZip", destinationPathName);
+
+        //    using var response = await client.GetAsync(url, HttpCompletionOption.ResponseHeadersRead);
+        //    response.EnsureSuccessStatusCode();
+
+        //    long totalBytes = response.Content.Headers.ContentLength ?? -1L;
+        //    bool canTrackProgress = totalBytes != -1 && progress != null;
+
+        //    using Stream stream = await response.Content.ReadAsStreamAsync();
+        //    int bufferSize = 4096;
+        //    using FileStream fileStream = new(filePath, FileMode.Create, FileAccess.Write, FileShare.None, bufferSize, true);
+
+        //    byte[] buffer = new byte[bufferSize];
+        //    long totalRead = 0;
+        //    int read;
+
+        //    while ((read = await stream.ReadAsync(buffer)) > 0)
+        //    {
+        //        await fileStream.WriteAsync(buffer.AsMemory(0, read));
+        //        totalRead += read;
+
+        //        if (canTrackProgress)
+        //            progress?.Report((double)totalRead / totalBytes);
+        //    }
+
+        //    progress?.Report(1);
+        //}
+        //catch (Exception e)
+        //{
+        //    Debug.WriteLine("Message:{0}", e.Message);
+        //}
+    }
+
+    public static string HandlePath(string path, string folderName, string? fileName)
+    {
+        Directory.CreateDirectory(Path.Combine(path, folderName));
+        string filePath = Path.Combine(path, folderName);
+        if (fileName != null)
+            filePath = Path.Combine(filePath, fileName + ".zip");
+
+        return filePath;
     }
 
     public static void ExtractZip(string zipFilePath, string destinationPath)
@@ -97,7 +119,7 @@ internal class DownloadHandler
         ZipFile.ExtractToDirectory(zipFilePath, destinationPath);
     }
 
-    public static async Task<string> GetRemoteHash(Uri url)
+    public static async Task<string> GetRemoteHash(string url)
     {
         return await client.GetStringAsync(url);
     }
@@ -110,7 +132,7 @@ internal class DownloadHandler
         return Convert.ToHexString(hash);
     }
 
-    public static async Task CheckLogic(string localAppPath, Uri remoteHashUrl)
+    public static async Task CheckLogic(string localAppPath, string remoteHashUrl)
     {
         if (GetLocalHash(localAppPath) != await GetRemoteHash(remoteHashUrl))
             //await DownloadFileAsync(localAppPath, remoteHashUrl); // wrong atm

@@ -10,9 +10,14 @@
     <Color x:Key="MainBackgroundColor">#F2F1EE</Color>
     <Color x:Key="SecondBackgroundColor">#E3E4E0</Color>
     
+    <Thickness x:Key="DefaultLeftMargin">20,0,0,0</Thickness>
+    <Thickness x:Key="DefaultButtonMinPadding">30,10</Thickness>
+
+    <x:Int16 x:Key="DefaultCornerRadius">4</x:Int16>
+    <RoundRectangle x:Key="DefaultStrokeShape" CornerRadius="{StaticResource DefaultCornerRadius}"/>
     
     
-    
+
     <Color x:Key="ToolTextColor">#212121</Color>
     <Color x:Key="LabelHeadlineTextColor">#190649</Color>
     <Color x:Key="RefreshTextColor">#212121</Color>

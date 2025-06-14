@@ -25,10 +25,10 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
     private string? _appCardFullDescription;
     public string? AppCardFullDescription { get { return _appCardFullDescription; } set { _appCardFullDescription = value; RaisePropertyChanged(() => AppCardFullDescription); } }
 
-    private AppDownloadButtonStates? _downloadButtonState;
-    public AppDownloadButtonStates? DownloadButtonState { get { return _downloadButtonState; } set { _downloadButtonState = value; RaisePropertyChanged(() => DownloadButtonState); } }
+    private AppDownloadButtonStates _downloadButtonState = AppDownloadButtonStates.Loading;
+    public AppDownloadButtonStates DownloadButtonState { get { return _downloadButtonState; } set { _downloadButtonState = value; RaisePropertyChanged(() => DownloadButtonState); } }
     public ICommand DownloadButtonStateCommand { get; set; }
-    private double _progressValue = 0.0;
+    private double _progressValue;
     public double ProgressValue { get { return _progressValue; } set { _progressValue = value; RaisePropertyChanged(() => ProgressValue); } }
     //private static readonly DownloadHandler downloadHandler = new();
 
@@ -82,7 +82,7 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
         if (await DownloadHandler.CheckIfValidHeader(DownloadUrl))
             DownloadButtonState = AppDownloadButtonStates.Install;
         else
-            DownloadButtonState= AppDownloadButtonStates.Disabled;
+            DownloadButtonState = AppDownloadButtonStates.Disabled;
 
         Debug.WriteLine("Button state:" + DownloadButtonState);
     }
@@ -94,20 +94,20 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
             switch (DownloadButtonState)
             {
                 case AppDownloadButtonStates.Install:
-                    Install();
+                    Download();
                     break;
                 case AppDownloadButtonStates.Playable:
                     Launch();
                     break;
                 case AppDownloadButtonStates.Update:
-                    Install();
+                    Download();
                     break;
                 case AppDownloadButtonStates.Delete:
                     Delete();
                     break;
             }
 
-            ChangeAppDownloadButtonState();
+            //ChangeAppDownloadButtonState();
         }
         else if (AppDownloadButtonCommand.Cancel == cmd)
         {
@@ -120,28 +120,38 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
             Delete();
     }
 
-    private void ChangeAppDownloadButtonState()
-    {
-        switch (DownloadButtonState)
-        {
-            case AppDownloadButtonStates.Install:
-                DownloadButtonState = AppDownloadButtonStates.Downloading;
-                break;
-            case AppDownloadButtonStates.Downloading:
-                DownloadButtonState = AppDownloadButtonStates.Playable;
-                break;
-            case AppDownloadButtonStates.Playable:
-                DownloadButtonState = AppDownloadButtonStates.Update;
-                break;
-            case AppDownloadButtonStates.Update:
-                DownloadButtonState = AppDownloadButtonStates.Install;
-                break;
-        }
-    }
+    //private void ChangeAppDownloadButtonState()
+    //{
+    //    switch (DownloadButtonState)
+    //    {
+    //        case AppDownloadButtonStates.Install:
+    //            DownloadButtonState = AppDownloadButtonStates.Downloading;
+    //            break;
+    //        case AppDownloadButtonStates.Downloading:
+    //            DownloadButtonState = AppDownloadButtonStates.Playable;
+    //            break;
+    //        case AppDownloadButtonStates.Playable:
+    //            DownloadButtonState = AppDownloadButtonStates.Update;
+    //            break;
+    //        case AppDownloadButtonStates.Update:
+    //            DownloadButtonState = AppDownloadButtonStates.Install;
+    //            break;
+    //    }
+    //}
 
-    private static void Install()
+    private async void Download()
     {
-        Debug.WriteLine("Must install");
+        DownloadButtonState = AppDownloadButtonStates.Downloading;
+        Debug.WriteLine("Must install to following location: " + AppPaths.ZipPath("AppName"));
+        Debug.WriteLine("Must install to following location: " + AppPaths.DownloadedAppPath("AppName"));
+        if (DownloadUrl == null || Name == null) return;
+        //await DownloadHandler.DownloadFileAsync(DownloadUrl, Name, AppDownloadButton.ProgressReport);
+        IProgress<double> progress = new Progress<double>(value => ProgressValue = value);
+        await DownloadHandler.DownloadFileAsync(DownloadUrl, Name, progress);
+        Debug.WriteLine(" ------ Zip finished downloading");
+        //await DownloadHandler.ExtractZip
+        //Debug.WriteLine(" ------ Zip finished extracting");
+        DownloadButtonState = AppDownloadButtonStates.Playable;
     }
 
     private static void CancelInstall()

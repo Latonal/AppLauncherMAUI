@@ -567,10 +567,10 @@
 
     <!-- Download Button -->
     <Style TargetType="Button" x:Key="DefaultButton">
-        <Setter Property="Padding" Value="30, 10" />
+        <Setter Property="Padding" Value="{StaticResource DefaultButtonMinPadding}" />
         <Setter Property="HorizontalOptions" Value="Start" />
-        <Setter Property="Margin" Value="10,0" />
-        <Setter Property="CornerRadius" Value="2" />
+        <Setter Property="Margin" Value="{StaticResource DefaultLeftMargin}" />
+        <Setter Property="CornerRadius" Value="{StaticResource DefaultCornerRadius}" />
         <Setter Property="FontAttributes" Value="Bold" />
     </Style>
 
@@ -615,18 +615,31 @@
         </Setter>
     </Style>
 
+    <Style TargetType="Border" x:Key="BorderProgress">
+        <Setter Property="IsVisible" Value="True" />
+        <Setter Property="StrokeShape" Value="{StaticResource DefaultStrokeShape}" />
+        <Setter Property="HeightRequest" Value="30" />
+        <Setter Property="BackgroundColor" Value="Green" />
+        <Setter Property="Margin" Value="{StaticResource DefaultLeftMargin}" />
+    </Style>
+    
     <Style TargetType="ProgressBar" x:Key="DownloadProgress">
-        <!--<Setter Property="Padding" Value="30, 10" />-->
-        <Setter Property="HorizontalOptions" Value="Start" />
-        <Setter Property="Margin" Value="10,0" />
-        <!--<Setter Property="CornerRadius" Value="2" />-->
-        <!--<Setter Property="FontAttributes" Value="Bold" />-->
+        <Setter Property="WidthRequest" Value="200" />
+        <Setter Property="MinimumHeightRequest" Value="30" />
+        <Setter Property="VerticalOptions" Value="Center" />
+        <Setter Property="HorizontalOptions" Value="Center" />
+        <Setter Property="ProgressColor" Value="Blue" />
+        <Setter Property="BackgroundColor" Value="Transparent" />
     </Style>
 
     <Style TargetType="Button" x:Key="CancelButton" BasedOn="{StaticResource DefaultButton}">
-        <Setter Property="BackgroundColor" Value="Transparent" />
         <Setter Property="IsVisible" Value="False" />
+        <Setter Property="BackgroundColor" Value="Transparent" />
         <Setter Property="BorderColor" Value="Transparent" />
+    </Style>
+
+    <Style TargetType="Label" x:Key="InfoLabel">
+        <Setter Property="IsVisible" Value="False" />
     </Style>
 
 </ResourceDictionary>

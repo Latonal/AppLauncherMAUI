@@ -3,7 +3,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:AppLauncherMAUI.MVVM.Views.Controls"
              xmlns:text="clr-namespace:AppLauncherMAUI.Resources.Languages"
-             x:DataType="local:AppDownloadButton"
+             xmlns:vm="clr-namespace:AppLauncherMAUI.MVVM.ViewModels"
+             x:DataType="vm:SingleAppViewModel"
              x:Class="AppLauncherMAUI.MVVM.Views.Controls.AppDownloadButton">
     <StackLayout Orientation="Horizontal"
                  x:Name="stackLayout">
@@ -11,7 +12,7 @@
             <VisualStateGroup Name="AppDownloadButtonState">
                 <VisualState Name="Loading">
                     <VisualState.Setters>
-                        <Setter TargetName="defaultDownloadButton" Property="Button.Text" Value="{x:Static text:AppResources.ButtonDownloadLoading}" />
+                        <Setter TargetName="defaultDownloadButton" Property="IsVisible" Value="False" />
                     </VisualState.Setters>
                 </VisualState>
                 <VisualState Name="Disabled">
@@ -28,7 +29,7 @@
                     <VisualState.Setters>
                         <Setter TargetName="defaultDownloadButton" Property="Button.Text" Value="{x:Static text:AppResources.ButtonDownloadDownloading}" />
                         <Setter TargetName="defaultDownloadButton" Property="IsVisible" Value="False" />
-                        <Setter TargetName="downloadProgress" Property="IsVisible" Value="True" />
+                        <Setter TargetName="borderProgress" Property="IsVisible" Value="True" />
                         <Setter TargetName="cancelButton" Property="IsVisible" Value="True" />
                     </VisualState.Setters>
                 </VisualState>
@@ -45,20 +46,41 @@
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
         <Button x:Name="defaultDownloadButton"
+                IsVisible="True"
                 Text="{x:Static text:AppResources.ButtonDownloadLoading}"
                 Clicked="ButtonClicked"
                 CommandParameter="{x:Static local:AppDownloadButtonCommand.Next}"
                 Style="{StaticResource DownloadButton}"/>
-        <ProgressBar x:Name="downloadProgress"
-                     IsVisible="False"
-                     HeightRequest="10"
-                     Style="{StaticResource DownloadProgress}"/>
-                     <!--="{Binding ProgressValue}"-->
+        <Grid IsVisible="False"
+              VerticalOptions="Center"
+              HorizontalOptions="Center"
+              x:Name="borderProgress">
+            <Border Style="{StaticResource BorderProgress}">
+                <ProgressBar x:Name="downloadProgress"
+                         Progress="{Binding ProgressValue}"
+                         Style="{StaticResource DownloadProgress}" />
+            </Border>
+
+            <Label Text="0%"
+                   HorizontalOptions="Center"
+                   VerticalOptions="Center"
+                   TextColor="Black"
+                   FontAttributes="Bold"
+                   x:Name="progressText"/>
+        </Grid>
+        <StackLayout BackgroundColor="Green"
+                     VerticalOptions="Center"
+                     HeightRequest="20">
+        </StackLayout>
+
         <Button x:Name="cancelButton"
                 Text="Cancel"
                 Clicked="ButtonClicked"
                 CommandParameter="{x:Static local:AppDownloadButtonCommand.Cancel}"
                 Style="{StaticResource CancelButton}" />
+        <Label x:Name="infoLabel"
+               Text="{x:Static text:AppResources.ButtonDownloadLoading}"
+               Style="{StaticResource InfoLabel}"/>
 
 
     </StackLayout>

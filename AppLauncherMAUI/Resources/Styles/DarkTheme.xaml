@@ -10,6 +10,11 @@
     <Color x:Key="MainBackgroundColor">#0D0E11</Color>
     <Color x:Key="SecondBackgroundColor">#1C1B1F</Color>
 
+    <Thickness x:Key="DefaultLeftMargin">20,0,0,0</Thickness>
+    <Thickness x:Key="DefaultButtonMinPadding">30,10</Thickness>
+    
+    <x:Int16 x:Key="DefaultCornerRadius">4</x:Int16>
+    <RoundRectangle x:Key="DefaultStrokeShape" CornerRadius="{StaticResource DefaultCornerRadius}"/>
 
 
 

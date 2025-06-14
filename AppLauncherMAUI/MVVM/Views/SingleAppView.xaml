@@ -16,9 +16,10 @@
         <Border BackgroundColor="#3E3E3E"
                 HeightRequest="50">
             <Grid VerticalOptions="Center">
-                <controls:AppDownloadButton ButtonState="{Binding DownloadButtonState, Mode=TwoWay}"
+                <controls:AppDownloadButton ButtonState="{Binding DownloadButtonState}"
                                             ButtonCommand="{Binding DownloadButtonStateCommand}"
-                                            ProgressValue="{Binding ProgressValue}"/>
+                                            ProgressValue="{Binding ProgressValue}" />
+
             </Grid>
         </Border>
         

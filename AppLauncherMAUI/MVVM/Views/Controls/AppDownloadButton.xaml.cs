@@ -1,4 +1,5 @@
 using AppLauncherMAUI.MVVM.ViewModels;
+using System;
 using System.Diagnostics;
 using System.Windows.Input;
 
@@ -13,7 +14,7 @@ public partial class AppDownloadButton : ContentView
 
     public static readonly BindableProperty ButtonStateProperty = BindableProperty.Create(nameof(AppDownloadButtonStates), typeof(AppDownloadButtonStates), typeof(AppDownloadButton), AppDownloadButtonStates.Loading, propertyChanged: OnButtonStateChanged);
     public static readonly BindableProperty ButtonCommandProperty = BindableProperty.Create(nameof(ButtonCommand), typeof(ICommand), typeof(AppDownloadButton));
-    public static readonly BindableProperty ProgressValueProperty = BindableProperty.Create(nameof(ProgressValue), typeof(double), typeof(AppDownloadButton), 0.0);
+    public static readonly BindableProperty ProgressValueProperty = BindableProperty.Create(nameof(ProgressValue), typeof(double), typeof(AppDownloadButton), 0.0, propertyChanged: OnProgressChanged);
 
     public AppDownloadButtonStates ButtonState
     {
@@ -59,7 +60,15 @@ public partial class AppDownloadButton : ContentView
             ButtonCommand.Execute(null);
         }
     }
-}
+
+    public static void OnProgressChanged(BindableObject bindable, object oldValue, object newValue)
+    {
+        if (bindable is AppDownloadButton view && newValue is double progress)
+        {
+            view.progressText.Text = $"{Math.Round(progress * 100)}%";
+        }
+    }
+} 
 
 public enum AppDownloadButtonStates
 {
