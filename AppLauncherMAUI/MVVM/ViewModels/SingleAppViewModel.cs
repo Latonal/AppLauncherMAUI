@@ -15,10 +15,10 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
     private string? _text;
     public string? Text { get { return _text; } set { _text = value; RaisePropertyChanged(() => Text); } }
 
-    private string? _name;
-    public string? Name { get { return _name; } set { _name = value; RaisePropertyChanged(() => Name); } }
+    private string _name = "DefaultAppName";
+    public string Name { get { return _name; } set { _name = value; RaisePropertyChanged(() => Name); } }
     private string? _downloadUrl;
-    public string? DownloadUrl { get { return _downloadUrl; } set { _downloadUrl = value; SetLaunchButtonState(); } }
+    public string? DownloadUrl { get { return _downloadUrl; } set { _downloadUrl = value; _ = SetCurrentAppState(); } }
 
     private string? _fullBanner;
     public string? FullBanner { get { return _fullBanner; } set { _fullBanner = value; RaisePropertyChanged(() => FullBanner); } }
@@ -37,8 +37,6 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
     {
         AppId = appId;
 
-        //DownloadButtonState = SetLaunchButtonState();
-        //SetLaunchButtonState();
         DownloadButtonStateCommand ??= new Command<AppDownloadButtonCommand?>(ActionDownloadButtonClicked);
     }
 
@@ -46,7 +44,7 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
     {
         AppDataModel data = await GetData(id);
 
-        Name = data.Name;
+        Name = data.Name ?? "DefaultAppName";
         FullBanner = data.Banners?.Full;
         DownloadUrl = data.DownloadUrl;
 
@@ -66,25 +64,59 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
         return await JsonFileManager.ReadSingleDataAsync<AppDataModel>(AppPaths.AppsDataJsonName, "Id", id);
     }
 
-    private async void SetLaunchButtonState()
+    /*SetCurrentAppState logic
+     * Loading
+     * 
+     * If Playable
+     *      Set Playable
+     *      playable = true
+     * 
+     * If DownloadUrl == null
+     *      If !playable
+     *          Set Disabled
+     *      return
+     * 
+     * If CheckHeader is valid
+     *      If !playable
+     *          Set Install
+     *      Else CompareVersion
+     *          If same
+     *              Set Playable (might already be Playable)
+     *          Else
+     *              Set Update
+     */
+    private async Task SetCurrentAppState()
     {
-        // if already downloaded : set on "playable"
-        // else : set on "disabled" by default
         DownloadButtonState = AppDownloadButtonStates.Loading;
-        if (DownloadUrl == null) return;
 
-        // check if valid header
-        // if valid, NOT on "playable", set on "install"
-        // if valid, AND "playable", check if new version
-        // if yes, set on "updatable"
-        // else, don't change the button
+        bool playable = false;
+        if (CheckIfPlayable())
+        {
+            DownloadButtonState = AppDownloadButtonStates.Playable;
+            playable = true;
+        }
 
-        if (await DownloadHandler.CheckIfValidHeader(DownloadUrl))
-            DownloadButtonState = AppDownloadButtonStates.Install;
+        if (DownloadUrl == null)
+        {
+            if (!playable)
+                DownloadButtonState = AppDownloadButtonStates.Disabled;
+            return;
+        }
+        if (DownloadUrl != null && await DownloadHandler.CheckIfValidHeader(DownloadUrl))
+        {
+            if (!playable)
+                DownloadButtonState = AppDownloadButtonStates.Install;
+            else
+            {
+                // CompareVersion
+                    // If same 
+                        // Set Playable
+                    // Else
+                        // Set Update
+            }
+        }
         else
             DownloadButtonState = AppDownloadButtonStates.Disabled;
-
-        Debug.WriteLine("Button state:" + DownloadButtonState);
     }
 
     private void ActionDownloadButtonClicked(AppDownloadButtonCommand? cmd)
@@ -112,7 +144,7 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
         else if (AppDownloadButtonCommand.Cancel == cmd)
         {
             if (DownloadButtonState == AppDownloadButtonStates.Downloading)
-                CancelInstall();
+                CancelDownload();
         }
         else if (AppDownloadButtonCommand.Launch == cmd)
             Launch();
@@ -120,43 +152,50 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
             Delete();
     }
 
-    //private void ChangeAppDownloadButtonState()
-    //{
-    //    switch (DownloadButtonState)
-    //    {
-    //        case AppDownloadButtonStates.Install:
-    //            DownloadButtonState = AppDownloadButtonStates.Downloading;
-    //            break;
-    //        case AppDownloadButtonStates.Downloading:
-    //            DownloadButtonState = AppDownloadButtonStates.Playable;
-    //            break;
-    //        case AppDownloadButtonStates.Playable:
-    //            DownloadButtonState = AppDownloadButtonStates.Update;
-    //            break;
-    //        case AppDownloadButtonStates.Update:
-    //            DownloadButtonState = AppDownloadButtonStates.Install;
-    //            break;
-    //    }
-    //}
+
+    private CancellationTokenSource cts = new();
+
+    private static bool CheckIfPlayable()
+    {
+        return false;
+    }
 
     private async void Download()
     {
         DownloadButtonState = AppDownloadButtonStates.Downloading;
-        Debug.WriteLine("Must install to following location: " + AppPaths.ZipPath("AppName"));
-        Debug.WriteLine("Must install to following location: " + AppPaths.DownloadedAppPath("AppName"));
+        string zipPath = DownloadHandler.GetDefaultZipPath(Name);
+        string appPath = DownloadHandler.GetDefaultAppPath(Name);
+
         if (DownloadUrl == null || Name == null) return;
-        //await DownloadHandler.DownloadFileAsync(DownloadUrl, Name, AppDownloadButton.ProgressReport);
         IProgress<double> progress = new Progress<double>(value => ProgressValue = value);
-        await DownloadHandler.DownloadFileAsync(DownloadUrl, Name, progress);
-        Debug.WriteLine(" ------ Zip finished downloading");
-        //await DownloadHandler.ExtractZip
-        //Debug.WriteLine(" ------ Zip finished extracting");
-        DownloadButtonState = AppDownloadButtonStates.Playable;
+        try
+        {
+            // FOR ZIP ONLY
+            cts = new();
+            await DownloadHandler.DownloadFileAsync(DownloadUrl, zipPath, cts.Token, progress);
+            // Todo: should clean destination folder?(appPath)
+            DownloadHandler.ExtractZip(zipPath, appPath);
+            DownloadHandler.DeleteFolder(zipPath);
+            DownloadHandler.CleanDestinationPath(appPath);
+        }
+        catch (Exception ex) {
+            if (ex is OperationCanceledException)
+            {
+                Debug.WriteLine("Stopped Download");
+            }
+            else
+            {
+                throw new Exception($"(SingleAppViewModel) Something happened while downloading: {ex.Message}");
+            }
+            progress.Report(0);
+        }
+        await SetCurrentAppState();
+        //DownloadButtonState = AppDownloadButtonStates.Playable;
     }
 
-    private static void CancelInstall()
+    private void CancelDownload()
     {
-        Debug.WriteLine("Must cancel install");
+        cts.Cancel();
     }
 
     private static void Launch()

@@ -616,7 +616,6 @@
     </Style>
 
     <Style TargetType="Border" x:Key="BorderProgress">
-        <Setter Property="IsVisible" Value="True" />
         <Setter Property="StrokeShape" Value="{StaticResource DefaultStrokeShape}" />
         <Setter Property="HeightRequest" Value="30" />
         <Setter Property="BackgroundColor" Value="Green" />

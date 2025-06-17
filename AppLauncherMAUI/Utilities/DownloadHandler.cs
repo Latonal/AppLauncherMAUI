@@ -1,5 +1,6 @@
 ﻿using AppLauncherMAUI.Config;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO.Compression;
 using System.Security.Cryptography;
 using System.Xml.Linq;
@@ -14,12 +15,15 @@ internal class DownloadHandler
     [
         "application/octet-stream",
         //"application/x-msdownload",
+
         "application/zip",
         "application/x-zip",
         "application/x-zip-compressed",
-        "application/rar",
-        "application/x-rar",
-        "application/x-rar-compressed",
+
+        //"application/rar",
+        //"application/x-rar",
+        //"application/x-rar-compressed",
+
         //"application/vnd.android.package-archive",
         //"application/x-msinstaller",
         //"application/pdf",
@@ -56,67 +60,122 @@ internal class DownloadHandler
         return DownloadableContentTypes.Contains(val);
     }
 
-    public static async Task DownloadFileAsync(string url, string destinationPathName, IProgress<double>? progress = null)
+    public static async Task DownloadFileAsync(string url, string filePath, CancellationToken cancellationToken, IProgress<double>? progress = null)
     {
-        Debug.WriteLine(progress?.ToString());
-        for (int i = 1; i <= 100; i++)
+        /* Test
+        //Debug.WriteLine(progress?.ToString());
+        //for (int i = 1; i <= 100; i++)
+        //{
+        //    cancellationToken.ThrowIfCancellationRequested();
+        //    await Task.Delay(50);
+        //    progress?.Report(i / 100.0);
+        //    //Debug.WriteLine("Progress: " + i);
+        //} 
+        */
+
+        try
         {
-            await Task.Delay(50);
-            progress?.Report(i / 100.0);
-            //Debug.WriteLine("Progress: " + i);
+            using var response = await client.GetAsync(url, HttpCompletionOption.ResponseHeadersRead);
+            response.EnsureSuccessStatusCode();
+
+            long totalBytes = response.Content.Headers.ContentLength ?? -1L;
+            bool canTrackProgress = totalBytes != -1 && progress != null;
+
+            using Stream stream = await response.Content.ReadAsStreamAsync();
+            int bufferSize = 4096;
+            using FileStream fileStream = new(filePath, FileMode.Create, FileAccess.Write, FileShare.None, bufferSize, true);
+
+            byte[] buffer = new byte[bufferSize];
+            long totalRead = 0;
+            int read;
+
+            while ((read = await stream.ReadAsync(buffer)) > 0)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                await fileStream.WriteAsync(buffer.AsMemory(0, read));
+                totalRead += read;
+
+                if (canTrackProgress)
+                    progress?.Report((double)totalRead / totalBytes);
+            }
+
+            progress?.Report(1);
         }
-
-        //try
-        //{
-        //    string filePath = HandlePath(AppPaths.CacheDirectory, "TempZip", destinationPathName);
-
-        //    using var response = await client.GetAsync(url, HttpCompletionOption.ResponseHeadersRead);
-        //    response.EnsureSuccessStatusCode();
-
-        //    long totalBytes = response.Content.Headers.ContentLength ?? -1L;
-        //    bool canTrackProgress = totalBytes != -1 && progress != null;
-
-        //    using Stream stream = await response.Content.ReadAsStreamAsync();
-        //    int bufferSize = 4096;
-        //    using FileStream fileStream = new(filePath, FileMode.Create, FileAccess.Write, FileShare.None, bufferSize, true);
-
-        //    byte[] buffer = new byte[bufferSize];
-        //    long totalRead = 0;
-        //    int read;
-
-        //    while ((read = await stream.ReadAsync(buffer)) > 0)
-        //    {
-        //        await fileStream.WriteAsync(buffer.AsMemory(0, read));
-        //        totalRead += read;
-
-        //        if (canTrackProgress)
-        //            progress?.Report((double)totalRead / totalBytes);
-        //    }
-
-        //    progress?.Report(1);
-        //}
-        //catch (Exception e)
-        //{
-        //    Debug.WriteLine("Message:{0}", e.Message);
-        //}
+        catch (Exception e)
+        {
+            Debug.WriteLine("Message:{0}", e.Message);
+        }
     }
 
-    public static string HandlePath(string path, string folderName, string? fileName)
+    public static string GetDefaultZipPath(string fileName)
     {
-        Directory.CreateDirectory(Path.Combine(path, folderName));
-        string filePath = Path.Combine(path, folderName);
+        string filePath = Path.Combine(AppPaths.CacheDirectory, "TempZip");
+        Directory.CreateDirectory(filePath);
         if (fileName != null)
             filePath = Path.Combine(filePath, fileName + ".zip");
+        return filePath;
+    }
 
+    public static string GetDefaultAppPath(string fileName)
+    {
+        string filePath = AppPaths.DownloadedAppPath(fileName);
+        Directory.CreateDirectory(filePath);
         return filePath;
     }
 
     public static void ExtractZip(string zipFilePath, string destinationPath)
     {
-        if (Directory.Exists(destinationPath)) // ???? not so sure
-            Directory.Delete(destinationPath, true);
+        Directory.CreateDirectory(destinationPath);
 
-        ZipFile.ExtractToDirectory(zipFilePath, destinationPath);
+        ZipFile.ExtractToDirectory(zipFilePath, destinationPath, true);
+    }
+
+    /// <summary>
+    /// !!Be cautious when using this method!!
+    /// <para>If a file is given as a path, it will delete the parent folder and its content.</para>
+    /// <para>If a folder is given as a path, it will delete it and its content.</para>
+    /// </summary>
+    /// <param name="path">Path to clean</param>
+    public static void DeleteFolder(string path)
+    {
+        if (path == null) return;
+        if (File.Exists(path))
+            path = Path.GetDirectoryName(path) ?? "";
+
+        if (path == "") return;
+
+        if (Directory.Exists(path))
+            Directory.Delete(path, true);
+    }
+
+    /// <summary>
+    /// Auto clean the destination path if there is only one folder as root
+    /// by putting back up of one level all of the files and folder in it.
+    /// (As .zip always have a root folder when extracted)
+    /// </summary>
+    /// <param name="destinationPath">Path where the application has been extracted to</param>
+    public static void CleanDestinationPath(string destinationPath)
+    {
+        string[] directories = Directory.GetDirectories(destinationPath);
+        string[] files = Directory.GetFiles(destinationPath);
+
+        if (directories.Length == 1 && files.Length == 0)
+        {
+            string innerFolder = directories[0];
+
+            foreach (string file in Directory.GetFiles(innerFolder))
+            {
+                string destinationFile = Path.Combine(destinationPath, Path.GetFileName(file));
+                File.Move(file, destinationFile, true);
+            }
+            foreach (string folder in Directory.GetDirectories(innerFolder))
+            {
+                string destinationDir = Path.Combine(destinationPath, Path.GetFileName(folder));
+                Directory.Move(folder, destinationDir);
+            }
+
+            Directory.Delete(innerFolder, true);
+        }
     }
 
     public static async Task<string> GetRemoteHash(string url)
