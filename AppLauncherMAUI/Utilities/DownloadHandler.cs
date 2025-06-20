@@ -53,11 +53,27 @@ internal class DownloadHandler
 
     public static async Task<bool> CheckIfValidHeader(string url)
     {
-        if (!CheckValidUri(url)) return false;
+        if (!CheckValidUri(url)) {
+            Console.Error.WriteLine("[DownloadHandler] The given url (" + url + ") is not well formatted.");
+            return false;
+        }
 
         string? val = await GetHeader(url);
-        Debug.WriteLine("Header value:" + val);
-        return DownloadableContentTypes.Contains(val);
+        if (val == null) return false;
+        return ExternalApplicationManager.GetAllowedContentType(val) != ExternalApplicationManager.AllowedContentType.Unknown;
+    }
+
+    public static async Task<ExternalApplicationManager.AllowedContentType> GetContentType(string url)
+    {
+        if (!CheckValidUri(url))
+        {
+            Console.Error.WriteLine("[DownloadHandler] The given url (" + url + ") is not well formatted.");
+            return ExternalApplicationManager.AllowedContentType.Unknown;
+        }
+
+        string? val = await GetHeader(url);
+        if (val == null) return ExternalApplicationManager.AllowedContentType.Unknown;
+        return ExternalApplicationManager.GetAllowedContentType(val);
     }
 
     public static async Task DownloadFileAsync(string url, string filePath, CancellationToken cancellationToken, IProgress<double>? progress = null)
@@ -107,19 +123,21 @@ internal class DownloadHandler
         }
     }
 
-    public static string GetDefaultZipPath(string fileName)
+    public static string GetDefaultZipPath(string fileName, bool createFolder = true)
     {
         string filePath = Path.Combine(AppPaths.CacheDirectory, "TempZip");
-        Directory.CreateDirectory(filePath);
+        if (createFolder) 
+            Directory.CreateDirectory(filePath);
         if (fileName != null)
             filePath = Path.Combine(filePath, fileName + ".zip");
         return filePath;
     }
 
-    public static string GetDefaultAppPath(string fileName)
+    public static string GetDefaultAppPath(string fileName, bool createFolder = true)
     {
         string filePath = AppPaths.DownloadedAppPath(fileName);
-        Directory.CreateDirectory(filePath);
+        if (createFolder)
+            Directory.CreateDirectory(filePath);
         return filePath;
     }
 

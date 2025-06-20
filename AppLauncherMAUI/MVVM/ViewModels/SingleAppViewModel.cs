@@ -109,10 +109,10 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
             else
             {
                 // CompareVersion
-                    // If same 
-                        // Set Playable
-                    // Else
-                        // Set Update
+                // If same 
+                // Set Playable
+                // Else
+                // Set Update
             }
         }
         else
@@ -155,9 +155,11 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
 
     private CancellationTokenSource cts = new();
 
-    private static bool CheckIfPlayable()
+    private bool CheckIfPlayable()
     {
-        return false;
+        string[]? foundFiles = ApplicationHandler.ReturnFilesByPatterns(Name);
+
+        return !(foundFiles == null || foundFiles.Length == 0);
     }
 
     private async void Download()
@@ -170,18 +172,26 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
         IProgress<double> progress = new Progress<double>(value => ProgressValue = value);
         try
         {
-            // FOR ZIP ONLY
-            cts = new();
-            await DownloadHandler.DownloadFileAsync(DownloadUrl, zipPath, cts.Token, progress);
-            // Todo: should clean destination folder?(appPath)
-            DownloadHandler.ExtractZip(zipPath, appPath);
-            DownloadHandler.DeleteFolder(zipPath);
-            DownloadHandler.CleanDestinationPath(appPath);
+            ExternalApplicationManager.AllowedContentType type = await DownloadHandler.GetContentType(DownloadUrl);
+
+            if (type == ExternalApplicationManager.AllowedContentType.Zip)
+            {
+                cts = new();
+                await DownloadHandler.DownloadFileAsync(DownloadUrl, zipPath, cts.Token, progress);
+                // Todo: should clean destination folder?(appPath)
+                DownloadHandler.ExtractZip(zipPath, appPath);
+                DownloadHandler.DeleteFolder(zipPath);
+                DownloadHandler.CleanDestinationPath(appPath);
+            } else
+            {
+                Console.Error.WriteLine("(SingleAppViewModel) Type '" + type + "' is not supported for downloading.");
+            }
         }
-        catch (Exception ex) {
+        catch (Exception ex)
+        {
             if (ex is OperationCanceledException)
             {
-                Debug.WriteLine("Stopped Download");
+                Console.WriteLine("Stopped Download");
             }
             else
             {
@@ -190,7 +200,6 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
             progress.Report(0);
         }
         await SetCurrentAppState();
-        //DownloadButtonState = AppDownloadButtonStates.Playable;
     }
 
     private void CancelDownload()
@@ -198,9 +207,13 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
         cts.Cancel();
     }
 
-    private static void Launch()
+    public ExternalApplicationManager eam = new();
+
+    private void Launch()
     {
-        Debug.WriteLine("Must launch");
+        string[]? files = ApplicationHandler.ReturnFilesByPatterns(Name);
+        // TODO: maybe be a little more selective?
+        if (files?.Length > 0) eam.StartApplication(files[0]);
     }
 
     private static void Delete()
