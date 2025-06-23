@@ -2,6 +2,9 @@
 using System.Diagnostics;
 using System.Globalization;
 using System.IO.Compression;
+using System.Net;
+using System.Net.Http.Headers;
+using System.Net.Sockets;
 using System.Security.Cryptography;
 using System.Xml.Linq;
 
@@ -9,26 +12,7 @@ namespace AppLauncherMAUI.Utilities;
 
 internal class DownloadHandler
 {
-    static readonly HttpClient client = new();
-
-    public static readonly string[] DownloadableContentTypes =
-    [
-        "application/octet-stream",
-        //"application/x-msdownload",
-
-        "application/zip",
-        "application/x-zip",
-        "application/x-zip-compressed",
-
-        //"application/rar",
-        //"application/x-rar",
-        //"application/x-rar-compressed",
-
-        //"application/vnd.android.package-archive",
-        //"application/x-msinstaller",
-        //"application/pdf",
-        //"application/x-tar",
-    ];
+    private static readonly HttpClient client = HttpService.Client;
 
     public static bool CheckValidUri(string url)
     {
@@ -38,16 +22,21 @@ internal class DownloadHandler
         //return Uri.TryCreate(url, UriKind.Absolute, out _);
     }
 
-    public static async Task<string?> GetHeader(string url)
+    public static async Task<string?> GetHeaderAsync(string url)
     {
+        try
+        {
+            using HttpRequestMessage request = new(HttpMethod.Head, url);
+            using HttpResponseMessage response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
 
-        HttpRequestMessage request = new(HttpMethod.Head, url);
-        HttpResponseMessage response = await client.SendAsync(request);
-
-        if (response.IsSuccessStatusCode)
+            response.EnsureSuccessStatusCode();
             return response.Content.Headers.ContentType?.MediaType;
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"(DownloadHandler) [HttpRequestException] {ex.Message}");
+        }
 
-        Console.Error.WriteLine("[DownloadHandler] Error when trying to get the header of \"" + url + "\"");
         return null;
     }
 
@@ -58,7 +47,7 @@ internal class DownloadHandler
             return false;
         }
 
-        string? val = await GetHeader(url);
+        string? val = await GetHeaderAsync(url);
         if (val == null) return false;
         return ExternalApplicationManager.GetAllowedContentType(val) != ExternalApplicationManager.AllowedContentType.Unknown;
     }
@@ -71,7 +60,7 @@ internal class DownloadHandler
             return ExternalApplicationManager.AllowedContentType.Unknown;
         }
 
-        string? val = await GetHeader(url);
+        string? val = await GetHeaderAsync(url);
         if (val == null) return ExternalApplicationManager.AllowedContentType.Unknown;
         return ExternalApplicationManager.GetAllowedContentType(val);
     }
@@ -198,7 +187,8 @@ internal class DownloadHandler
 
     public static async Task<string> GetRemoteHash(string url)
     {
-        return await client.GetStringAsync(url);
+        string hash = await client.GetStringAsync(url);
+        return hash;
     }
 
     public static string GetLocalHash(string filePath)
