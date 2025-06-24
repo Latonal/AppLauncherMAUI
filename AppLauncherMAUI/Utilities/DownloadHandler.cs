@@ -1,43 +1,18 @@
 ﻿using AppLauncherMAUI.Config;
 using System.Diagnostics;
-using System.Globalization;
 using System.IO.Compression;
-using System.Net;
-using System.Net.Http.Headers;
-using System.Net.Sockets;
 using System.Security.Cryptography;
-using System.Xml.Linq;
 
 namespace AppLauncherMAUI.Utilities;
 
 internal class DownloadHandler
 {
-    private static readonly HttpClient client = HttpService.Client;
-
     public static bool CheckValidUri(string url)
     {
         return Uri.IsWellFormedUriString(url, UriKind.Absolute);
 
         //other:
         //return Uri.TryCreate(url, UriKind.Absolute, out _);
-    }
-
-    public static async Task<string?> GetHeaderAsync(string url)
-    {
-        try
-        {
-            using HttpRequestMessage request = new(HttpMethod.Head, url);
-            using HttpResponseMessage response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
-
-            response.EnsureSuccessStatusCode();
-            return response.Content.Headers.ContentType?.MediaType;
-        }
-        catch (Exception ex)
-        {
-            Console.Error.WriteLine($"(DownloadHandler) [HttpRequestException] {ex.Message}");
-        }
-
-        return null;
     }
 
     public static async Task<bool> CheckIfValidHeader(string url)
@@ -47,7 +22,7 @@ internal class DownloadHandler
             return false;
         }
 
-        string? val = await GetHeaderAsync(url);
+        string? val = await HttpService.GetHeaderAsync(url);
         if (val == null) return false;
         return ExternalApplicationManager.GetAllowedContentType(val) != ExternalApplicationManager.AllowedContentType.Unknown;
     }
@@ -60,7 +35,7 @@ internal class DownloadHandler
             return ExternalApplicationManager.AllowedContentType.Unknown;
         }
 
-        string? val = await GetHeaderAsync(url);
+        string? val = await HttpService.GetHeaderAsync(url);
         if (val == null) return ExternalApplicationManager.AllowedContentType.Unknown;
         return ExternalApplicationManager.GetAllowedContentType(val);
     }
@@ -80,7 +55,7 @@ internal class DownloadHandler
 
         try
         {
-            using var response = await client.GetAsync(url, HttpCompletionOption.ResponseHeadersRead);
+            using var response = await HttpService.Client.GetAsync(url, HttpCompletionOption.ResponseHeadersRead);
             response.EnsureSuccessStatusCode();
 
             long totalBytes = response.Content.Headers.ContentLength ?? -1L;
@@ -187,7 +162,7 @@ internal class DownloadHandler
 
     public static async Task<string> GetRemoteHash(string url)
     {
-        string hash = await client.GetStringAsync(url);
+        string hash = await HttpService.Client.GetStringAsync(url);
         return hash;
     }
 

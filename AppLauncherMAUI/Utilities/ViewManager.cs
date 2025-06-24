@@ -20,7 +20,7 @@ public sealed class ViewManager
 
     public static ContentView ContentView
     {
-        get => _contentView ?? throw new InvalidOperationException("ViewManager is attempting to access a ContentView but none has been assigned.");
+        get => _contentView ?? throw new InvalidOperationException("(ViewManager) is attempting to access a ContentView but none has been assigned.");
         set => _contentView = value;
     }
 
