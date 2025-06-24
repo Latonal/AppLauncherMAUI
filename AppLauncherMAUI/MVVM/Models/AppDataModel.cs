@@ -7,4 +7,5 @@ public class AppDataModel
     public string? DownloadUrl { get; set; }
     public LanguagesModel? Text { get; set; }
     public BannersModel? Banners { get; set; }
+    public ExecutionRule[]? ExecutionRules { get; set; }
 }

@@ -9,6 +9,7 @@ namespace AppLauncherMAUI.MVVM.ViewModels;
 
 internal partial class SingleAppViewModel : ExtendedBindableObject
 {
+    #region appdata
     private int _appId = 0;
     public int AppId { get { return _appId; } set { _appId = value; SetData(value); } }
 
@@ -24,13 +25,16 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
     public string? FullBanner { get { return _fullBanner; } set { _fullBanner = value; RaisePropertyChanged(() => FullBanner); } }
     private string? _appCardFullDescription;
     public string? AppCardFullDescription { get { return _appCardFullDescription; } set { _appCardFullDescription = value; RaisePropertyChanged(() => AppCardFullDescription); } }
-
+    private ExecutionRule[]? _executionRules;
+    public ExecutionRule[]? ExecutionRules { get => _executionRules; set => _executionRules = value; }
+    #endregion appdata
     private AppDownloadButtonStates _downloadButtonState = AppDownloadButtonStates.Loading;
     public AppDownloadButtonStates DownloadButtonState { get { return _downloadButtonState; } set { _downloadButtonState = value; RaisePropertyChanged(() => DownloadButtonState); } }
     public ICommand DownloadButtonStateCommand { get; set; }
     private double _progressValue;
     public double ProgressValue { get { return _progressValue; } set { _progressValue = value; RaisePropertyChanged(() => ProgressValue); } }
-    //private static readonly DownloadHandler downloadHandler = new();
+    private CancellationTokenSource cts = new(TimeSpan.FromSeconds(10));
+    //private readonly DownloadHandler downloadHandler = new();
 
 
     public SingleAppViewModel(int appId)
@@ -46,6 +50,11 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
 
         Name = data.Name ?? "DefaultAppName";
         FullBanner = data.Banners?.Full;
+
+        ExecutionRule[]? executionRules = data.ExecutionRules;
+        if (executionRules != null)
+            ExecutionRules = executionRules;
+
         DownloadUrl = data.DownloadUrl;
 
         LanguagesModel? texts = data.Text;
@@ -152,12 +161,9 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
             Delete();
     }
 
-
-    private CancellationTokenSource cts = new();
-
     private bool CheckIfPlayable()
     {
-        string[]? foundFiles = ApplicationHandler.ReturnFilesByPatterns(Name);
+        string[]? foundFiles = ApplicationHandler.ReturnFilesByPatterns(Name, ExecutionRules);
 
         return !(foundFiles == null || foundFiles.Length == 0);
     }
@@ -178,7 +184,7 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
             {
                 cts = new();
                 await DownloadHandler.DownloadFileAsync(DownloadUrl, zipPath, cts.Token, progress);
-                // Todo: should clean destination folder?(appPath)
+                DownloadHandler.DeleteFolder(appPath);
                 DownloadHandler.ExtractZip(zipPath, appPath);
                 DownloadHandler.DeleteFolder(zipPath);
                 DownloadHandler.CleanDestinationPath(appPath);
@@ -211,7 +217,7 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
 
     private void Launch()
     {
-        string[]? files = ApplicationHandler.ReturnFilesByPatterns(Name);
+        string[]? files = ApplicationHandler.ReturnFilesByPatterns(Name, ExecutionRules);
         // TODO: maybe be a little more selective?
         if (files?.Length > 0) eam.StartApplication(files[0]);
     }

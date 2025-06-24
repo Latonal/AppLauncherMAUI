@@ -24,6 +24,18 @@
     "Id": 3,
     "Name": "Favs",
     "DownloadUrl": "https://github.com/Latonal/Favs/archive/refs/heads/main.zip",
+    "ExecutionRules": [
+      {
+        "Type": "Extension",
+        "Value": ".html"
+      },
+      {
+        "Type": "Metadata",
+        "Conditions": [
+
+        ]
+      }
+    ],
     "Text": {
       "Fr": "2 un peu de texte pour décrire l'app",
       "En": "2 some text about the first app"
