@@ -55,8 +55,21 @@
   },
   {
     "Id": 4,
-    "Name": "App 2!!!",
-    "DownloadUrl": "",
+    "Name": "Totally not Favs",
+    "DownloadUrl": "https://api.github.com/repos/Latonal/Favs/contents/",
+    "VersionFileUrl": "",
+    "ExecutionRules": [
+      {
+        "Type": "Extension",
+        "Value": ".html"
+      },
+      {
+        "Type": "Metadata",
+        "Conditions": [
+
+        ]
+      }
+    ],
     "Text": {
       "Fr": "2 un peu de texte pour décrire l'app",
       "En": "2 some text about the first app"

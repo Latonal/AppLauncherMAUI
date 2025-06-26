@@ -11,6 +11,7 @@ public class ExternalApplicationManager
     public enum AllowedContentType
     {
         Zip,
+        Json,
         Executable,
         OctetStream,
         Unknown
@@ -21,6 +22,7 @@ public class ExternalApplicationManager
         return headerValue switch
         {
             "application/zip" or "application/x-zip" or "application/x-zip-compressed" => AllowedContentType.Zip,
+            "application/json" => AllowedContentType.Json,
             "application/vnd.microsoft.portable-executable" => AllowedContentType.Executable, /* might not be enough */
             "application/octet-stream" => AllowedContentType.OctetStream,
 

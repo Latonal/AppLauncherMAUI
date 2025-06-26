@@ -1,9 +1,10 @@
 ﻿using AppLauncherMAUI.Config;
+using AppLauncherMAUI.MVVM.Models.RawDownloadModels;
 using System.Diagnostics;
 using System.IO.Compression;
 using System.Security.Cryptography;
 
-namespace AppLauncherMAUI.Utilities;
+namespace AppLauncherMAUI.Utilities.DownloadUtilities;
 
 internal class DownloadHandler
 {
@@ -17,10 +18,8 @@ internal class DownloadHandler
 
     public static async Task<bool> CheckIfValidHeader(string url)
     {
-        if (!CheckValidUri(url)) {
-            Console.Error.WriteLine("[DownloadHandler] The given url (" + url + ") is not well formatted.");
-            return false;
-        }
+        if (!CheckValidUri(url))
+            throw new Exception("[DownloadHandler] The given url (" + url + ") is not well formatted.");
 
         string? val = await HttpService.GetHeaderAsync(url);
         if (val == null) return false;
@@ -30,10 +29,7 @@ internal class DownloadHandler
     public static async Task<ExternalApplicationManager.AllowedContentType> GetContentType(string url)
     {
         if (!CheckValidUri(url))
-        {
-            Console.Error.WriteLine("[DownloadHandler] The given url (" + url + ") is not well formatted.");
-            return ExternalApplicationManager.AllowedContentType.Unknown;
-        }
+            throw new Exception("[DownloadHandler] The given url (" + url + ") is not well formatted.");
 
         string? val = await HttpService.GetHeaderAsync(url);
         if (val == null) return ExternalApplicationManager.AllowedContentType.Unknown;
@@ -87,10 +83,106 @@ internal class DownloadHandler
         }
     }
 
+    #region Download content by type
+    public static async Task DownloadZipContent(string downloadUrl, string zipPath, string appPath, CancellationToken cancellationToken, IProgress<double> progress)
+    {
+        try
+        {
+            await DownloadFileAsync(downloadUrl, zipPath, cancellationToken, progress);
+            DeleteFolder(appPath);
+            ExtractZip(zipPath, appPath);
+            DeleteFolder(zipPath);
+            CleanDestinationPath(appPath);
+        }
+        catch (Exception ex)
+        {
+            HandleDownloadException(ex, "zip");
+        }
+
+        return;
+    }
+
+    #region Raw download
+    public static async Task DownloadRawContent(string downloadUrl, string appPath, CancellationToken cancellationToken, IProgress<double> progress)
+    {
+        List<StandardRawModel> files = await GetFilesDataByModelType(downloadUrl, cancellationToken);
+        if (files == null || files.Count <= 0) throw new Exception($"[DownloadHandler] url ({downloadUrl}) returned no file.");
+
+        await DownloadRawFiles(files, appPath, progress);
+    }
+
+    private static async Task<List<StandardRawModel>> GetFilesDataByModelType(string downloadUrl, CancellationToken cancellationToken)
+    {
+        Uri uri = CheckValidUri(downloadUrl) ? new Uri(downloadUrl) : throw new Exception($"[DownloadHandler] The given url ({downloadUrl}) is not correct.");
+        string host = uri.Host;
+
+        return host switch
+        {
+            "api.github.com" => await GithubDownloadHandler.GetGithubRawFiles(downloadUrl, cancellationToken),
+            _ => throw new Exception($"[DownloadHandler] url ({downloadUrl}) hostname is not supported."),
+        };
+    }
+
+    public static async Task DownloadRawFiles(List<StandardRawModel> files, string appPath, IProgress<double> progress)
+    {
+        HttpClient client = HttpService.Client;
+        int totalBytes = files.Sum(x => x.Size) ?? 0;
+        int totalRead = 0;
+
+        foreach (StandardRawModel file in files)
+        {
+            if (string.IsNullOrEmpty(file.DownloadUrl) || string.IsNullOrEmpty(file.Path)) continue;
+
+            try
+            {
+                string destinationPath = Path.Combine(appPath, file.Path);
+                string directory = Path.GetDirectoryName(destinationPath)!;
+
+                Directory.CreateDirectory(directory);
+
+                HttpResponseMessage response = await client.GetAsync(file.DownloadUrl);
+                response.EnsureSuccessStatusCode();
+
+                byte[] data = await response.Content.ReadAsByteArrayAsync();
+                await File.WriteAllBytesAsync(destinationPath, data);
+
+                totalRead += file.Size ?? 0;
+                progress?.Report((double)totalRead / totalBytes);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"[DownloadHandler] Error when downloading ({file.DownloadUrl}) at path {file.Path}. {ex.Message}");
+            }
+        }
+
+        progress?.Report(1);
+    }
+    #endregion Raw download
+
+    public static async Task<bool> IsVersionDifferent(string appPath, string versionFileUrl)
+    {
+        // Todo
+
+        return false;
+    }
+
+    private static void HandleDownloadException(Exception ex, string from)
+    {
+        if (ex is OperationCanceledException)
+        {
+            Console.WriteLine("Stopped Download");
+        }
+        else
+        {
+            throw new Exception($"(SingleAppViewModel) Something happened while downloading ({from}): {ex.Message}");
+        }
+    }
+    #endregion Download content by type
+
     public static string GetDefaultZipPath(string fileName, bool createFolder = true)
     {
         string filePath = Path.Combine(AppPaths.CacheDirectory, "TempZip");
-        if (createFolder) 
+        if (createFolder)
             Directory.CreateDirectory(filePath);
         if (fileName != null)
             filePath = Path.Combine(filePath, fileName + ".zip");

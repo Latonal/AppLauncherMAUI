@@ -1,4 +1,5 @@
 ﻿using AppLauncherMAUI.MVVM.Models;
+using AppLauncherMAUI.Utilities.DownloadUtilities;
 using System.Data;
 using System.Diagnostics;
 
@@ -9,18 +10,17 @@ internal static class ApplicationHandler
     public static string[]? ReturnFilesByPatterns(string path, ExecutionRule[]? executionRules = null)
     {
         // add more pattern possible with parameter
-        ExecutionRule[] patterns = [ 
-            //new() { Type = "Extension", Value = "exe" },
-            //new() { Type = "Extension", Value = "lnk" },
-            //new() { Type = "Name", Value = "main" },
-            //new() { Type = "Extension", Value = ".html" },
-            //new() { Type = "ExactMatch", Value = "index.html" },
+        ExecutionRule[] patterns = [
+            new() { Type = "Extension", Value = "exe" },
+            new() { Type = "Extension", Value = "lnk" },
+            new() { Type = "Name", Value = "main" },
+            new() { Type = "ExactMatch", Value = "index.html" },
             new() { Type = "Name", Value = "index" },
-            //new() { Type = "Extension", Value = "md" },
+            new() { Type = "Extension", Value = "md" },
         ];
 
-        //if (executionRules != null && executionRules.Length > 0)
-        //    patterns = [.. executionRules, .. patterns];
+        if (executionRules != null && executionRules.Length > 0)
+            patterns = [.. executionRules, .. patterns];
 
         Debug.WriteLine("----------------Each patterns:");
 
@@ -70,7 +70,7 @@ internal static class ApplicationHandler
                     // does not work
                     if (val == null) continue;
 
-                    string[] matches = Directory.GetFiles(folderPath, val, SearchOption.TopDirectoryOnly);
+                    string[] matches = Directory.GetFiles(folderPath, $"*{val}*", SearchOption.TopDirectoryOnly);
                     if (matches.Length > 0)
                         return matches;
                     break;

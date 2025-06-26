@@ -2,6 +2,8 @@ using AppLauncherMAUI.Config;
 using AppLauncherMAUI.MVVM.Models;
 using AppLauncherMAUI.MVVM.Views.Controls;
 using AppLauncherMAUI.Utilities;
+using AppLauncherMAUI.Utilities.DownloadUtilities;
+using System;
 using System.Diagnostics;
 using System.Windows.Input;
 
@@ -20,6 +22,8 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
     public string Name { get { return _name; } set { _name = value; RaisePropertyChanged(() => Name); } }
     private string? _downloadUrl;
     public string? DownloadUrl { get { return _downloadUrl; } set { _downloadUrl = value; _ = SetCurrentAppState(); } }
+    private string? _versionFileUrl;
+    public string? VersionFileUrl { get { return _versionFileUrl; } set { _versionFileUrl = value; } }
 
     private string? _fullBanner;
     public string? FullBanner { get { return _fullBanner; } set { _fullBanner = value; RaisePropertyChanged(() => FullBanner); } }
@@ -48,14 +52,21 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
     {
         AppDataModel data = await GetData(id);
 
-        Name = data.Name ?? "DefaultAppName";
-        FullBanner = data.Banners?.Full;
-
+        // Functional
         ExecutionRule[]? executionRules = data.ExecutionRules;
         if (executionRules != null)
             ExecutionRules = executionRules;
 
+        VersionFileUrl = data.VersionFileUrl;
+
+        // This line trigger the whole check (SetCurrentAppState())
+        // Any value related to functional must be put above
+        // Any value related to visual muse be put below
         DownloadUrl = data.DownloadUrl;
+
+        // Visual
+        Name = data.Name ?? "DefaultAppName";
+        FullBanner = data.Banners?.Full;
 
         LanguagesModel? texts = data.Text;
         if (texts != null)
@@ -64,8 +75,6 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
         LanguagesModel? desc = data.Banners?.FullDescription;
         if (desc != null)
             AppCardFullDescription = Common.GetTranslatedJsonText(desc);
-
-        Debug.WriteLine("Finished assigning data");
     }
 
     private static async Task<AppDataModel> GetData(int id)
@@ -117,11 +126,8 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
                 DownloadButtonState = AppDownloadButtonStates.Install;
             else
             {
-                // CompareVersion
-                // If same 
-                // Set Playable
-                // Else
-                // Set Update
+                if (VersionFileUrl != null && await DownloadHandler.IsVersionDifferent(DownloadHandler.GetDefaultAppPath(Name), VersionFileUrl))
+                    DownloadButtonState = AppDownloadButtonStates.Update;
             }
         }
         else
@@ -176,35 +182,23 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
 
         if (DownloadUrl == null || Name == null) return;
         IProgress<double> progress = new Progress<double>(value => ProgressValue = value);
-        try
-        {
-            ExternalApplicationManager.AllowedContentType type = await DownloadHandler.GetContentType(DownloadUrl);
+        ExternalApplicationManager.AllowedContentType type = await DownloadHandler.GetContentType(DownloadUrl);
 
-            if (type == ExternalApplicationManager.AllowedContentType.Zip)
-            {
-                cts = new();
-                await DownloadHandler.DownloadFileAsync(DownloadUrl, zipPath, cts.Token, progress);
-                DownloadHandler.DeleteFolder(appPath);
-                DownloadHandler.ExtractZip(zipPath, appPath);
-                DownloadHandler.DeleteFolder(zipPath);
-                DownloadHandler.CleanDestinationPath(appPath);
-            } else
-            {
-                Console.Error.WriteLine("(SingleAppViewModel) Type '" + type + "' is not supported for downloading.");
-            }
-        }
-        catch (Exception ex)
+        if (type == ExternalApplicationManager.AllowedContentType.Zip)
         {
-            if (ex is OperationCanceledException)
-            {
-                Console.WriteLine("Stopped Download");
-            }
-            else
-            {
-                throw new Exception($"(SingleAppViewModel) Something happened while downloading: {ex.Message}");
-            }
-            progress.Report(0);
+            cts = new();
+            await DownloadHandler.DownloadZipContent(DownloadUrl, zipPath, appPath, cts.Token, progress);
         }
+        else if (type == ExternalApplicationManager.AllowedContentType.Json)
+        {
+            await DownloadHandler.DownloadRawContent(DownloadUrl, appPath, cts.Token, progress);
+        }
+        else
+        {
+            Console.Error.WriteLine("(SingleAppViewModel) Type '" + type + "' is not supported for downloading.");
+        }
+
+        progress.Report(0);
         await SetCurrentAppState();
     }
 

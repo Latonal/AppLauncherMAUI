@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using AppLauncherMAUI.Config;
 
 namespace AppLauncherMAUI.Utilities;
 
@@ -46,6 +42,8 @@ public sealed class HttpService
         {
             Timeout = TimeSpan.FromSeconds(30),
         };
+
+        httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(AppConfig.AppName);
 
         return httpClient;
     }
