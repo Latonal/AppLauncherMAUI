@@ -1,4 +1,5 @@
 ﻿using AppLauncherMAUI.Config;
+using System.Net.Http.Headers;
 
 namespace AppLauncherMAUI.Utilities;
 
@@ -40,25 +41,25 @@ public sealed class HttpService
     {
         HttpClient httpClient = new()
         {
-            Timeout = TimeSpan.FromSeconds(30),
+            Timeout = TimeSpan.FromMinutes(5),
         };
 
-        httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(AppConfig.AppName);
+        httpClient.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue($"{AppConfig.AppCommName}", $"{AppConfig.AppVersion}"));
 
         return httpClient;
     }
 
-    public static async Task<string?> GetHeaderAsync(string url)
+    public static async Task<HttpResponseMessage?> MakeCall(string url)
     {
         if (url == null) return null;
         _httpClient ??= GetNewHttpClient();
 
         try
         {
-            HttpResponseMessage response = await _httpClient.GetAsync(url);
+            HttpResponseMessage response = await _httpClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead);
 
             response.EnsureSuccessStatusCode();
-            return response.Content.Headers.ContentType?.MediaType;
+            return response;
         }
         catch (HttpRequestException ex)
         {
@@ -72,5 +73,17 @@ public sealed class HttpService
         {
             throw new Exception($"(HttpService) {ex.Message}");
         }
+    }
+        
+    public static async Task<HttpContentHeaders?> GetContentHeaderAsync(string url)
+    {
+        HttpResponseMessage? response = await MakeCall(url);
+        return response?.Content.Headers;
+    }
+
+    public static async Task<HttpResponseMessage?> GetFullResponseAsync(string url)
+    {
+        HttpResponseMessage? response = await MakeCall(url);
+        return response;
     }
 }

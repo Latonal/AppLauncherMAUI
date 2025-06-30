@@ -43,4 +43,18 @@ internal static class Common
 
         return char.ToUpper(str[0]) + str[1..];
     }
+
+    public static long GetCurrentUnixTimestamp()
+    {
+        return DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+    }
+
+    public static TimeSpan GetRemainingTime(long end)
+    {
+        DateTimeOffset currentTime = DateTimeOffset.FromUnixTimeSeconds(GetCurrentUnixTimestamp());
+        DateTimeOffset endTime = DateTimeOffset.FromUnixTimeSeconds(end);
+
+        TimeSpan remainingTime = endTime - currentTime;
+        return remainingTime;
+    }
 }

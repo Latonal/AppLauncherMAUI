@@ -2,6 +2,7 @@
 using AppLauncherMAUI.MVVM.Models.RawDownloadModels;
 using System.Diagnostics;
 using System.IO.Compression;
+using System.Net.Http.Headers;
 using System.Security.Cryptography;
 
 namespace AppLauncherMAUI.Utilities.DownloadUtilities;
@@ -21,9 +22,23 @@ internal class DownloadHandler
         if (!CheckValidUri(url))
             throw new Exception("[DownloadHandler] The given url (" + url + ") is not well formatted.");
 
-        string? val = await HttpService.GetHeaderAsync(url);
-        if (val == null) return false;
-        return ExternalApplicationManager.GetAllowedContentType(val) != ExternalApplicationManager.AllowedContentType.Unknown;
+        HttpResponseMessage? header = await HttpService.GetFullResponseAsync(url);
+        if (header == null) return false;
+        if (!CheckDownloadAvailability(header, url)) return false;
+        return ExternalApplicationManager.GetAllowedContentType(header.Content.Headers.ContentType?.MediaType ?? "") != ExternalApplicationManager.AllowedContentType.Unknown;
+    }
+
+    public static bool CheckDownloadAvailability(HttpResponseMessage header, string url)
+    {
+        Uri uri = new(url);
+
+        string host = uri.Host;
+        return host switch
+        {
+            "api.github.com" => GithubDownloadHandler.CheckDownloadAvailability(header),
+            "github.com" => true,
+            _ => throw new Exception($"[DownloadHandler] url ({url}) hostname is not supported."),
+        };
     }
 
     public static async Task<ExternalApplicationManager.AllowedContentType> GetContentType(string url)
@@ -31,9 +46,9 @@ internal class DownloadHandler
         if (!CheckValidUri(url))
             throw new Exception("[DownloadHandler] The given url (" + url + ") is not well formatted.");
 
-        string? val = await HttpService.GetHeaderAsync(url);
-        if (val == null) return ExternalApplicationManager.AllowedContentType.Unknown;
-        return ExternalApplicationManager.GetAllowedContentType(val);
+        HttpContentHeaders? header = await HttpService.GetContentHeaderAsync(url);
+        if (header == null) return ExternalApplicationManager.AllowedContentType.Unknown;
+        return ExternalApplicationManager.GetAllowedContentType(header.ContentType?.MediaType ?? "");
     }
 
     public static async Task DownloadFileAsync(string url, string filePath, CancellationToken cancellationToken, IProgress<double>? progress = null)
@@ -108,7 +123,7 @@ internal class DownloadHandler
         List<StandardRawModel> files = await GetFilesDataByModelType(downloadUrl, cancellationToken);
         if (files == null || files.Count <= 0) throw new Exception($"[DownloadHandler] url ({downloadUrl}) returned no file.");
 
-        await DownloadRawFiles(files, appPath, progress);
+        await DownloadRawFiles(files, appPath, cancellationToken, progress);
     }
 
     private static async Task<List<StandardRawModel>> GetFilesDataByModelType(string downloadUrl, CancellationToken cancellationToken)
@@ -123,7 +138,7 @@ internal class DownloadHandler
         };
     }
 
-    public static async Task DownloadRawFiles(List<StandardRawModel> files, string appPath, IProgress<double> progress)
+    public static async Task DownloadRawFiles(List<StandardRawModel> files, string appPath, CancellationToken cancellationToken, IProgress<double> progress)
     {
         HttpClient client = HttpService.Client;
         int totalBytes = files.Sum(x => x.Size) ?? 0;
@@ -131,6 +146,8 @@ internal class DownloadHandler
 
         foreach (StandardRawModel file in files)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             if (string.IsNullOrEmpty(file.DownloadUrl) || string.IsNullOrEmpty(file.Path)) continue;
 
             try
@@ -162,8 +179,18 @@ internal class DownloadHandler
     public static async Task<bool> IsVersionDifferent(string appPath, string versionFileUrl)
     {
         // Todo
+        // if version is different
 
         return false;
+    }
+
+    public static async Task UpdateContent()
+    {
+        // make a method in SingleAppView similar to Download in Update
+
+        // List<StandardRawModel> files = await GetFilesDataByModelType(downloadUrl, cancellationToken);
+        // Then check locally each hash
+        // Update, download, delete
     }
 
     private static void HandleDownloadException(Exception ex, string from)

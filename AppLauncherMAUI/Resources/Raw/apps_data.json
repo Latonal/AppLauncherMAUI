@@ -56,7 +56,7 @@
   {
     "Id": 4,
     "Name": "Totally not Favs",
-    "DownloadUrl": "https://api.github.com/repos/Latonal/Favs/contents/",
+    "DownloadUrl": "https://api.github.com/repos/Latonal/Favs/branches/main",
     "VersionFileUrl": "",
     "ExecutionRules": [
       {

@@ -13,11 +13,8 @@ internal sealed class ModelConverter
     {
         StandardRawModel model = new()
         {
-            Name = rawModel.Name,
             Path = rawModel.Path,
-            Type = rawModel.Type,
             DownloadUrl = rawModel.Download_url,
-            DirectoryUrl = rawModel.Url,
             Hash = rawModel.Sha,
             Size = rawModel.Size,
         };
