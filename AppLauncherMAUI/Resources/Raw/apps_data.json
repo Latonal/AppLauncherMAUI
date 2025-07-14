@@ -2,7 +2,9 @@
   {
     "Id": 1,
     "Name": "App 1 !!! yaaaaay",
-    "DownloadUrl": "https://www.youtube.com/",
+    "DownloadUrls": [
+      "https://www.youtube.com/"
+    ],
     "Text": {
       "Fr": "un peu de texte pour décrire l'app",
       "En": "some text about the first app"
@@ -23,7 +25,16 @@
   {
     "Id": 3,
     "Name": "Favs",
-    "DownloadUrl": "https://github.com/Latonal/Favs/archive/refs/heads/main.zip",
+    "DownloadUrls": [
+      "test url not working",
+      "https://github.com/Latonal/Favs/archive/refs/heads/main.zip"
+    ],
+    "VersionChecker": [
+      {
+        "VersionUrl": "url",
+        "Type": "aaa"
+      }
+    ],
     "ExecutionRules": [
       {
         "Type": "Extension",
@@ -56,7 +67,10 @@
   {
     "Id": 4,
     "Name": "Totally not Favs",
-    "DownloadUrl": "https://api.github.com/repos/Latonal/Favs/branches/main",
+    "DownloadUrls": [
+      "test url not working !!!!2",
+      "https://api.github.com/repos/Latonal/Favs/branches/main"
+    ],
     "VersionFileUrl": "",
     "ExecutionRules": [
       {

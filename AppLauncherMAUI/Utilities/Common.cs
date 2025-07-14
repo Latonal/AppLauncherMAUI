@@ -57,4 +57,18 @@ internal static class Common
         TimeSpan remainingTime = endTime - currentTime;
         return remainingTime;
     }
+
+    public static bool CheckValidUri(string url)
+    {
+        return Uri.IsWellFormedUriString(url, UriKind.Absolute);
+
+        //other:
+        //return Uri.TryCreate(url, UriKind.Absolute, out _);
+    }
+
+    public static string GetUriHost(string url)
+    {
+        Uri uri = CheckValidUri(url) ? new Uri(url) : throw new Exception($"[DownloadHandler] The given url ({url}) is not correct.");
+        return uri.Host;
+    }
 }

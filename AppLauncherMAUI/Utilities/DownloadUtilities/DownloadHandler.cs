@@ -1,26 +1,20 @@
 ﻿using AppLauncherMAUI.Config;
 using AppLauncherMAUI.MVVM.Models.RawDownloadModels;
+using AppLauncherMAUI.Utilities.Interfaces;
 using System.Diagnostics;
 using System.IO.Compression;
-using System.Net.Http.Headers;
-using System.Security.Cryptography;
 
 namespace AppLauncherMAUI.Utilities.DownloadUtilities;
 
 internal class DownloadHandler
 {
-    public static bool CheckValidUri(string url)
+    public async Task<bool> CheckIfValidHeader(string url)
     {
-        return Uri.IsWellFormedUriString(url, UriKind.Absolute);
-
-        //other:
-        //return Uri.TryCreate(url, UriKind.Absolute, out _);
-    }
-
-    public static async Task<bool> CheckIfValidHeader(string url)
-    {
-        if (!CheckValidUri(url))
-            throw new Exception("[DownloadHandler] The given url (" + url + ") is not well formatted.");
+        if (!Common.CheckValidUri(url))
+        {
+            Console.Error.WriteLine("[DownloadHandler] The given url (" + url + ") is not well formatted.");
+            return false;
+        }
 
         HttpResponseMessage? header = await HttpService.GetFullResponseAsync(url);
         if (header == null) return false;
@@ -43,7 +37,7 @@ internal class DownloadHandler
 
     public static async Task<ExternalApplicationManager.AllowedContentType> GetContentType(string url)
     {
-        if (!CheckValidUri(url))
+        if (!Common.CheckValidUri(url))
             throw new Exception("[DownloadHandler] The given url (" + url + ") is not well formatted.");
 
         HttpContentHeaders? header = await HttpService.GetContentHeaderAsync(url);
@@ -66,7 +60,7 @@ internal class DownloadHandler
 
         try
         {
-            using var response = await HttpService.Client.GetAsync(url, HttpCompletionOption.ResponseHeadersRead);
+            using HttpResponseMessage response = await HttpService.Client.GetAsync(url, HttpCompletionOption.ResponseHeadersRead);
             response.EnsureSuccessStatusCode();
 
             long totalBytes = response.Content.Headers.ContentLength ?? -1L;
@@ -123,13 +117,12 @@ internal class DownloadHandler
         List<StandardRawModel> files = await GetFilesDataByModelType(downloadUrl, cancellationToken);
         if (files == null || files.Count <= 0) throw new Exception($"[DownloadHandler] url ({downloadUrl}) returned no file.");
 
-        await DownloadRawFiles(files, appPath, cancellationToken, progress);
+        await DownloadRawFiles(files, appPath, downloadUrl, cancellationToken, progress);
     }
 
     private static async Task<List<StandardRawModel>> GetFilesDataByModelType(string downloadUrl, CancellationToken cancellationToken)
     {
-        Uri uri = CheckValidUri(downloadUrl) ? new Uri(downloadUrl) : throw new Exception($"[DownloadHandler] The given url ({downloadUrl}) is not correct.");
-        string host = uri.Host;
+        string host = Common.GetUriHost(downloadUrl);
 
         return host switch
         {
@@ -138,9 +131,10 @@ internal class DownloadHandler
         };
     }
 
-    public static async Task DownloadRawFiles(List<StandardRawModel> files, string appPath, CancellationToken cancellationToken, IProgress<double> progress)
+    public static async Task DownloadRawFiles(List<StandardRawModel> files, string appPath, string downloadUrl, CancellationToken cancellationToken, IProgress<double> progress)
     {
-        HttpClient client = HttpService.Client;
+        //using HttpClient client = HttpService.Client;
+        using HttpClient client = new();
         int totalBytes = files.Sum(x => x.Size) ?? 0;
         int totalRead = 0;
 
@@ -157,12 +151,28 @@ internal class DownloadHandler
 
                 Directory.CreateDirectory(directory);
 
-                HttpResponseMessage response = await client.GetAsync(file.DownloadUrl);
-                response.EnsureSuccessStatusCode();
+                if (File.Exists(destinationPath)) {
+                    if (CompareFiles(destinationPath, downloadUrl, file.Hash ?? ""))
+                    {
+                        totalRead += file.Size ?? 0;
+                        continue;
+                    }
+                }
 
-                byte[] data = await response.Content.ReadAsByteArrayAsync();
-                await File.WriteAllBytesAsync(destinationPath, data);
+                //using HttpResponseMessage response = await client.GetAsync(file.DownloadUrl, cancellationToken);
+                //response.EnsureSuccessStatusCode();
 
+                //byte[] data = await response.Content.ReadAsByteArrayAsync();
+                //await File.WriteAllBytesAsync(destinationPath, data);
+
+                //totalRead += file.Size ?? 0;
+                //progress?.Report((double)totalRead / totalBytes);
+
+                using Stream stream = await client.GetStreamAsync(file.DownloadUrl, cancellationToken);
+                int bufferSize = 4096;
+                using FileStream fileStream = new(destinationPath, FileMode.Create, FileAccess.Write, FileShare.None, bufferSize, true);
+
+                await stream.CopyToAsync(fileStream, cancellationToken);
                 totalRead += file.Size ?? 0;
                 progress?.Report((double)totalRead / totalBytes);
             }
@@ -176,21 +186,23 @@ internal class DownloadHandler
     }
     #endregion Raw download
 
+    public static bool CompareFiles(string filePath, string downloadUrl, string receivedSha)
+    {
+        string host = Common.GetUriHost(downloadUrl);
+
+        return host switch
+        {
+            "api.github.com" => GithubDownloadHandler.GetGitFileSha1(filePath) == receivedSha,
+            _ => throw new Exception($"[DownloadHandler] url ({downloadUrl}) hostname is not supported."),
+        };
+    }
+
     public static async Task<bool> IsVersionDifferent(string appPath, string versionFileUrl)
     {
         // Todo
         // if version is different
 
         return false;
-    }
-
-    public static async Task UpdateContent()
-    {
-        // make a method in SingleAppView similar to Download in Update
-
-        // List<StandardRawModel> files = await GetFilesDataByModelType(downloadUrl, cancellationToken);
-        // Then check locally each hash
-        // Update, download, delete
     }
 
     private static void HandleDownloadException(Exception ex, string from)
@@ -279,26 +291,12 @@ internal class DownloadHandler
         }
     }
 
-    public static async Task<string> GetRemoteHash(string url)
-    {
-        string hash = await HttpService.Client.GetStringAsync(url);
-        return hash;
-    }
-
-    public static string GetLocalHash(string filePath)
-    {
-        using SHA256 s = SHA256.Create();
-        using Stream stream = File.OpenRead(filePath);
-        byte[] hash = s.ComputeHash(stream);
-        return Convert.ToHexString(hash);
-    }
-
-    public static async Task CheckLogic(string localAppPath, string remoteHashUrl)
-    {
-        if (GetLocalHash(localAppPath) != await GetRemoteHash(remoteHashUrl))
-            //await DownloadFileAsync(localAppPath, remoteHashUrl); // wrong atm
-            Debug.WriteLine("Update app");
-        else
-            Debug.WriteLine("Launch app");
-    }
+    //public static async Task CheckLogic(string localAppPath, string remoteHashUrl)
+    //{
+    //    if (GetLocalHash(localAppPath) != await GetRemoteHash(remoteHashUrl))
+    //        //await DownloadFileAsync(localAppPath, remoteHashUrl); // wrong atm
+    //        Debug.WriteLine("Update app");
+    //    else
+    //        Debug.WriteLine("Launch app");
+    //}
 }

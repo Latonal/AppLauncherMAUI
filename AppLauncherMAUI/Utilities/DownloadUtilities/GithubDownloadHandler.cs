@@ -1,6 +1,9 @@
 ﻿using AppLauncherMAUI.MVVM.Models.RawDownloadModels;
+using AppLauncherMAUI.Utilities.Interfaces;
 using Microsoft.Maui.Graphics.Text;
 using System.Net.Http.Headers;
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.Json;
 
 namespace AppLauncherMAUI.Utilities.DownloadUtilities;
@@ -72,5 +75,19 @@ internal class GithubDownloadHandler
         //Common.GetRemainingTime(resetTime);
 
         return false;
+    }
+
+    public static string GetGitFileSha1(string filePath)
+    {
+        byte[] content = File.ReadAllBytes(filePath);
+        string header = $"blob {content.Length}\0";
+        byte[] headerBytes = Encoding.UTF8.GetBytes(header);
+
+        byte[] full = new byte[headerBytes.Length + content.Length];
+        Buffer.BlockCopy(headerBytes, 0, full, 0, headerBytes.Length);
+        Buffer.BlockCopy(content, 0, full, headerBytes.Length, content.Length);
+
+        byte[] hashBytes = SHA1.HashData(full);
+        return Convert.ToHexStringLower(hashBytes);
     }
 }

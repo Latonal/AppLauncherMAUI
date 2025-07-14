@@ -22,11 +22,7 @@ internal static class ApplicationHandler
         if (executionRules != null && executionRules.Length > 0)
             patterns = [.. executionRules, .. patterns];
 
-        Debug.WriteLine("----------------Each patterns:");
-
         string[]? foundFiles = TryFindMatchingFile(DownloadHandler.GetDefaultAppPath(path, false), patterns);
-
-        Debug.WriteLine("Found files:" + (foundFiles?.Length > 0 ? string.Join("", foundFiles) : ""));
 
         return foundFiles;
     }
