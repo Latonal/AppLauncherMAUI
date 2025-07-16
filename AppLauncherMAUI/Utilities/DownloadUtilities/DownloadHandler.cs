@@ -132,12 +132,24 @@ internal class DownloadHandler
         };
     }
 
+    private static HttpClient GetNewClient()
+    {
+        HttpClient client = new();
+        client.Timeout = TimeSpan.FromMinutes(5);
+        client.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue($"{AppConfig.AppCommName}", $"{AppConfig.AppVersion}"));
+        return client;
+    }
+
     public static async Task DownloadRawFiles(List<StandardRawModel> files, string appPath, string downloadUrl, CancellationToken cancellationToken, IProgress<double> progress)
     {
         //using HttpClient client = HttpService.Client;
-        using HttpClient client = new();
+        //using HttpClient client = new();
+
         int totalBytes = files.Sum(x => x.Size) ?? 0;
         int totalRead = 0;
+        int filesDownloaded = 0;
+
+        HttpClient? client = null;
 
         foreach (StandardRawModel file in files)
         {
@@ -169,11 +181,22 @@ internal class DownloadHandler
                 //totalRead += file.Size ?? 0;
                 //progress?.Report((double)totalRead / totalBytes);
 
-                using Stream stream = await client.GetStreamAsync(file.DownloadUrl, cancellationToken);
-                int bufferSize = 4096;
-                using FileStream fileStream = new(destinationPath, FileMode.Create, FileAccess.Write, FileShare.None, bufferSize, true);
 
-                await stream.CopyToAsync(fileStream, cancellationToken);
+
+                //using Stream stream = await Client.GetStreamAsync(file.DownloadUrl, cancellationToken);
+                //int bufferSize = 4096;
+                //using FileStream fileStream = new(destinationPath, FileMode.Create, FileAccess.Write, FileShare.None, bufferSize, true);
+
+                //await stream.CopyToAsync(fileStream, cancellationToken);
+
+                if (filesDownloaded % 5 == 0 || client == null) {
+                    client?.Dispose();
+                    client = GetNewClient();
+                    await Task.Delay(200);
+                }
+                await DownloadFileWithRetry(file.DownloadUrl, destinationPath, client, cancellationToken);
+
+                filesDownloaded++;
                 totalRead += file.Size ?? 0;
                 progress?.Report((double)totalRead / totalBytes);
             }
@@ -183,7 +206,43 @@ internal class DownloadHandler
             }
         }
 
+        client?.Dispose();
+
         progress?.Report(1);
+    }
+
+    private static async Task DownloadFileWithRetry(string downloadUrl, string destinationPath, HttpClient client, CancellationToken cancellationToken)
+    {
+        int maxRetries = 3;
+        int retryDelay = 1000;
+
+        for (int i = 0; i < maxRetries; i++)
+        {
+            try
+            {
+                using Stream stream = await client.GetStreamAsync(downloadUrl, cancellationToken).ConfigureAwait(false);
+                int bufferSize = 4096;
+                using FileStream fileStream = new(destinationPath, FileMode.Create, FileAccess.Write, FileShare.None, bufferSize, true);
+
+                await stream.CopyToAsync(fileStream, cancellationToken);
+                return;
+            }
+            catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.Forbidden)
+            {
+                await Task.Delay(retryDelay, cancellationToken).ConfigureAwait(false);
+                retryDelay *= 2;
+            }
+            catch (Exception ex)
+            {
+                if (i < maxRetries - 1)
+                    await Task.Delay(retryDelay, cancellationToken).ConfigureAwait(false);
+                else
+                {
+                    Debug.WriteLine($"[DownloadHandler] (Exception) {ex.Message}");
+                    throw;
+                }
+            }
+        }
     }
     #endregion Raw download
 

@@ -4,3 +4,4 @@
 - Optimize call when retrieving files and downloading through API
 - Avoid making new call every time we open the single view of an app?
 - Test the updater
+- Fix issue with raw downloading: Download abruptly stops when raw downloading each files of a github project (tried IHttpClientFactory, static HttpClient, reinstantiating HttpClient, delaying download...) errors are "System.IO.IOException", "SocketException" or "System.Threadings.Tasks.TaskCanceledException"

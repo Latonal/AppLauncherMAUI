@@ -10,7 +10,7 @@ Will be formated at a later date
 
 # Set your own applications to download
 
-- Update AppLauncherMaui/Resources/Raw/apps_data.json accordingly to need
+- Update AppLauncherMaui/Resources/Raw/apps_data.json accordingly to need (do not reference a json coming from Github yet)
 - Application downloaded must have a version.txt at the root if you want to update it later on
 
 # The updater
