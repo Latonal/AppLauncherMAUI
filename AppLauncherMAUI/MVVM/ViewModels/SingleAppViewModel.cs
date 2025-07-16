@@ -57,12 +57,12 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
         if (executionRules != null)
             ExecutionRules = executionRules;
 
-        VersionFileUrl = data.VersionFileUrl;
+        //VersionFileUrl = data.VersionFileUrl;
 
         // This line trigger the whole check (SetCurrentAppState())
         // Any value related to functional must be put above
         // Any value related to visual muse be put below
-        DownloadUrl = data.DownloadUrl;
+        DownloadUrl = await GetWorkingDownloadUrl(data.DownloadUrls ?? []);
 
         // Visual
         Name = data.Name ?? "DefaultAppName";
@@ -80,6 +80,26 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
     private static async Task<AppDataModel> GetData(int id)
     {
         return await JsonFileManager.ReadSingleDataAsync<AppDataModel>(AppPaths.AppsDataJsonName, "Id", id);
+    }
+
+    private static async Task<string> GetWorkingDownloadUrl(string[] downloadUrls)
+    {
+        if (downloadUrls.Length <= 0) return String.Empty;
+
+        foreach (string downloadUrl in downloadUrls) {
+            if (! await DownloadHandler.CheckIfValidHeader(downloadUrl)) continue;
+
+            return downloadUrl;
+
+            // Todo: save for session the current working downloadUrl
+            // with timestamp of the check.
+            // At the start, check if workingUrl has already been found
+            // (user changed page and went back), if so don't make
+            // another call.
+            // Also, save currently workings hosts (in case API is limited)?
+        }
+
+        return String.Empty;
     }
 
     /*SetCurrentAppState logic
@@ -114,24 +134,22 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
             playable = true;
         }
 
-        if (DownloadUrl == null)
+        if (DownloadUrl == String.Empty)
         {
             if (!playable)
                 DownloadButtonState = AppDownloadButtonStates.Disabled;
             return;
         }
-        if (DownloadUrl != null && await DownloadHandler.CheckIfValidHeader(DownloadUrl))
+        else
         {
             if (!playable)
                 DownloadButtonState = AppDownloadButtonStates.Install;
             else
             {
-                if (VersionFileUrl != null && await DownloadHandler.IsVersionDifferent(DownloadHandler.GetDefaultAppPath(Name), VersionFileUrl))
+                if (VersionFileUrl != null && await DownloadHandler.IsVersionDifferent(DownloadHandler.GetDefaultAppPath(AppId.ToString()), VersionFileUrl))
                     DownloadButtonState = AppDownloadButtonStates.Update;
             }
         }
-        else
-            DownloadButtonState = AppDownloadButtonStates.Disabled;
     }
 
     private void ActionDownloadButtonClicked(AppDownloadButtonCommand? cmd)
@@ -169,18 +187,19 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
 
     private bool CheckIfPlayable()
     {
-        string[]? foundFiles = ApplicationHandler.ReturnFilesByPatterns(Name, ExecutionRules);
+        string[]? foundFiles = ApplicationHandler.ReturnFilesByPatterns(AppId.ToString(), ExecutionRules);
 
         return !(foundFiles == null || foundFiles.Length == 0);
     }
 
     private async void Download()
     {
-        DownloadButtonState = AppDownloadButtonStates.Downloading;
-        string zipPath = DownloadHandler.GetDefaultZipPath(Name);
-        string appPath = DownloadHandler.GetDefaultAppPath(Name);
+        if (DownloadUrl == String.Empty || DownloadUrl == null) return;
 
-        if (DownloadUrl == null || Name == null) return;
+        DownloadButtonState = AppDownloadButtonStates.Downloading;
+        string zipPath = DownloadHandler.GetDefaultZipPath(AppId.ToString());
+        string appPath = DownloadHandler.GetDefaultAppPath(AppId.ToString());
+
         IProgress<double> progress = new Progress<double>(value => ProgressValue = value);
         ExternalApplicationManager.AllowedContentType type = await DownloadHandler.GetContentType(DownloadUrl);
 
@@ -211,7 +230,7 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
 
     private void Launch()
     {
-        string[]? files = ApplicationHandler.ReturnFilesByPatterns(Name, ExecutionRules);
+        string[]? files = ApplicationHandler.ReturnFilesByPatterns(AppId.ToString(), ExecutionRules);
         // TODO: maybe be a little more selective?
         if (files?.Length > 0) eam.StartApplication(files[0]);
     }

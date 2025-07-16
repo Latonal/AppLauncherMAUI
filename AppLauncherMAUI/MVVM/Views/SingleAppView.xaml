@@ -23,6 +23,8 @@
             </Grid>
         </Border>
         
+        <!-- On the side: Open local folder / Repair / Uninstall / social links -->
+        
         <Label 
             Text="Welcome to .NET MAUI!"
             VerticalOptions="Center" 

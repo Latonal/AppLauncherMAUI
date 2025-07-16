@@ -3,12 +3,13 @@ using AppLauncherMAUI.MVVM.Models.RawDownloadModels;
 using AppLauncherMAUI.Utilities.Interfaces;
 using System.Diagnostics;
 using System.IO.Compression;
+using System.Net.Http.Headers;
 
 namespace AppLauncherMAUI.Utilities.DownloadUtilities;
 
 internal class DownloadHandler
 {
-    public async Task<bool> CheckIfValidHeader(string url)
+    public static async Task<bool> CheckIfValidHeader(string url)
     {
         if (!Common.CheckValidUri(url))
         {

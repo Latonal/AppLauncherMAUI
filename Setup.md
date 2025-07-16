@@ -12,3 +12,7 @@ Will be formated at a later date
 
 - Update AppLauncherMaui/Resources/Raw/apps_data.json accordingly to need
 - Application downloaded must have a version.txt at the root if you want to update it later on
+
+# The updater
+
+- Set the link correctly since the updater can't be updated with the current version of the main app

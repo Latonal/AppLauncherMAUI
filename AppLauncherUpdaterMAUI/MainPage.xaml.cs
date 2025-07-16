@@ -77,7 +77,7 @@ namespace AppLauncherUpdaterMAUI
             return httpClient;
         }
 
-        public static async Task<(HttpResponseMessage responsee, HeaderType headerType, string workingUrl)> GetHeaderType(string[] urls)
+        public static async Task<(HttpResponseMessage response, HeaderType headerType, string workingUrl)> GetHeaderType(string[] urls)
         {
             HttpClient client = GetNewClient();
             string headerValue = "";

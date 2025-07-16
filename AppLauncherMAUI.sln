@@ -5,6 +5,8 @@ VisualStudioVersion = 17.11.35327.3
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppLauncherMAUI", "AppLauncherMAUI\AppLauncherMAUI.csproj", "{23808C45-6385-4968-BA32-8AA668B43A8D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppLauncherUpdaterMAUI", "AppLauncherUpdaterMAUI\AppLauncherUpdaterMAUI.csproj", "{2F12AAFC-3741-4AFF-AC5A-786B3BE9E32C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -17,6 +19,12 @@ Global
 		{23808C45-6385-4968-BA32-8AA668B43A8D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{23808C45-6385-4968-BA32-8AA668B43A8D}.Release|Any CPU.Build.0 = Release|Any CPU
 		{23808C45-6385-4968-BA32-8AA668B43A8D}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{2F12AAFC-3741-4AFF-AC5A-786B3BE9E32C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2F12AAFC-3741-4AFF-AC5A-786B3BE9E32C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2F12AAFC-3741-4AFF-AC5A-786B3BE9E32C}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{2F12AAFC-3741-4AFF-AC5A-786B3BE9E32C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2F12AAFC-3741-4AFF-AC5A-786B3BE9E32C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2F12AAFC-3741-4AFF-AC5A-786B3BE9E32C}.Release|Any CPU.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

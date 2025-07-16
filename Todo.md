@@ -1,3 +1,6 @@
 - Set elements as focusable, notably in AppCardView.xaml: AppCard Border.GestureRecognizers can't be accessed with keyboard (tab + enter)
 - Change UI of SideNavigation when language is changed in Settings
 - Fix the socket issue when staying too long on a page using HttpClient (like SingleAppView with a valid url)
+- Optimize call when retrieving files and downloading through API
+- Avoid making new call every time we open the single view of an app?
+- Test the updater
