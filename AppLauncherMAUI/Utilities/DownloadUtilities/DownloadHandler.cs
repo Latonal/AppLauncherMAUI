@@ -4,6 +4,7 @@ using AppLauncherMAUI.Utilities.Interfaces;
 using System.Diagnostics;
 using System.IO.Compression;
 using System.Net.Http.Headers;
+using System.Reflection.PortableExecutable;
 
 namespace AppLauncherMAUI.Utilities.DownloadUtilities;
 
@@ -132,24 +133,13 @@ internal class DownloadHandler
         };
     }
 
-    private static HttpClient GetNewClient()
-    {
-        HttpClient client = new();
-        client.Timeout = TimeSpan.FromMinutes(5);
-        client.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue($"{AppConfig.AppCommName}", $"{AppConfig.AppVersion}"));
-        return client;
-    }
-
     public static async Task DownloadRawFiles(List<StandardRawModel> files, string appPath, string downloadUrl, CancellationToken cancellationToken, IProgress<double> progress)
     {
-        //using HttpClient client = HttpService.Client;
-        //using HttpClient client = new();
-
         int totalBytes = files.Sum(x => x.Size) ?? 0;
         int totalRead = 0;
         int filesDownloaded = 0;
 
-        HttpClient? client = null;
+        HttpClient client = HttpService.Client;
 
         foreach (StandardRawModel file in files)
         {
@@ -172,28 +162,6 @@ internal class DownloadHandler
                     }
                 }
 
-                //using HttpResponseMessage response = await client.GetAsync(file.DownloadUrl, cancellationToken);
-                //response.EnsureSuccessStatusCode();
-
-                //byte[] data = await response.Content.ReadAsByteArrayAsync();
-                //await File.WriteAllBytesAsync(destinationPath, data);
-
-                //totalRead += file.Size ?? 0;
-                //progress?.Report((double)totalRead / totalBytes);
-
-
-
-                //using Stream stream = await Client.GetStreamAsync(file.DownloadUrl, cancellationToken);
-                //int bufferSize = 4096;
-                //using FileStream fileStream = new(destinationPath, FileMode.Create, FileAccess.Write, FileShare.None, bufferSize, true);
-
-                //await stream.CopyToAsync(fileStream, cancellationToken);
-
-                if (filesDownloaded % 5 == 0 || client == null) {
-                    client?.Dispose();
-                    client = GetNewClient();
-                    await Task.Delay(200);
-                }
                 await DownloadFileWithRetry(file.DownloadUrl, destinationPath, client, cancellationToken);
 
                 filesDownloaded++;

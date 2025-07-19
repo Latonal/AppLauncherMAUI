@@ -37,9 +37,7 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
     public ICommand DownloadButtonStateCommand { get; set; }
     private double _progressValue;
     public double ProgressValue { get { return _progressValue; } set { _progressValue = value; RaisePropertyChanged(() => ProgressValue); } }
-    private CancellationTokenSource cts = new(TimeSpan.FromSeconds(10));
-    //private readonly DownloadHandler downloadHandler = new();
-
+    private CancellationTokenSource cts = new(TimeSpan.FromMinutes(30));
 
     public SingleAppViewModel(int appId)
     {
@@ -205,7 +203,6 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
 
         if (type == ExternalApplicationManager.AllowedContentType.Zip)
         {
-            cts = new();
             await DownloadHandler.DownloadZipContent(DownloadUrl, zipPath, appPath, cts.Token, progress);
         }
         else if (type == ExternalApplicationManager.AllowedContentType.Json)

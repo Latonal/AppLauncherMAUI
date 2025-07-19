@@ -41,7 +41,7 @@ public sealed class HttpService
     {
         HttpClient httpClient = new()
         {
-            Timeout = TimeSpan.FromMinutes(5),
+            Timeout = TimeSpan.FromMinutes(30),
         };
 
         httpClient.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue($"{AppConfig.AppCommName}", $"{AppConfig.AppVersion}"));
