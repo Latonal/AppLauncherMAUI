@@ -10,7 +10,7 @@ namespace AppLauncherMAUI.Utilities.DownloadUtilities;
 
 internal class GithubDownloadHandler
 {
-    public static async Task<List<StandardRawModel>> GetGithubRawFiles(string downloadUrl, CancellationToken cancellationToken)
+    public static async Task<(List<StandardRawModel>, string)> GetGithubRawFiles(string downloadUrl, CancellationToken cancellationToken)
     {
         HttpClient client = HttpService.Client;
 
@@ -19,7 +19,7 @@ internal class GithubDownloadHandler
         if (!response.IsSuccessStatusCode)
         {
             Console.WriteLine($"[DownloadHandler] Error with GitHub API: {response.StatusCode}");
-            return [];
+            return ([], "");
         }
 
         List<StandardRawModel> files = [];
@@ -31,11 +31,9 @@ internal class GithubDownloadHandler
         string repo = segments[3].TrimEnd('/');
         string branch = segments[5].TrimEnd('/');
 
-        string json = await response.Content.ReadAsStringAsync(cancellationToken);
+        string sha = await GetSha(response, cancellationToken);
 
-        BranchInfoModel? branchInfo = JsonSerializer.Deserialize<BranchInfoModel>(json);
-        string sha = branchInfo?.Commit?.Sha ?? "";
-        if (sha == "") return [];
+        if (sha == "") return ([], "");
 
         string treeUrl = $"https://api.github.com/repos/{owner}/{repo}/git/trees/{sha}?recursive=1";
         string standardRawUrl = $"https://raw.githubusercontent.com/{owner}/{repo}/{branch}/"; // add path
@@ -44,7 +42,7 @@ internal class GithubDownloadHandler
         string jsonTree = await responseFullTree.Content.ReadAsStringAsync(cancellationToken);
 
         List<GithubRawModel>? treeInfo = JsonSerializer.Deserialize<GithubTreeModel>(jsonTree)?.Tree;
-        if (treeInfo?.Count <= 0 || treeInfo == null) return [];
+        if (treeInfo?.Count <= 0 || treeInfo == null) return ([], "");
 
         foreach (GithubRawModel file in treeInfo)
         {
@@ -56,7 +54,21 @@ internal class GithubDownloadHandler
             files.Add(converted);
         }
 
-        return files;
+        return (files, sha);
+    }
+
+    public static async Task<string> GetSha(HttpResponseMessage response, CancellationToken cancellationToken)
+    {
+        string json = await response.Content.ReadAsStringAsync(cancellationToken);
+
+        BranchInfoModel? branchInfo = JsonSerializer.Deserialize<BranchInfoModel>(json);
+        return branchInfo?.Commit?.Sha ?? "";
+    }
+
+    public static string GetSha(string json)
+    {
+        BranchInfoModel? branchInfo = JsonSerializer.Deserialize<BranchInfoModel>(json);
+        return branchInfo?.Commit?.Sha ?? "";
     }
 
     public static bool CheckDownloadAvailability(HttpResponseMessage header)

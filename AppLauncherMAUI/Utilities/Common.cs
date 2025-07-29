@@ -49,15 +49,6 @@ internal static class Common
         return DateTimeOffset.UtcNow.ToUnixTimeSeconds();
     }
 
-    public static TimeSpan GetRemainingTime(long end)
-    {
-        DateTimeOffset currentTime = DateTimeOffset.FromUnixTimeSeconds(GetCurrentUnixTimestamp());
-        DateTimeOffset endTime = DateTimeOffset.FromUnixTimeSeconds(end);
-
-        TimeSpan remainingTime = endTime - currentTime;
-        return remainingTime;
-    }
-
     public static bool CheckValidUri(string url)
     {
         return Uri.IsWellFormedUriString(url, UriKind.Absolute);

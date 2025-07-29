@@ -1,16 +1,14 @@
 ﻿using AppLauncherMAUI.Config;
 using AppLauncherMAUI.MVVM.Models.RawDownloadModels;
-using AppLauncherMAUI.Utilities.Interfaces;
 using System.Diagnostics;
 using System.IO.Compression;
 using System.Net.Http.Headers;
-using System.Reflection.PortableExecutable;
 
 namespace AppLauncherMAUI.Utilities.DownloadUtilities;
 
 internal class DownloadHandler
 {
-    public static async Task<bool> CheckIfValidHeader(string url)
+    public static async Task<bool> CheckIfValidHeader(string url, CancellationToken cancellationToken)
     {
         if (!Common.CheckValidUri(url))
         {
@@ -18,10 +16,10 @@ internal class DownloadHandler
             return false;
         }
 
-        HttpResponseMessage? header = await HttpService.GetFullResponseAsync(url);
+        HttpResponseMessage? header = await HttpService.GetResponseAsync(url, cancellationToken);
         if (header == null) return false;
         if (!CheckDownloadAvailability(header, url)) return false;
-        return ExternalApplicationManager.GetAllowedContentType(header.Content.Headers.ContentType?.MediaType ?? "") != ExternalApplicationManager.AllowedContentType.Unknown;
+        return ExternalApplicationManager.GetAppAllowedContentType(header.Content.Headers.ContentType?.MediaType ?? "") != ExternalApplicationManager.AllowedContentType.Unknown;
     }
 
     public static bool CheckDownloadAvailability(HttpResponseMessage header, string url)
@@ -37,14 +35,24 @@ internal class DownloadHandler
         };
     }
 
-    public static async Task<ExternalApplicationManager.AllowedContentType> GetContentType(string url)
+    public static async Task<ExternalApplicationManager.AllowedContentType> GetAppContentType(string url, CancellationToken cancellationToken)
     {
         if (!Common.CheckValidUri(url))
             throw new Exception("[DownloadHandler] The given url (" + url + ") is not well formatted.");
 
-        HttpContentHeaders? header = await HttpService.GetContentHeaderAsync(url);
+        HttpContentHeaders? header = await HttpService.GetContentHeaderAsync(url, cancellationToken);
         if (header == null) return ExternalApplicationManager.AllowedContentType.Unknown;
-        return ExternalApplicationManager.GetAllowedContentType(header.ContentType?.MediaType ?? "");
+        return ExternalApplicationManager.GetAppAllowedContentType(header.ContentType?.MediaType ?? "");
+    }
+
+    public static async Task<ExternalApplicationManager.AllowedContentType> GetVersionContentType(string url, CancellationToken cancellationToken)
+    {
+        if (!Common.CheckValidUri(url))
+            throw new Exception("[DownloadHandler] The given url (" + url + ") is not well formatted.");
+
+        HttpContentHeaders? header = await HttpService.GetContentHeaderAsync(url, cancellationToken);
+        if (header == null) return ExternalApplicationManager.AllowedContentType.Unknown;
+        return ExternalApplicationManager.GetVersionAllowedContentType(header.ContentType?.MediaType ?? "");
     }
 
     public static async Task DownloadFileAsync(string url, string filePath, CancellationToken cancellationToken, IProgress<double>? progress = null)
@@ -114,15 +122,15 @@ internal class DownloadHandler
     }
 
     #region Raw download
-    public static async Task DownloadRawContent(string downloadUrl, string appPath, CancellationToken cancellationToken, IProgress<double> progress)
+    public static async Task DownloadRawContent(string downloadUrl, string appPath, int appId, CancellationToken cancellationToken, IProgress<double> progress)
     {
-        List<StandardRawModel> files = await GetFilesDataByModelType(downloadUrl, cancellationToken);
+        (List<StandardRawModel> files, string hash) = await GetFilesDataByModelType(downloadUrl, cancellationToken);
         if (files == null || files.Count <= 0) throw new Exception($"[DownloadHandler] url ({downloadUrl}) returned no file.");
 
-        await DownloadRawFiles(files, appPath, downloadUrl, cancellationToken, progress);
+        await DownloadRawFiles(files, hash, appPath, appId, downloadUrl, cancellationToken, progress);
     }
 
-    private static async Task<List<StandardRawModel>> GetFilesDataByModelType(string downloadUrl, CancellationToken cancellationToken)
+    private static async Task<(List<StandardRawModel>, string)> GetFilesDataByModelType(string downloadUrl, CancellationToken cancellationToken)
     {
         string host = Common.GetUriHost(downloadUrl);
 
@@ -133,7 +141,7 @@ internal class DownloadHandler
         };
     }
 
-    public static async Task DownloadRawFiles(List<StandardRawModel> files, string appPath, string downloadUrl, CancellationToken cancellationToken, IProgress<double> progress)
+    public static async Task DownloadRawFiles(List<StandardRawModel> files, string hash, string appPath, int appId, string downloadUrl, CancellationToken cancellationToken, IProgress<double> progress)
     {
         int totalBytes = files.Sum(x => x.Size) ?? 0;
         int totalRead = 0;
@@ -174,7 +182,7 @@ internal class DownloadHandler
             }
         }
 
-        client?.Dispose();
+        await UpdateTracker.SetUpdateTrackerModelAsync(appId, hash, "");
 
         progress?.Report(1);
     }
@@ -223,14 +231,6 @@ internal class DownloadHandler
             "api.github.com" => GithubDownloadHandler.GetGitFileSha1(filePath) == receivedSha,
             _ => throw new Exception($"[DownloadHandler] url ({downloadUrl}) hostname is not supported."),
         };
-    }
-
-    public static async Task<bool> IsVersionDifferent(string appPath, string versionFileUrl)
-    {
-        // Todo
-        // if version is different
-
-        return false;
     }
 
     private static void HandleDownloadException(Exception ex, string from)

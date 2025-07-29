@@ -39,24 +39,24 @@ public sealed class HttpService
 
     private static HttpClient GetNewHttpClient()
     {
-        HttpClient httpClient = new()
-        {
+        HttpClient httpClient = new() {
             Timeout = TimeSpan.FromMinutes(30),
         };
 
         httpClient.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue($"{AppConfig.AppCommName}", $"{AppConfig.AppVersion}"));
+        httpClient.DefaultRequestHeaders.ConnectionClose = true;
 
         return httpClient;
     }
 
-    public static async Task<HttpResponseMessage?> MakeCall(string url)
+    public static async Task<HttpResponseMessage?> GetResponseAsync(string url, CancellationToken cancellationToken)
     {
         if (url == null) return null;
         _httpClient ??= GetNewHttpClient();
 
         try
         {
-            HttpResponseMessage response = await _httpClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead);
+            HttpResponseMessage response = await _httpClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
 
             response.EnsureSuccessStatusCode();
             return response;
@@ -75,15 +75,9 @@ public sealed class HttpService
         }
     }
         
-    public static async Task<HttpContentHeaders?> GetContentHeaderAsync(string url)
+    public static async Task<HttpContentHeaders?> GetContentHeaderAsync(string url, CancellationToken cancellationToken)
     {
-        HttpResponseMessage? response = await MakeCall(url);
+        HttpResponseMessage? response = await GetResponseAsync(url, cancellationToken);
         return response?.Content.Headers;
-    }
-
-    public static async Task<HttpResponseMessage?> GetFullResponseAsync(string url)
-    {
-        HttpResponseMessage? response = await MakeCall(url);
-        return response;
     }
 }

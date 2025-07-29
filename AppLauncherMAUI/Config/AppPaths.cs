@@ -9,5 +9,7 @@
         public static string AppDataJson => Path.Combine(LocalDataDirectory, AppsDataJsonName);
         public static Func<string, string> ZipPath = name => Path.Combine(CacheDirectory, name, "data.zip");
         public static Func<string, string> DownloadedAppPath = name => Path.Combine(LocalDataDirectory, "apps", name);
+
+        public static string VersionTrackingFilePath => Path.Combine(LocalDataDirectory, "version_tracking.json");
     }
 }

@@ -14,10 +14,11 @@ public class ExternalApplicationManager
         Json,
         Executable,
         OctetStream,
+        Text,
         Unknown
     }
 
-    public static AllowedContentType GetAllowedContentType(string headerValue)
+    public static AllowedContentType GetAppAllowedContentType(string headerValue)
     {
         return headerValue switch
         {
@@ -25,6 +26,17 @@ public class ExternalApplicationManager
             "application/json" => AllowedContentType.Json,
             "application/vnd.microsoft.portable-executable" => AllowedContentType.Executable, /* might not be enough */
             "application/octet-stream" => AllowedContentType.OctetStream,
+
+            _ => AllowedContentType.Unknown,
+        };
+    }
+
+    public static AllowedContentType GetVersionAllowedContentType(string headerValue)
+    {
+        return headerValue switch
+        {
+            "text/plain" => AllowedContentType.Text,
+            "application/json" => AllowedContentType.Json,
 
             _ => AllowedContentType.Unknown,
         };

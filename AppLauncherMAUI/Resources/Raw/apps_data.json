@@ -29,11 +29,8 @@
       "test url not working",
       "https://github.com/Latonal/Favs/archive/refs/heads/main.zip"
     ],
-    "VersionChecker": [
-      {
-        "VersionUrl": "url",
-        "Type": "aaa"
-      }
+    "VersionUrls": [
+      "https://raw.githubusercontent.com/Latonal/Favs/refs/heads/main/LICENSE.txt"
     ],
     "ExecutionRules": [
       {
@@ -68,10 +65,14 @@
     "Id": 4,
     "Name": "Totally not Favs",
     "DownloadUrls": [
-      "test url not working !!!!2",
-      "https://api.github.com/repos/Latonal/Favs/branches/main"
+      "https://api.github.com/repos/Latonal/Favs/branches/main",
+      "test url not working !!!!2"
     ],
-    "VersionFileUrl": "",
+    "VersionUrls": [
+      "url",
+      "https://api.github.com/repos/Latonal/Favs/branches/main",
+      "https://raw.githubusercontent.com/Latonal/Favs/refs/heads/main/LICENSE.txt"
+    ],
     "ExecutionRules": [
       {
         "Type": "Extension",

@@ -37,7 +37,7 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
     public ICommand DownloadButtonStateCommand { get; set; }
     private double _progressValue;
     public double ProgressValue { get { return _progressValue; } set { _progressValue = value; RaisePropertyChanged(() => ProgressValue); } }
-    private CancellationTokenSource cts = new(TimeSpan.FromMinutes(30));
+    private readonly CancellationTokenSource cts = new(TimeSpan.FromMinutes(30));
 
     public SingleAppViewModel(int appId)
     {
@@ -55,7 +55,7 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
         if (executionRules != null)
             ExecutionRules = executionRules;
 
-        //VersionFileUrl = data.VersionFileUrl;
+        VersionFileUrl = GetWorkingVersionFile(data.VersionUrls ?? []);
 
         // This line trigger the whole check (SetCurrentAppState())
         // Any value related to functional must be put above
@@ -80,20 +80,39 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
         return await JsonFileManager.ReadSingleDataAsync<AppDataModel>(AppPaths.AppsDataJsonName, "Id", id);
     }
 
-    private static async Task<string> GetWorkingDownloadUrl(string[] downloadUrls)
+    private static string GetWorkingVersionFile(string[] versionUrls)
     {
+        // TODO?: Might need to check if the header is valid too?
+        // But be cautious of being rate limited faster
+        // depends of number of apps
+        if (versionUrls.Length <= 0) return String.Empty;
+
+        foreach (string versionUrl in versionUrls) {
+            if (Common.CheckValidUri(versionUrl))
+                return versionUrl;
+        }
+
+        return String.Empty;
+    }
+
+    private async Task<string> GetWorkingDownloadUrl(string[] downloadUrls)
+    {
+        string lastSavedUrl = await UpdateTracker.ShouldWeCheckValidity(AppId, null);
+        if (lastSavedUrl != String.Empty) return lastSavedUrl;
+
         if (downloadUrls.Length <= 0) return String.Empty;
 
         foreach (string downloadUrl in downloadUrls) {
-            if (! await DownloadHandler.CheckIfValidHeader(downloadUrl)) continue;
+            if (! await DownloadHandler.CheckIfValidHeader(downloadUrl, cts.Token)) continue;
 
+            await UpdateTracker.SetUpdateTrackerModelAsync(AppId, "", downloadUrl);
             return downloadUrl;
 
             // Todo: save for session the current working downloadUrl
             // with timestamp of the check.
             // At the start, check if workingUrl has already been found
             // (user changed page and went back), if so don't make
-            // another call.
+            // another call. (this part is done)
             // Also, save currently workings hosts (in case API is limited)?
         }
 
@@ -144,7 +163,7 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
                 DownloadButtonState = AppDownloadButtonStates.Install;
             else
             {
-                if (VersionFileUrl != null && await DownloadHandler.IsVersionDifferent(DownloadHandler.GetDefaultAppPath(AppId.ToString()), VersionFileUrl))
+                if (!String.IsNullOrEmpty(VersionFileUrl) && await UpdateTracker.IsVersionDifferent(DownloadHandler.GetDefaultAppPath(AppId.ToString()), AppId, VersionFileUrl, cts.Token))
                     DownloadButtonState = AppDownloadButtonStates.Update;
             }
         }
@@ -199,7 +218,7 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
         string appPath = DownloadHandler.GetDefaultAppPath(AppId.ToString());
 
         IProgress<double> progress = new Progress<double>(value => ProgressValue = value);
-        ExternalApplicationManager.AllowedContentType type = await DownloadHandler.GetContentType(DownloadUrl);
+        ExternalApplicationManager.AllowedContentType type = await DownloadHandler.GetAppContentType(DownloadUrl, cts.Token);
 
         if (type == ExternalApplicationManager.AllowedContentType.Zip)
         {
@@ -207,7 +226,7 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
         }
         else if (type == ExternalApplicationManager.AllowedContentType.Json)
         {
-            await DownloadHandler.DownloadRawContent(DownloadUrl, appPath, cts.Token, progress);
+            await DownloadHandler.DownloadRawContent(DownloadUrl, appPath, AppId, cts.Token, progress);
         }
         else
         {
