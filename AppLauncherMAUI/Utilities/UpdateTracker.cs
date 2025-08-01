@@ -39,29 +39,37 @@ internal static class UpdateTracker
 
     public static async Task<long> GetLastChecked(int appId)
     {
-        UpdateTrackerModel model = await LoadAsync();
-        if (model.Apps == null) return 0;
-        return model.Apps.TryGetValue(appId, out AppUpdateInfo? info) ? info.LastChecked : 0;
+        AppUpdateInfo? info = await GetModel(appId);
+        if (info == null) return 0;
+        return info.LastChecked;
     }
 
     public static async Task<string?> GetHashAsync(int appId)
     {
-        UpdateTrackerModel model = await LoadAsync();
-        if (model.Apps == null) return null;
-        return model.Apps.TryGetValue(appId, out AppUpdateInfo? info) ? info.Hash : null;
+        AppUpdateInfo? info = await GetModel(appId);
+        if (info == null) return null;
+        return info.Hash;
     }
 
     public static async Task<string?> GetLastWorkingUrl(int appId)
     {
-        UpdateTrackerModel model = await LoadAsync();
-        if (model.Apps == null) return null;
-        return model.Apps.TryGetValue(appId, out AppUpdateInfo? info) ? info.LastWorkingUrl : null;
+        AppUpdateInfo? info = await GetModel(appId);
+        if (info == null) return null;
+        return info.LastWorkingUrl;
     }
 
-    public static async Task SetUpdateTrackerModelAsync(int appId, string? hash, string? workingUrl)
+    public static async Task<string?> GetLastDifferentHash(int appId)
+    {
+        AppUpdateInfo? info = await GetModel(appId);
+        if (info == null) return null;
+        return info.LastDifferentHash;
+    }
+
+    public static async Task SetUpdateTrackerModelAsync(int appId, string? hash = null, string? workingUrl = null, string? lastDifferentHash = null)
     {
         if (String.IsNullOrEmpty(hash)) hash = null;
         if (String.IsNullOrEmpty(workingUrl)) workingUrl = null;
+        if (String.IsNullOrEmpty(lastDifferentHash)) lastDifferentHash = null;
 
         UpdateTrackerModel model = await LoadAsync();
         model.Apps ??= [];
@@ -70,27 +78,21 @@ internal static class UpdateTracker
         {
             Hash = hash ?? oldInfos.Hash ?? "",
             LastWorkingUrl = workingUrl ?? oldInfos.LastWorkingUrl ?? "",
+            LastDifferentHash = lastDifferentHash ?? oldInfos.LastDifferentHash ?? "",
             LastChecked = Common.GetCurrentUnixTimestamp()
         };
         await SaveAsync(model);
     }
 
-    public static async Task<bool> IsHashDifferent(int appId, string receivedHash)
-    {
-        string savedHash = await GetHashAsync(appId) ?? "";
-        return savedHash == receivedHash;
-    }
-
     /// <summary>
-    /// Return the last saved downloadUrl if the last verification was too recent
-    /// Else, return an empty string
+    /// Return if we should check if the remote url is working
     /// </summary>
     /// <param name="elapsedTimeNeeded"></param>
     /// <returns></returns>
-    public static async Task<string> ShouldWeCheckValidity(int appId, TimeSpan? elapsedTimeNeeded)
+    public static async Task<bool> ShouldWeCheckValidity(int appId, TimeSpan? elapsedTimeNeeded)
     {
         AppUpdateInfo? infos = await GetModel(appId);
-        if (infos == null) return String.Empty;
+        if (infos == null) return true;
 
         TimeSpan elapsedTime = elapsedTimeNeeded ?? TimeSpan.FromSeconds(AppConfig.CacheTime);
 
@@ -99,9 +101,9 @@ internal static class UpdateTracker
         TimeSpan difference = unixCurrent - unixSaved;
 
         if (difference < elapsedTime)
-            return infos.LastWorkingUrl;
+            return false;
 
-        return String.Empty;
+        return true;
     }
 
     public static async Task<bool> IsVersionDifferent(string appPath, int appId, string versionFileUrl, CancellationToken cancellationToken)
@@ -148,6 +150,9 @@ internal static class UpdateTracker
             "api.github.com" => GithubDownloadHandler.GetSha(json),
             _ => throw new Exception($"[DownloadHandler] url ({versionFileUrl}) hostname is not supported."),
         };
+
+        if (localHash != remoteHash)
+            await SetUpdateTrackerModelAsync(appId, null, null, remoteHash);
 
         return localHash != remoteHash;
     }

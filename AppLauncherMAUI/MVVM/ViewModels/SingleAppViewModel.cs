@@ -87,7 +87,8 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
         // depends of number of apps
         if (versionUrls.Length <= 0) return String.Empty;
 
-        foreach (string versionUrl in versionUrls) {
+        foreach (string versionUrl in versionUrls)
+        {
             if (Common.CheckValidUri(versionUrl))
                 return versionUrl;
         }
@@ -97,13 +98,18 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
 
     private async Task<string> GetWorkingDownloadUrl(string[] downloadUrls)
     {
-        string lastSavedUrl = await UpdateTracker.ShouldWeCheckValidity(AppId, null);
-        if (lastSavedUrl != String.Empty) return lastSavedUrl;
+        bool shouldWeCheckAgain = await UpdateTracker.ShouldWeCheckValidity(AppId, null);
+        if (!shouldWeCheckAgain)
+        {
+            string? lastWorkingUrl = await UpdateTracker.GetLastWorkingUrl(AppId);
+            if (!String.IsNullOrEmpty(lastWorkingUrl)) return lastWorkingUrl;
+        }
 
         if (downloadUrls.Length <= 0) return String.Empty;
 
-        foreach (string downloadUrl in downloadUrls) {
-            if (! await DownloadHandler.CheckIfValidHeader(downloadUrl, cts.Token)) continue;
+        foreach (string downloadUrl in downloadUrls)
+        {
+            if (!await DownloadHandler.CheckIfValidHeader(downloadUrl, cts.Token)) continue;
 
             await UpdateTracker.SetUpdateTrackerModelAsync(AppId, "", downloadUrl);
             return downloadUrl;

@@ -124,19 +124,19 @@ internal class DownloadHandler
     #region Raw download
     public static async Task DownloadRawContent(string downloadUrl, string appPath, int appId, CancellationToken cancellationToken, IProgress<double> progress)
     {
-        (List<StandardRawModel> files, string hash) = await GetFilesDataByModelType(downloadUrl, cancellationToken);
+        (List<StandardRawModel> files, string hash) = await GetFilesDataByModelType(downloadUrl, appId, cancellationToken);
         if (files == null || files.Count <= 0) throw new Exception($"[DownloadHandler] url ({downloadUrl}) returned no file.");
 
         await DownloadRawFiles(files, hash, appPath, appId, downloadUrl, cancellationToken, progress);
     }
 
-    private static async Task<(List<StandardRawModel>, string)> GetFilesDataByModelType(string downloadUrl, CancellationToken cancellationToken)
+    private static async Task<(List<StandardRawModel>, string)> GetFilesDataByModelType(string downloadUrl, int appId, CancellationToken cancellationToken)
     {
         string host = Common.GetUriHost(downloadUrl);
 
         return host switch
         {
-            "api.github.com" => await GithubDownloadHandler.GetGithubRawFiles(downloadUrl, cancellationToken),
+            "api.github.com" => await GithubDownloadHandler.GetGithubRawFiles(downloadUrl, appId, cancellationToken),
             _ => throw new Exception($"[DownloadHandler] url ({downloadUrl}) hostname is not supported."),
         };
     }
@@ -182,7 +182,7 @@ internal class DownloadHandler
             }
         }
 
-        await UpdateTracker.SetUpdateTrackerModelAsync(appId, hash, "");
+        await UpdateTracker.SetUpdateTrackerModelAsync(appId, hash, "", hash);
 
         progress?.Report(1);
     }

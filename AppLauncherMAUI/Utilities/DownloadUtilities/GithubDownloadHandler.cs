@@ -10,17 +10,35 @@ namespace AppLauncherMAUI.Utilities.DownloadUtilities;
 
 internal class GithubDownloadHandler
 {
-    public static async Task<(List<StandardRawModel>, string)> GetGithubRawFiles(string downloadUrl, CancellationToken cancellationToken)
+    public static async Task<(List<StandardRawModel>, string)> GetGithubRawFiles(string downloadUrl, int appId, CancellationToken cancellationToken)
     {
         HttpClient client = HttpService.Client;
 
-        HttpResponseMessage response = await client.GetAsync(downloadUrl, cancellationToken);
+        bool shouldWeCheckAgain = await UpdateTracker.ShouldWeCheckValidity(appId, null);
+        string sha = "";
 
-        if (!response.IsSuccessStatusCode)
+        if (!shouldWeCheckAgain)
         {
-            Console.WriteLine($"[DownloadHandler] Error with GitHub API: {response.StatusCode}");
-            return ([], "");
+            sha = await UpdateTracker.GetLastDifferentHash(appId) ?? "";
+            if (String.IsNullOrEmpty(sha))
+                shouldWeCheckAgain = true;
+            Console.WriteLine($"using sha: {sha}");
         }
+        
+        if (shouldWeCheckAgain)
+        {
+            HttpResponseMessage response = await client.GetAsync(downloadUrl, cancellationToken);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                Console.WriteLine($"[DownloadHandler] Error with GitHub API: {response.StatusCode}");
+                return ([], "");
+            }
+
+            sha = await GetSha(response, cancellationToken);
+        }
+
+        if (String.IsNullOrEmpty(sha)) return ([], "");
 
         List<StandardRawModel> files = [];
 
@@ -31,9 +49,6 @@ internal class GithubDownloadHandler
         string repo = segments[3].TrimEnd('/');
         string branch = segments[5].TrimEnd('/');
 
-        string sha = await GetSha(response, cancellationToken);
-
-        if (sha == "") return ([], "");
 
         string treeUrl = $"https://api.github.com/repos/{owner}/{repo}/git/trees/{sha}?recursive=1";
         string standardRawUrl = $"https://raw.githubusercontent.com/{owner}/{repo}/{branch}/"; // add path
