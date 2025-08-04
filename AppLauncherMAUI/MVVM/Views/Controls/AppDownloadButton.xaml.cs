@@ -7,9 +7,18 @@ namespace AppLauncherMAUI.MVVM.Views.Controls;
 
 public partial class AppDownloadButton : ContentView
 {
+    private readonly List<VisualElement> uiElements = [];
+
     public AppDownloadButton()
     {
         InitializeComponent();
+
+        uiElements.AddRange([
+            stackLayout,
+            defaultDownloadButton,
+            launchButton,
+            cancelButton,
+        ]);
     }
 
     public static readonly BindableProperty ButtonStateProperty = BindableProperty.Create(nameof(AppDownloadButtonStates), typeof(AppDownloadButtonStates), typeof(AppDownloadButton), AppDownloadButtonStates.Loading, propertyChanged: OnButtonStateChanged);
@@ -42,11 +51,11 @@ public partial class AppDownloadButton : ContentView
 
     private void UpdateVisualState()
     {
-        Debug.WriteLine("Updating visual state to: " + ButtonState.ToString());
         string state = ButtonState.ToString();
-        VisualStateManager.GoToState(stackLayout, state);
-        VisualStateManager.GoToState(defaultDownloadButton, state);
-        VisualStateManager.GoToState(cancelButton, state);
+        foreach (VisualElement uiElement in uiElements)
+        {
+            VisualStateManager.GoToState(uiElement, state);
+        }
     }
 
     private void ButtonClicked(object sender, EventArgs e)

@@ -534,7 +534,6 @@
     <Style TargetType="Button" x:Key="SideNavigationButton">
         <Setter Property="BorderColor" Value="Transparent" />
         <Setter Property="BorderWidth" Value="0" />
-        <Setter Property="HorizontalOptions" Value="FillAndExpand" />
         <Setter Property="BackgroundColor" Value="{StaticResource SecondBackgroundColor}"/>
         <Setter Property="CornerRadius" Value="0"/>
         <Setter Property="HeightRequest" Value="40"/>
@@ -615,13 +614,17 @@
         </Setter>
     </Style>
 
+    <Style TargetType="Button" x:Key="LaunchButton" BasedOn="{StaticResource AppDownloadButton}">
+        <Setter Property="BackgroundColor" Value="Green" />
+    </Style>
+
     <Style TargetType="Border" x:Key="BorderProgress">
         <Setter Property="StrokeShape" Value="{StaticResource DefaultStrokeShape}" />
         <Setter Property="HeightRequest" Value="30" />
         <Setter Property="BackgroundColor" Value="Green" />
         <Setter Property="Margin" Value="{StaticResource DefaultLeftMargin}" />
     </Style>
-    
+
     <Style TargetType="ProgressBar" x:Key="DownloadProgress">
         <Setter Property="WidthRequest" Value="200" />
         <Setter Property="MinimumHeightRequest" Value="30" />
@@ -631,7 +634,7 @@
         <Setter Property="BackgroundColor" Value="Transparent" />
     </Style>
 
-    <Style TargetType="Button" x:Key="CancelButton" BasedOn="{StaticResource DefaultButton}">
+    <Style TargetType="Button" x:Key="CancelButton" BasedOn="{StaticResource AppDownloadButton}">
         <Setter Property="IsVisible" Value="False" />
         <Setter Property="BackgroundColor" Value="Transparent" />
         <Setter Property="BorderColor" Value="Transparent" />

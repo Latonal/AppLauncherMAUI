@@ -6,3 +6,4 @@
 - Test the updater
 - When looking for a working url for the update part, the link should be looked through like the download url (meaning searching a working url and not just a well formated one)
 - When downloading and updating, we should still have access to the list of urls and not just the one selected previously in case it become inaccessible during cache time
+- When updating, save files changed in another folder so user can still access the application when downloading (and replace files when app is not running)

@@ -35,16 +35,24 @@
                 </VisualState>
                 <VisualState Name="Playable">
                     <VisualState.Setters>
-                        <Setter TargetName="defaultDownloadButton" Property="Button.Text" Value="{x:Static text:AppResources.ButtonDownloadPlayable}" />
+                        <Setter TargetName="launchButton" Property="IsVisible" Value="True" />
+                        <Setter TargetName="defaultDownloadButton" Property="IsVisible" Value="False" />
                     </VisualState.Setters>
                 </VisualState>
                 <VisualState Name="Update">
                     <VisualState.Setters>
+                        <Setter TargetName="launchButton" Property="IsVisible" Value="True" />
                         <Setter TargetName="defaultDownloadButton" Property="Button.Text" Value="{x:Static text:AppResources.ButtonDownloadUpdate}" />
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
+        <Button x:Name="launchButton"
+                IsVisible="False"
+                Text="{x:Static text:AppResources.ButtonDownloadPlayable}"
+                Clicked="ButtonClicked"
+                CommandParameter="{x:Static local:AppDownloadButtonCommand.Launch}"
+                Style="{StaticResource LaunchButton}"/>
         <Button x:Name="defaultDownloadButton"
                 IsVisible="True"
                 Text="{x:Static text:AppResources.ButtonDownloadLoading}"
