@@ -83,7 +83,7 @@ public enum AppDownloadButtonStates
 {
     Loading,
     Disabled,
-    Install,
+    Installing,
     Downloading,
     Playable,
     Update,
@@ -93,9 +93,11 @@ public enum AppDownloadButtonStates
 
 public enum AppDownloadButtonCommand
 {
+    Download,
     Launch,
     Cancel,
     Delete,
+    OpenFolder,
     Next,
     NoUse,
 }

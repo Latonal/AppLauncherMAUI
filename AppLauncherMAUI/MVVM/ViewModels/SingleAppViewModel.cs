@@ -33,8 +33,10 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
     public ExecutionRule[]? ExecutionRules { get => _executionRules; set => _executionRules = value; }
     #endregion appdata
     private AppDownloadButtonStates _downloadButtonState = AppDownloadButtonStates.Loading;
-    public AppDownloadButtonStates DownloadButtonState { get { return _downloadButtonState; } set { _downloadButtonState = value; RaisePropertyChanged(() => DownloadButtonState); } }
+    public AppDownloadButtonStates DownloadButtonState { get { return _downloadButtonState; } set { _downloadButtonState = value; RaisePropertyChanged(() => DownloadButtonState); SetSideButtonState(); } }
     public ICommand DownloadButtonStateCommand { get; set; }
+    private bool _sideButtonState = false;
+    public bool SideButtonState { get { return _sideButtonState; } set { _sideButtonState = value; RaisePropertyChanged(() => SideButtonState); } }
     private double _progressValue;
     public double ProgressValue { get { return _progressValue; } set { _progressValue = value; RaisePropertyChanged(() => ProgressValue); } }
     private readonly CancellationTokenSource cts = new(TimeSpan.FromMinutes(30));
@@ -43,7 +45,7 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
     {
         AppId = appId;
 
-        DownloadButtonStateCommand ??= new Command<AppDownloadButtonCommand?>(ActionDownloadButtonClicked);
+        DownloadButtonStateCommand ??= new Command<AppDownloadButtonCommand?>(async(e) => await ActionDownloadButtonClicked(e));
     }
 
     private async void SetData(int id)
@@ -125,27 +127,6 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
         return String.Empty;
     }
 
-    /*SetCurrentAppState logic
-     * Loading
-     * 
-     * If Playable
-     *      Set Playable
-     *      playable = true
-     * 
-     * If DownloadUrl == null
-     *      If !playable
-     *          Set Disabled
-     *      return
-     * 
-     * If CheckHeader is valid
-     *      If !playable
-     *          Set Install
-     *      Else CompareVersion
-     *          If same
-     *              Set Playable (might already be Playable)
-     *          Else
-     *              Set Update
-     */
     private async Task SetCurrentAppState()
     {
         DownloadButtonState = AppDownloadButtonStates.Loading;
@@ -166,7 +147,7 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
         else
         {
             if (!playable)
-                DownloadButtonState = AppDownloadButtonStates.Install;
+                DownloadButtonState = AppDownloadButtonStates.Installing;
             else
             {
                 if (!String.IsNullOrEmpty(VersionFileUrl) && await UpdateTracker.IsVersionDifferent(DownloadHandler.GetDefaultAppPath(AppId.ToString()), AppId, VersionFileUrl, cts.Token))
@@ -175,13 +156,13 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
         }
     }
 
-    private void ActionDownloadButtonClicked(AppDownloadButtonCommand? cmd)
+    private async Task ActionDownloadButtonClicked(AppDownloadButtonCommand? cmd)
     {
         if (AppDownloadButtonCommand.Next == cmd)
         {
             switch (DownloadButtonState)
             {
-                case AppDownloadButtonStates.Install:
+                case AppDownloadButtonStates.Installing:
                     Download();
                     break;
                 case AppDownloadButtonStates.Playable:
@@ -191,21 +172,23 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
                     Download();
                     break;
                 case AppDownloadButtonStates.Delete:
-                    Delete();
+                    await Delete();
                     break;
             }
-
-            //ChangeAppDownloadButtonState();
         }
         else if (AppDownloadButtonCommand.Cancel == cmd)
         {
             if (DownloadButtonState == AppDownloadButtonStates.Downloading)
                 CancelDownload();
         }
+        else if (AppDownloadButtonCommand.Download == cmd)
+            Download();
+        else if (AppDownloadButtonCommand.OpenFolder == cmd)
+            OpenAppFolder();
         else if (AppDownloadButtonCommand.Launch == cmd)
             Launch();
         else if (AppDownloadButtonCommand.Delete == cmd)
-            Delete();
+            await Delete();
     }
 
     private bool CheckIfPlayable()
@@ -257,8 +240,23 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
         if (files?.Length > 0) eam.StartApplication(files[0]);
     }
 
-    private static void Delete()
+    private async Task Delete()
     {
-        Debug.WriteLine("Must delete");
+        DownloadHandler.DeleteFolder(DownloadHandler.GetDefaultAppPath(AppId.ToString(), false));
+        await SetCurrentAppState();
+    }
+
+    public void OpenAppFolder()
+    {
+        Common.OpenFolder(DownloadHandler.GetDefaultAppPath(AppId.ToString(), false));
+    }
+
+    private void SetSideButtonState()
+    {
+        if (DownloadButtonState == AppDownloadButtonStates.Playable || DownloadButtonState == AppDownloadButtonStates.Update)
+            SideButtonState = true;
+        else
+            SideButtonState = false;
+        Debug.WriteLine($"SideButton status : {SideButtonState}");
     }
 }

@@ -20,7 +20,7 @@
                         <Setter TargetName="defaultDownloadButton" Property="Button.Text" Value="{x:Static text:AppResources.ButtonDownloadNotAvailable}" />
                     </VisualState.Setters>
                 </VisualState>
-                <VisualState Name="Install">
+                <VisualState Name="Installing">
                     <VisualState.Setters>
                         <Setter TargetName="defaultDownloadButton" Property="Button.Text" Value="{x:Static text:AppResources.ButtonDownloadInstall}" />
                     </VisualState.Setters>

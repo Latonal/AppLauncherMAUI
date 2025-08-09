@@ -279,7 +279,7 @@ internal class DownloadHandler
     /// <param name="path">Path to clean</param>
     public static void DeleteFolder(string path)
     {
-        if (path == null) return;
+        if (String.IsNullOrEmpty(path)) return;
         if (File.Exists(path))
             path = Path.GetDirectoryName(path) ?? "";
 

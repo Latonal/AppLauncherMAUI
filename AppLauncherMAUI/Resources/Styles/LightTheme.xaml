@@ -12,6 +12,7 @@
     
     <Thickness x:Key="DefaultLeftMargin">20,0,0,0</Thickness>
     <Thickness x:Key="DefaultButtonMinPadding">30,10</Thickness>
+    <Color x:Key="DisabledTextColor">#555555</Color>
 
     <x:Int16 x:Key="DefaultCornerRadius">4</x:Int16>
     <RoundRectangle x:Key="DefaultStrokeShape" CornerRadius="{StaticResource DefaultCornerRadius}"/>

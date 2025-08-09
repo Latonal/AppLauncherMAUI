@@ -1,4 +1,5 @@
 ﻿using AppLauncherMAUI.MVVM.Models;
+using System.Diagnostics;
 using System.Globalization;
 using System.Reflection;
 
@@ -24,6 +25,16 @@ internal static class Common
     {
         string curr = GetUserLanguage(useLong: useLong);
         return Enum.IsDefined(typeof(SupportedLanguages), curr) ? curr : defaultLanguage;
+    }
+
+    public static void OpenFolder(string path)
+    {
+        if (!Directory.Exists(path)) return;
+
+        if (OperatingSystem.IsWindows())
+            Process.Start("explorer", path);
+        else if (OperatingSystem.IsMacOS())
+            Process.Start("open", path);
     }
 
     public static string GetTranslatedJsonText(LanguagesModel texts)

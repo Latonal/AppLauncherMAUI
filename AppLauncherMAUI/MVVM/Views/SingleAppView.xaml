@@ -22,21 +22,44 @@
 
             </Grid>
         </Border>
-        
-        <!-- On the side: Open local folder / Repair / Uninstall / social links -->
-        
-        <Label 
-            Text="Welcome to .NET MAUI!"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
 
-        <Label Text="{Binding AppId}"
-               TextColor="Green"/>
+        <Grid ColumnDefinitions="*, 200">
 
-        <Label Text="{Binding Name}"
-               TextColor="Red"/>
+            <StackLayout Grid.Column="0">
+                <Label Text="Welcome to .NET MAUI!"
+                       VerticalOptions="Center"
+                       HorizontalOptions="Center" />
 
-        <Label Text="{Binding Text}"
-               TextColor="Red"/>
+                <Label Text="{Binding AppId}"
+                       TextColor="Green"/>
+
+                <Label Text="{Binding Name}"
+                       TextColor="Red"/>
+
+                <Label Text="{Binding Text}"
+                       TextColor="Red"/>
+            </StackLayout>
+            <!-- On the side: Open local folder / Repair / Uninstall / social links -->
+            <StackLayout Grid.Column="1">
+                <Label Text="Side text"/>
+                <Button Text="Open local folder"
+                        Command="{Binding DownloadButtonStateCommand}"
+                        CommandParameter="{x:Static controls:AppDownloadButtonCommand.OpenFolder}"
+                        IsEnabled="{Binding SideButtonState}"
+                        Style="{StaticResource MiniDefaultButton}"/>
+                <Button Text="Repair"
+                        Command="{Binding DownloadButtonStateCommand}"
+                        CommandParameter="{x:Static controls:AppDownloadButtonCommand.Download}"
+                        IsEnabled="{Binding SideButtonState}"
+                        Style="{StaticResource MiniDefaultButton}"/>
+                <Button Text="Uninstall"
+                        Command="{Binding DownloadButtonStateCommand}"
+                        CommandParameter="{x:Static controls:AppDownloadButtonCommand.Delete}"
+                        IsEnabled="{Binding SideButtonState}"
+                        Style="{StaticResource MiniDefaultButton}"/>
+            </StackLayout>
+            
+
+        </Grid>
     </VerticalStackLayout>
 </ContentView>
