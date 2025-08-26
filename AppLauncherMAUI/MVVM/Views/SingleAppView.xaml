@@ -4,44 +4,51 @@
              x:Class="AppLauncherMAUI.MVVM.Views.SingleAppView"
              xmlns:local="clr-namespace:AppLauncherMAUI.MVVM.ViewModels"
              xmlns:controls="clr-namespace:AppLauncherMAUI.MVVM.Views.Controls"
+             xmlns:models="clr-namespace:AppLauncherMAUI.MVVM.Models"
              x:DataType="local:SingleAppViewModel">
-    <VerticalStackLayout>
+    <Grid RowDefinitions="Auto,Auto,*">
         <Border BackgroundColor="Gray" 
                 HeightRequest="200"
-                SizeChanged="OnBannerSizeChanged">
+                SizeChanged="OnBannerSizeChanged"
+                VerticalOptions="Start"
+                Grid.Row="0">
             <Image Source="{Binding FullBanner}" Aspect="AspectFill"
                    SemanticProperties.Description="{Binding AppCardFullDescription}"/>
         </Border>
 
         <Border BackgroundColor="#3E3E3E"
-                HeightRequest="50">
+                HeightRequest="50"
+                VerticalOptions="Start"
+                Margin="0,-2"
+                Grid.Row="1">
             <Grid VerticalOptions="Center">
                 <controls:AppDownloadButton ButtonState="{Binding DownloadButtonState}"
                                             ButtonCommand="{Binding DownloadButtonStateCommand}"
                                             ProgressValue="{Binding ProgressValue}" />
-
             </Grid>
         </Border>
 
-        <Grid ColumnDefinitions="*, 200">
+        <Grid ColumnDefinitions="*, 200"
+              RowDefinitions="*"
+              VerticalOptions="Start"
+              Grid.Row="2">
 
-            <StackLayout Grid.Column="0">
-                <Label Text="Welcome to .NET MAUI!"
-                       VerticalOptions="Center"
-                       HorizontalOptions="Center" />
-
-                <Label Text="{Binding AppId}"
-                       TextColor="Green"/>
-
-                <Label Text="{Binding Name}"
-                       TextColor="Red"/>
-
-                <Label Text="{Binding Text}"
-                       TextColor="Red"/>
-            </StackLayout>
-            <!-- On the side: Open local folder / Repair / Uninstall / social links -->
-            <StackLayout Grid.Column="1">
-                <Label Text="Side text"/>
+            <ScrollView Grid.Column="0"
+                        Grid.Row="0"
+                        VerticalOptions="Start"
+                        HorizontalOptions="Fill"
+                        VerticalScrollBarVisibility="Default">
+                <VerticalStackLayout>
+                    <Label Text="{Binding Text, Mode=OneWay}"
+                           TextColor="{StaticResource TextColor}"
+                           VerticalOptions="Start"
+                           Margin="25, 10"
+                           LineBreakMode="WordWrap"
+                           x:Name="scrollableText"/>
+                </VerticalStackLayout>
+            </ScrollView>
+            <StackLayout Grid.Column="1"
+                         Grid.Row="0">
                 <Button Text="Open local folder"
                         Command="{Binding DownloadButtonStateCommand}"
                         CommandParameter="{x:Static controls:AppDownloadButtonCommand.OpenFolder}"
@@ -57,9 +64,27 @@
                         CommandParameter="{x:Static controls:AppDownloadButtonCommand.Delete}"
                         IsEnabled="{Binding SideButtonState}"
                         Style="{StaticResource MiniDefaultButton}"/>
+
+                <Rectangle Fill="{StaticResource TextColor}"
+                           WidthRequest="150"
+                           HeightRequest="5"
+                           Margin="5"
+                           HorizontalOptions="Center"/>
+
+                <CollectionView ItemsSource="{Binding MediaList}"
+                                ItemsLayout="VerticalList">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="models:MediaModel">
+                            <Button Text="{Binding Title}"
+                                    IsEnabled="True"
+                                    Style="{StaticResource MiniDefaultButton}"/>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
             </StackLayout>
-            
+
 
         </Grid>
-    </VerticalStackLayout>
+
+    </Grid>
 </ContentView>

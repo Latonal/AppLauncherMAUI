@@ -5,7 +5,7 @@
     "DownloadUrls": [
       "https://www.youtube.com/"
     ],
-    "Text": {
+    "Description": {
       "Fr": "un peu de texte pour décrire l'app",
       "En": "some text about the first app"
     },
@@ -44,7 +44,7 @@
         ]
       }
     ],
-    "Text": {
+    "Description": {
       "Fr": "2 un peu de texte pour décrire l'app",
       "En": "2 some text about the first app"
     },
@@ -85,9 +85,9 @@
         ]
       }
     ],
-    "Text": {
-      "Fr": "2 un peu de texte pour décrire l'app",
-      "En": "2 some text about the first app"
+    "Description": {
+      "Fr": "Une description un peu plus complète de l'application.\n\rTest du saut de ligne.\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra",
+      "En": "A more complete description of the application.\n\rTesting line break.\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra"
     },
     "Banners": {
       "Mini": "dotnet_bot.png",
@@ -100,12 +100,22 @@
         "Fr": "2 Description de l'image complète",
         "En": "2 A description of the full picture"
       }
-    }
+    },
+    "Medias": [
+      {
+        "Title": "Random title",
+        "Url": "https://www.youtube.com/"
+      },
+      {
+        "Title": "Another random title",
+        "Url": "https://www.youtube.com/"
+      }
+    ]
   },
   {
     "Id": 5,
     "Name": "App 2!!!",
-    "Text": {
+    "Description": {
       "Fr": "2 un peu de texte pour décrire l'app",
       "En": "2 some text about the first app"
     },
@@ -125,7 +135,7 @@
   {
     "Id": 6,
     "Name": "App 2!!!",
-    "Text": {
+    "Description": {
       "Fr": "2 un peu de texte pour décrire l'app",
       "En": "2 some text about the first app"
     },

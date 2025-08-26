@@ -3,7 +3,6 @@ using AppLauncherMAUI.MVVM.Models;
 using AppLauncherMAUI.MVVM.Views.Controls;
 using AppLauncherMAUI.Utilities;
 using System.Collections.ObjectModel;
-using System.Windows.Input;
 
 namespace AppLauncherMAUI.MVVM.ViewModels;
 
@@ -34,6 +33,6 @@ internal partial class HomeViewModel : ExtendedBindableObject
                 AppCardMiniBanner = adm.Banners?.Mini ?? "",
                 AppCardMiniDescription = desc
             });
+        }
     }
-}
 }

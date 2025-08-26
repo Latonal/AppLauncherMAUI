@@ -6,7 +6,8 @@ public class AppDataModel
     public string? Name { get; set; }
     public string[]? DownloadUrls { get; set; }
     public string[]? VersionUrls { get; set; }
-    public LanguagesModel? Text { get; set; }
+    public LanguagesModel? Description { get; set; }
     public BannersModel? Banners { get; set; }
-    public ExecutionRule[]? ExecutionRules { get; set; }
+    public ExecutionRuleModel[]? ExecutionRules { get; set; }
+    public MediaModel[]? Medias { get; set; }
 }

@@ -7,10 +7,10 @@ namespace AppLauncherMAUI.Utilities;
 
 internal static class ApplicationHandler
 {
-    public static string[]? ReturnFilesByPatterns(string path, ExecutionRule[]? executionRules = null)
+    public static string[]? ReturnFilesByPatterns(string path, ExecutionRuleModel[]? executionRules = null)
     {
         // add more pattern possible with parameter
-        ExecutionRule[] patterns = [
+        ExecutionRuleModel[] patterns = [
             new() { Type = "Extension", Value = "exe" },
             new() { Type = "Extension", Value = "lnk" },
             new() { Type = "Name", Value = "main" },
@@ -27,12 +27,12 @@ internal static class ApplicationHandler
         return foundFiles;
     }
 
-    public static string[]? TryFindMatchingFile(string folderPath, ExecutionRule[] executionRules)
+    public static string[]? TryFindMatchingFile(string folderPath, ExecutionRuleModel[] executionRules)
     {
         if (!Directory.Exists(folderPath))
             return [];
 
-        foreach (ExecutionRule executionRule in executionRules)
+        foreach (ExecutionRuleModel executionRule in executionRules)
         {
             string? val = null;
             if (executionRule.Value != null && !executionRule.Type.Equals("metadata", StringComparison.CurrentCultureIgnoreCase))

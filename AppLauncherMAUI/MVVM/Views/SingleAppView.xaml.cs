@@ -22,5 +22,5 @@ public partial class SingleAppView : ContentView
 
 			border.HeightRequest = height;
 		}
-	}
+    }
 }

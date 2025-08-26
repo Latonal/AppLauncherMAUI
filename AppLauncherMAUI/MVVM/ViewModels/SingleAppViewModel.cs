@@ -3,7 +3,7 @@ using AppLauncherMAUI.MVVM.Models;
 using AppLauncherMAUI.MVVM.Views.Controls;
 using AppLauncherMAUI.Utilities;
 using AppLauncherMAUI.Utilities.DownloadUtilities;
-using System;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Windows.Input;
 
@@ -29,9 +29,12 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
     public string? FullBanner { get { return _fullBanner; } set { _fullBanner = value; RaisePropertyChanged(() => FullBanner); } }
     private string? _appCardFullDescription;
     public string? AppCardFullDescription { get { return _appCardFullDescription; } set { _appCardFullDescription = value; RaisePropertyChanged(() => AppCardFullDescription); } }
-    private ExecutionRule[]? _executionRules;
-    public ExecutionRule[]? ExecutionRules { get => _executionRules; set => _executionRules = value; }
+    private ExecutionRuleModel[]? _executionRules;
+    public ExecutionRuleModel[]? ExecutionRules { get => _executionRules; set => _executionRules = value; }
+    public ObservableCollection<MediaModel> MediaList { get; set; } = [];
+
     #endregion appdata
+    #region others
     private AppDownloadButtonStates _downloadButtonState = AppDownloadButtonStates.Loading;
     public AppDownloadButtonStates DownloadButtonState { get { return _downloadButtonState; } set { _downloadButtonState = value; RaisePropertyChanged(() => DownloadButtonState); SetSideButtonState(); } }
     public ICommand DownloadButtonStateCommand { get; set; }
@@ -40,6 +43,7 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
     private double _progressValue;
     public double ProgressValue { get { return _progressValue; } set { _progressValue = value; RaisePropertyChanged(() => ProgressValue); } }
     private readonly CancellationTokenSource cts = new(TimeSpan.FromMinutes(30));
+    #endregion others
 
     public SingleAppViewModel(int appId)
     {
@@ -53,7 +57,7 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
         AppDataModel data = await GetData(id);
 
         // Functional
-        ExecutionRule[]? executionRules = data.ExecutionRules;
+        ExecutionRuleModel[]? executionRules = data.ExecutionRules;
         if (executionRules != null)
             ExecutionRules = executionRules;
 
@@ -68,18 +72,31 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
         Name = data.Name ?? "DefaultAppName";
         FullBanner = data.Banners?.Full;
 
-        LanguagesModel? texts = data.Text;
-        if (texts != null)
-            Text = Common.GetTranslatedJsonText(texts);
+        LanguagesModel? description = data.Description;
+        if (description != null)
+            Text = Common.GetTranslatedJsonText(description);
 
         LanguagesModel? desc = data.Banners?.FullDescription;
         if (desc != null)
             AppCardFullDescription = Common.GetTranslatedJsonText(desc);
+
+        SetMedias(data.Medias);
     }
 
     private static async Task<AppDataModel> GetData(int id)
     {
         return await JsonFileManager.ReadSingleDataAsync<AppDataModel>(AppPaths.AppsDataJsonName, "Id", id);
+    }
+
+    private void SetMedias(MediaModel[]? medias)
+    {
+        if (medias == null) return;
+        MediaList.Clear();
+
+        foreach (MediaModel media in medias)
+        {
+            MediaList.Add(media);
+        }
     }
 
     private static string GetWorkingVersionFile(string[] versionUrls)
