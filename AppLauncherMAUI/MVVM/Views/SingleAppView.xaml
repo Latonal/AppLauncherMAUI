@@ -77,6 +77,8 @@
                         <DataTemplate x:DataType="models:MediaModel">
                             <Button Text="{Binding Title}"
                                     IsEnabled="True"
+                                    Clicked="OpenBrowser"
+                                    CommandParameter="{Binding Url}"
                                     Style="{StaticResource MiniDefaultButton}"/>
                         </DataTemplate>
                     </CollectionView.ItemTemplate>

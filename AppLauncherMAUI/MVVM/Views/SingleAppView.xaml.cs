@@ -23,4 +23,20 @@ public partial class SingleAppView : ContentView
 			border.HeightRequest = height;
 		}
     }
+
+	private async void OpenBrowser(object sender, EventArgs args)
+	{
+		try
+		{
+			if (sender is Button button && button.CommandParameter is String url)
+			{
+				Uri uri = new Uri(url);
+				await Browser.Default.OpenAsync(uri, BrowserLaunchMode.SystemPreferred);
+			}
+        }
+		catch (Exception ex) 
+		{
+			throw new Exception($"[SingleAppView] The following error happened when attempting to open the browser: {ex.Message}");
+		}
+	}
 }
