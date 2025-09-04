@@ -30,7 +30,7 @@ public partial class SingleAppView : ContentView
 		{
 			if (sender is Button button && button.CommandParameter is String url)
 			{
-				Uri uri = new Uri(url);
+				Uri uri = new(url);
 				await Browser.Default.OpenAsync(uri, BrowserLaunchMode.SystemPreferred);
 			}
         }

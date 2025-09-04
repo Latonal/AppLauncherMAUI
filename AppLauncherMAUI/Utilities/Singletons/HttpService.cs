@@ -1,7 +1,7 @@
 ﻿using AppLauncherMAUI.Config;
 using System.Net.Http.Headers;
 
-namespace AppLauncherMAUI.Utilities;
+namespace AppLauncherMAUI.Utilities.Singletons;
 
 public sealed class HttpService
 {

@@ -1,6 +1,7 @@
 ﻿using AppLauncherMAUI.Config;
 using AppLauncherMAUI.MVVM.Models.UpdateTracker;
 using AppLauncherMAUI.Utilities.DownloadUtilities;
+using AppLauncherMAUI.Utilities.Singletons;
 using System.Net.Sockets;
 using System.Text.Json;
 using System.Threading;

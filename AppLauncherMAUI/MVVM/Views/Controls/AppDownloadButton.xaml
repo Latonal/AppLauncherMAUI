@@ -45,6 +45,11 @@
                         <Setter TargetName="defaultDownloadButton" Property="Button.Text" Value="{x:Static text:AppResources.ButtonDownloadUpdate}" />
                     </VisualState.Setters>
                 </VisualState>
+                <VisualState Name="Active">
+                    <VisualState.Setters>
+                        <Setter TargetName="defaultDownloadButton" Property="Button.Text" Value="Active" />
+                    </VisualState.Setters>
+                </VisualState>
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
         <Button x:Name="launchButton"

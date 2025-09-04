@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 
-namespace AppLauncherMAUI.Utilities;
+namespace AppLauncherMAUI.Utilities.Singletons;
 
 // From: https://csharpindepth.com/articles/singleton
 
@@ -8,7 +8,6 @@ public sealed class ViewManager
 {
     private static ViewManager? instance;
     private static readonly Lock padlock = new();
-
     private static ContentView? _contentView;
 
     public ViewManager() { }

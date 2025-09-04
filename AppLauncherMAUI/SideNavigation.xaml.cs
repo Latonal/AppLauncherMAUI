@@ -1,4 +1,4 @@
-using AppLauncherMAUI.Utilities;
+using AppLauncherMAUI.Utilities.Singletons;
 
 namespace AppLauncherMAUI.MVVM.Views;
 

@@ -1,5 +1,6 @@
 ﻿using AppLauncherMAUI.Config;
 using AppLauncherMAUI.MVVM.Models.RawDownloadModels;
+using AppLauncherMAUI.Utilities.Singletons;
 using System.Diagnostics;
 using System.IO.Compression;
 using System.Net.Http.Headers;

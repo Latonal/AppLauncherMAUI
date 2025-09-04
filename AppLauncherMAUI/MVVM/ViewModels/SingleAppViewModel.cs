@@ -3,6 +3,7 @@ using AppLauncherMAUI.MVVM.Models;
 using AppLauncherMAUI.MVVM.Views.Controls;
 using AppLauncherMAUI.Utilities;
 using AppLauncherMAUI.Utilities.DownloadUtilities;
+using AppLauncherMAUI.Utilities.Singletons;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Windows.Input;
@@ -48,6 +49,7 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
     public SingleAppViewModel(int appId)
     {
         AppId = appId;
+        ExternalApplicationManager.Instance.ProcessTerminated += OnProcessExited;
 
         DownloadButtonStateCommand ??= new Command<AppDownloadButtonCommand?>(async(e) => await ActionDownloadButtonClicked(e));
     }
@@ -183,13 +185,13 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
                     Download();
                     break;
                 case AppDownloadButtonStates.Playable:
-                    Launch();
+                    LaunchApplication();
                     break;
                 case AppDownloadButtonStates.Update:
                     Download();
                     break;
-                case AppDownloadButtonStates.Delete:
-                    await Delete();
+                case AppDownloadButtonStates.Active:
+                    KillApplication();
                     break;
             }
         }
@@ -203,7 +205,9 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
         else if (AppDownloadButtonCommand.OpenFolder == cmd)
             OpenAppFolder();
         else if (AppDownloadButtonCommand.Launch == cmd)
-            Launch();
+            LaunchApplication();
+        else if (AppDownloadButtonCommand.Stop == cmd)
+            KillApplication();
         else if (AppDownloadButtonCommand.Delete == cmd)
             await Delete();
     }
@@ -248,13 +252,29 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
         cts.Cancel();
     }
 
-    public ExternalApplicationManager eam = new();
-
-    private void Launch()
+    private void LaunchApplication()
     {
         string[]? files = ApplicationHandler.ReturnFilesByPatterns(AppId.ToString(), ExecutionRules);
         // TODO: maybe be a little more selective?
-        if (files?.Length > 0) eam.StartApplication(files[0]);
+        if (files?.Length > 0)
+        {
+            bool success = ExternalApplicationManager.Instance.StartApplication(files[0], AppId);
+            if (success)
+                DownloadButtonState = AppDownloadButtonStates.Active;
+        }
+    }
+
+    private void KillApplication()
+    {
+        bool success = ExternalApplicationManager.Instance.KillApplication(AppId);
+        Console.WriteLine(success ? "Process has been terminated by the application" : "An error happened while terminating the application");
+    }
+
+    private void OnProcessExited(int id, string signature)
+    {
+        Debug.WriteLine($"_____________Process {id} has been stopped. {signature}");
+        //_ = SetCurrentAppState();
+        DownloadButtonState = AppDownloadButtonStates.Playable;
     }
 
     private async Task Delete()
@@ -274,6 +294,5 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
             SideButtonState = true;
         else
             SideButtonState = false;
-        Debug.WriteLine($"SideButton status : {SideButtonState}");
     }
 }

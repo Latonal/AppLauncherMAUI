@@ -76,6 +76,10 @@
     "ExecutionRules": [
       {
         "Type": "Extension",
+        "Value": ".txt"
+      },
+      {
+        "Type": "Extension",
         "Value": ".html"
       },
       {

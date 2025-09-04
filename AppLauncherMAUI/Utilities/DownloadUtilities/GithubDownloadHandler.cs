@@ -1,5 +1,6 @@
 ﻿using AppLauncherMAUI.MVVM.Models.RawDownloadModels;
 using AppLauncherMAUI.Utilities.Interfaces;
+using AppLauncherMAUI.Utilities.Singletons;
 using Microsoft.Maui.Graphics.Text;
 using System.Net.Http.Headers;
 using System.Security.Cryptography;

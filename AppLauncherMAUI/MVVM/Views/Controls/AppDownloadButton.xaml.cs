@@ -88,6 +88,7 @@ public enum AppDownloadButtonStates
     Playable,
     Update,
     Delete,
+    Active,
     Error,
 }
 
@@ -98,6 +99,7 @@ public enum AppDownloadButtonCommand
     Cancel,
     Delete,
     OpenFolder,
+    Stop,
     Next,
     NoUse,
 }

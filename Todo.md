@@ -1,9 +1,8 @@
 - Set elements as focusable, notably in AppCardView.xaml: AppCard Border.GestureRecognizers can't be accessed with keyboard (tab + enter)
 - Change UI of SideNavigation when language is changed in Settings
-- Fix the socket issue when staying too long on a page using HttpClient (like SingleAppView with a valid url)
-- Optimize call when retrieving files and downloading through API
 - Avoid making new call every time we open the single view of an app?
 - Test the updater
 - When looking for a working url for the update part, the link should be looked through like the download url (meaning searching a working url and not just a well formated one)
 - When downloading and updating, we should still have access to the list of urls and not just the one selected previously in case it become inaccessible during cache time
 - When updating, save files changed in another folder so user can still access the application when downloading (and replace files when app is not running)
+- Add a way to set arguments at launch
