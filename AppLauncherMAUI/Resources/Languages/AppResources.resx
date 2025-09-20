@@ -121,6 +121,10 @@
     <value>Click to access a detailed view of the selected application.</value>
     <comment>A sementic property to describe that the card can be clicked to get access to the related SingleAppView</comment>
   </data>
+  <data name="ButtonDownloadActive" xml:space="preserve">
+    <value>Stop</value>
+    <comment>Short text prompted to stop the active application</comment>
+  </data>
   <data name="ButtonDownloadDelete" xml:space="preserve">
     <value>Uninstall</value>
     <comment>Short text prompted to uninstall the application</comment>

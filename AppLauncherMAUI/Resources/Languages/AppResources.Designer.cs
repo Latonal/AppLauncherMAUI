@@ -70,6 +70,15 @@ namespace AppLauncherMAUI.Resources.Languages {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Stop.
+        /// </summary>
+        internal static string ButtonDownloadActive {
+            get {
+                return ResourceManager.GetString("ButtonDownloadActive", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Uninstall.
         /// </summary>
         internal static string ButtonDownloadDelete {

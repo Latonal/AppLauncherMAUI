@@ -120,6 +120,9 @@
   <data name="AppCardClickHint" xml:space="preserve">
     <value>Cliquez pour accéder à une vue détaillée de l'application sélectionnée.</value>
   </data>
+  <data name="ButtonDownloadActive" xml:space="preserve">
+    <value>Arrêter</value>
+  </data>
   <data name="ButtonDownloadDelete" xml:space="preserve">
     <value>Désinstaller</value>
   </data>

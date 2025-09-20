@@ -51,7 +51,7 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
         AppId = appId;
         ExternalApplicationManager.Instance.ProcessTerminated += OnProcessExited;
 
-        DownloadButtonStateCommand ??= new Command<AppDownloadButtonCommand?>(async(e) => await ActionDownloadButtonClicked(e));
+        DownloadButtonStateCommand ??= new Command<AppDownloadButtonCommand?>(async (e) => await ActionDownloadButtonClicked(e));
     }
 
     private async void SetData(int id)
@@ -150,27 +150,34 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
     {
         DownloadButtonState = AppDownloadButtonStates.Loading;
 
-        bool playable = false;
-        if (CheckIfPlayable())
+        if (ExternalApplicationManager.Instance.IsApplicationRunning(AppId))
         {
-            DownloadButtonState = AppDownloadButtonStates.Playable;
-            playable = true;
-        }
-
-        if (DownloadUrl == String.Empty)
-        {
-            if (!playable)
-                DownloadButtonState = AppDownloadButtonStates.Disabled;
-            return;
+            DownloadButtonState = AppDownloadButtonStates.Active;
         }
         else
         {
-            if (!playable)
-                DownloadButtonState = AppDownloadButtonStates.Installing;
+            bool playable = false;
+            if (CheckIfPlayable())
+            {
+                DownloadButtonState = AppDownloadButtonStates.Playable;
+                playable = true;
+            }
+
+            if (DownloadUrl == String.Empty)
+            {
+                if (!playable)
+                    DownloadButtonState = AppDownloadButtonStates.Disabled;
+                return;
+            }
             else
             {
-                if (!String.IsNullOrEmpty(VersionFileUrl) && await UpdateTracker.IsVersionDifferent(DownloadHandler.GetDefaultAppPath(AppId.ToString()), AppId, VersionFileUrl, cts.Token))
-                    DownloadButtonState = AppDownloadButtonStates.Update;
+                if (!playable)
+                    DownloadButtonState = AppDownloadButtonStates.CanInstall;
+                else
+                {
+                    if (!String.IsNullOrEmpty(VersionFileUrl) && await UpdateTracker.IsVersionDifferent(DownloadHandler.GetDefaultAppPath(AppId.ToString()), AppId, VersionFileUrl, cts.Token))
+                        DownloadButtonState = AppDownloadButtonStates.Update;
+                }
             }
         }
     }
@@ -181,7 +188,7 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
         {
             switch (DownloadButtonState)
             {
-                case AppDownloadButtonStates.Installing:
+                case AppDownloadButtonStates.CanInstall:
                     Download();
                     break;
                 case AppDownloadButtonStates.Playable:

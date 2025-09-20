@@ -83,7 +83,7 @@ public enum AppDownloadButtonStates
 {
     Loading,
     Disabled,
-    Installing,
+    CanInstall,
     Downloading,
     Playable,
     Update,

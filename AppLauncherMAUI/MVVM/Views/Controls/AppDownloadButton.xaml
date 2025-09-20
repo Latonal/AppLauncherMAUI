@@ -20,7 +20,7 @@
                         <Setter TargetName="defaultDownloadButton" Property="Button.Text" Value="{x:Static text:AppResources.ButtonDownloadNotAvailable}" />
                     </VisualState.Setters>
                 </VisualState>
-                <VisualState Name="Installing">
+                <VisualState Name="CanInstall">
                     <VisualState.Setters>
                         <Setter TargetName="defaultDownloadButton" Property="Button.Text" Value="{x:Static text:AppResources.ButtonDownloadInstall}" />
                     </VisualState.Setters>
@@ -47,7 +47,7 @@
                 </VisualState>
                 <VisualState Name="Active">
                     <VisualState.Setters>
-                        <Setter TargetName="defaultDownloadButton" Property="Button.Text" Value="Active" />
+                        <Setter TargetName="defaultDownloadButton" Property="Button.Text" Value="{x:Static text:AppResources.ButtonDownloadActive}" />
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
