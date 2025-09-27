@@ -251,6 +251,12 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
         }
 
         progress.Report(0);
+
+        // Create shortcut
+        string[]? files = ApplicationHandler.ReturnFilesByPatterns(AppId.ToString(), ExecutionRules);
+        if (files?.Length > 0)
+            Common.CreateShortcut(files[0], Name);
+
         await SetCurrentAppState();
     }
 

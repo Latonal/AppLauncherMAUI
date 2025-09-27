@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Globalization;
 using System.Reflection;
+using IWshRuntimeLibrary;
 
 namespace AppLauncherMAUI.Utilities;
 
@@ -39,7 +40,7 @@ internal static class Common
 
     public static string GetTranslatedJsonText(LanguagesModel texts)
     {
-        string lang =  ToUpperFirstLetter(GetSupportedUserLanguage());
+        string lang = ToUpperFirstLetter(GetSupportedUserLanguage());
         PropertyInfo property = typeof(LanguagesModel).GetProperty(lang) ?? throw new Exception($"(Common) Property '{lang}' could not be found. Is the language supported in LanguagesModel and is the defaultLanguage correctly assigned?");
         if (property.GetValue(texts) is string text)
             return text;
@@ -70,7 +71,32 @@ internal static class Common
 
     public static string GetUriHost(string url)
     {
-        Uri uri = CheckValidUri(url) ? new Uri(url) : throw new Exception($"[DownloadHandler] The given url ({url}) is not correct.");
+        Uri uri = CheckValidUri(url) ? new Uri(url) : throw new Exception($"[Common] The given url ({url}) is not correct.");
         return uri.Host;
+    }
+
+    public static void CreateShortcut(string appPath, string appName = "", string endPath = "")
+    {
+        try
+        {
+            if (!System.IO.File.Exists(appPath)) return;
+            if (String.IsNullOrEmpty(endPath) || !System.IO.Directory.Exists(endPath))
+                endPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+
+            endPath = Path.Combine(endPath, Path.GetFileNameWithoutExtension(appPath) + ".lnk");
+
+            WshShell shell = new();
+            IWshShortcut shortcut = (IWshShortcut)shell.CreateShortcut(endPath);
+
+            shortcut.TargetPath = appPath;
+            if (!String.IsNullOrEmpty(appName))
+                shortcut.Description = appName;
+            shortcut.WorkingDirectory = System.IO.Path.GetDirectoryName(appPath);
+            shortcut.Save();
+        }
+        catch (Exception e)
+        {
+            Debug.WriteLine("[Common] Error while creating a shortcut to Desktop: ", e.Message);
+        }
     }
 }
