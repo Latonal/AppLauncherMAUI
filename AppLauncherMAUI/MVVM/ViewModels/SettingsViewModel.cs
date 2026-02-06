@@ -40,4 +40,9 @@ internal partial class SettingsViewModel : ExtendedBindableObject
         LanguageHandler.SaveLanguage(id);
         CurrentLanguageId = LanguageItems.FirstOrDefault(lang => lang.Id == id) ?? LanguageItems.First();
     }
+
+    public void OnShortcutPickerChanged(bool val)
+    {
+        Preferences.Set("ShouldCreateShortcut", val);
+    }
 }

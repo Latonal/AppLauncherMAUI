@@ -2,7 +2,10 @@
   {
     "Id": 1,
     "Name": "App 1 !!! yaaaaay",
-    "DownloadUrls": [
+    "InstallUrls": [
+      "https://www.youtube.com/"
+    ],
+    "UpdateUrls": [
       "https://www.youtube.com/"
     ],
     "Description": {
@@ -25,7 +28,11 @@
   {
     "Id": 3,
     "Name": "Favs",
-    "DownloadUrls": [
+    "InstallUrls": [
+      "test url not working",
+      "https://github.com/Latonal/Favs/archive/refs/heads/main.zip"
+    ],
+    "UpdateUrls": [
       "test url not working",
       "https://github.com/Latonal/Favs/archive/refs/heads/main.zip"
     ],
@@ -64,9 +71,15 @@
   {
     "Id": 4,
     "Name": "Totally not Favs",
-    "DownloadUrls": [
+    "InstallUrls": [
+      "https://github.com/Latonal/Favs/archive/refs/heads/main.zip",
       "https://api.github.com/repos/Latonal/Favs/branches/main",
       "test url not working !!!!2"
+    ],
+    "UpdateUrls": [
+      "https://api.github.com/repos/Latonal/Favs/branches/main",
+      "test url not working !!!!2",
+      "https://github.com/Latonal/Favs/archive/refs/heads/main.zip"
     ],
     "VersionUrls": [
       "url",

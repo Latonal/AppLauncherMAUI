@@ -75,6 +75,34 @@ internal static class Common
         return uri.Host;
     }
 
+    public static bool IsNullOrEmpty(Array array)
+    {
+        return array.Length == 0;
+    }
+
+    public static string[] FilterUrls(string[] urls)
+    {
+        return Array.FindAll(urls, static u =>
+        {
+            return Uri.TryCreate(u, UriKind.Absolute, out Uri? result) && result is not null && (result.Scheme == Uri.UriSchemeHttp || result.Scheme == Uri.UriSchemeHttps);
+        });
+    }
+
+    public static string[] DistinctArrayValues(params string[] array)
+    {
+        return [.. array.Distinct()];
+    }
+
+    public static string[] DistinctArrayValues(params string[][] arrays)
+    {
+        return [.. FlattenArrays(arrays).Distinct()];
+    }
+
+    public static string[] FlattenArrays(params string[][] arrays)
+    {
+        return [.. arrays.SelectMany(array => array)];
+    }
+
     public static void CreateShortcut(string appPath, string appName = "", string endPath = "")
     {
         try
