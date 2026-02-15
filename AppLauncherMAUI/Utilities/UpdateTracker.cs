@@ -8,6 +8,54 @@ using System.Threading;
 
 namespace AppLauncherMAUI.Utilities;
 
+public class UpdateTrackerModel
+{
+    public Dictionary<int, AppUpdateInfo>? Apps { get; set; }
+}
+
+public class UpdateTrackerModelString
+{
+    public Dictionary<string, AppUpdateInfo>? Apps { get; set; }
+}
+
+internal static class UpdateTrackerssss
+{
+    private static readonly string VersionFilePath = AppPaths.VersionTrackingFilePath;
+    private static readonly JsonSerializerOptions s_writeIndentedOptions = new()
+    {
+        WriteIndented = true,
+    };
+
+    // LoadAsync 
+    private static async Task<UpdateTrackerModelString> LoadAsync()
+    {
+
+    }
+
+
+    // SaveAsync
+
+    // GetModel
+
+    // GetLastChecked
+    
+    // GetHashAsync
+
+    // GetLastWorkingUrl
+
+    // GetLastDifferentHash
+
+    // SetUpdateTrackerModelAsync
+
+    // ShouldWeCheckValidity
+
+    // IsVersionDifferent
+
+    // IsTxtDifferent
+
+    // IsHashDifferent
+}
+
 internal static class UpdateTracker
 {
     private static readonly string VersionFilePath = AppPaths.VersionTrackingFilePath;
@@ -15,6 +63,15 @@ internal static class UpdateTracker
     {
         WriteIndented = true,
     };
+
+    private static async Task<UpdateTrackerModelString> LoadAsync()
+    {
+        if (!File.Exists(VersionFilePath))
+            return new UpdateTrackerModelString();
+
+        string json = await File.ReadAllTextAsync(VersionFilePath);
+        return JsonSerializer.Deserialize<UpdateTrackerModelString>(json) ?? new UpdateTrackerModelString();
+    }
 
     private static async Task<UpdateTrackerModel> LoadAsync()
     {
@@ -29,6 +86,13 @@ internal static class UpdateTracker
     {
         string json = JsonSerializer.Serialize(model, s_writeIndentedOptions);
         await File.WriteAllTextAsync(VersionFilePath, json);
+    }
+
+    public static async Task<AppUpdateInfo?> GetModel(string appId)
+    {
+        UpdateTrackerModelString model = await LoadAsync();
+        if (model.Apps == null) return null;
+        return model.Apps.TryGetValue(appId, out AppUpdateInfo? info) ? info : null;
     }
 
     public static async Task<AppUpdateInfo?> GetModel(int appId)
@@ -57,6 +121,13 @@ internal static class UpdateTracker
         AppUpdateInfo? info = await GetModel(appId);
         if (info == null) return null;
         return info.LastWorkingUrl;
+    }
+
+    public static async Task<string?> GetLastDifferentHash(string name)
+    {
+        AppUpdateInfo? info = await GetModel(name);
+        if (info == null) return null;
+        return info.LastDifferentHash;
     }
 
     public static async Task<string?> GetLastDifferentHash(int appId)

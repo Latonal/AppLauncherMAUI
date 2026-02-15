@@ -75,6 +75,11 @@ internal static class Common
         return uri.Host;
     }
 
+    public static string GetWorkingDirectory(string path)
+    {
+        return new DirectoryInfo(path).Name;
+    }
+
     public static bool IsNullOrEmpty(Array array)
     {
         return array.Length == 0;
