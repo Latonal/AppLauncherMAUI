@@ -193,7 +193,7 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
                     DownloadButtonState = AppDownloadButtonStates.CanInstall;
                 else
                 {
-                    if (!String.IsNullOrEmpty(VersionFileUrl) && await UpdateTracker.IsVersionDifferent(DownloadHandler.GetDefaultAppPath(AppId.ToString()), AppId, VersionFileUrl, cts.Token))
+                    if (!String.IsNullOrEmpty(VersionFileUrl) && await UpdateTracker.IsVersionDifferent(DownloadHandler.GetDefaultAppPath(AppId.ToString()), VersionFileUrl, cts.Token))
                         DownloadButtonState = AppDownloadButtonStates.Update;
                 }
             }

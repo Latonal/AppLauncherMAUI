@@ -11,18 +11,18 @@ namespace AppLauncherMAUI.Utilities.DownloadUtilities;
 
 internal class DownloadHandler
 {
-    public static async Task<bool> Download(string endPath, string[] urls, CancellationToken cancellationToken, IProgress<double>? progress = null)
+    public static async Task<bool> Download(string appPath, string[] urls, CancellationToken cancellationToken, IProgress<double>? progress = null)
     {
         foreach (string url in urls)
         {
-            bool done = await Download(endPath, url, cancellationToken, progress);
+            bool done = await Download(appPath, url, cancellationToken, progress);
             if (done) return true;
         }
 
         return false;
     }
 
-    public static async Task<bool> Download(string endPath, string url, CancellationToken cancellationToken, IProgress<double>? progress = null)
+    public static async Task<bool> Download(string appPath, string url, CancellationToken cancellationToken, IProgress<double>? progress = null)
     {
         try
         {
@@ -47,26 +47,18 @@ internal class DownloadHandler
             // Body
             string body = await response.Content.ReadAsStringAsync();
 
-            //string zipPath = DownloadHandler.GetDefaultZipPath(folderName.ToString());
-            //string appPath = DownloadHandler.GetDefaultAppPath(folderName.ToString());
-
-
-            // ExternalApplicationManager.AllowedContentType type = await DownloadHandler.GetAppContentType(InstallUrl ?? UpdateUrl, cts.Token);
-
-            // bool done for each download type
             switch (contentType)
             {
                 case ExternalApplicationManager.AllowedContentType.Zip:
-                    await DownloadHandler.DownloadZipContent(url, zipPath, appPath, cancellationToken, progress);
+                    await DownloadHandler.DownloadZipContent(url, appPath, cancellationToken, progress);
                     break;
                 case ExternalApplicationManager.AllowedContentType.Json:
-                    await DownloadHandler.DownloadRawContent(url, appPath, AppId, cancellationToken, progress);
+                    await DownloadHandler.DownloadRawContent(url, appPath, cancellationToken, progress);
                     break;
                 default:
                     Console.Error.WriteLine("(DownloadHandler) Type '" + contentType + "' is not supported for downloading.");
                     return false;
             }
-            // if (!done) return false;
         }
         catch (Exception e)
         {
@@ -76,57 +68,7 @@ internal class DownloadHandler
 
         return true;
     }
-
-    /*
-    public static async Task<bool> CheckIfValidHeader(string url, CancellationToken cancellationToken)
-    {
-        if (!Common.CheckValidUri(url))
-        {
-            Console.Error.WriteLine("[DownloadHandler] The given url (" + url + ") is not well formatted.");
-            return false;
-        }
-
-        HttpResponseMessage? header = await HttpService.GetResponseAsync(url, cancellationToken);
-        if (header == null) return false;
-        if (!CheckDownloadAvailability(header, url)) return false;
-        return ExternalApplicationManager.GetAppAllowedContentType(header.Content.Headers.ContentType?.MediaType ?? "") != ExternalApplicationManager.AllowedContentType.Unknown;
-    }
-
-    public static bool CheckDownloadAvailability(HttpResponseMessage header, string url)
-    {
-        Uri uri = new(url);
-
-        string host = uri.Host;
-        return host switch
-        {
-            "api.github.com" => GithubDownloadHandler.CheckDownloadAvailability(header),
-            "github.com" => true,
-            _ => throw new Exception($"[DownloadHandler] url ({url}) hostname is not supported."),
-        };
-    }
-
-    public static async Task<ExternalApplicationManager.AllowedContentType> GetAppContentType(string url, CancellationToken cancellationToken)
-    {
-        if (!Common.CheckValidUri(url))
-            throw new Exception("[DownloadHandler] The given url (" + url + ") is not well formatted.");
-
-        HttpContentHeaders? header = await HttpService.GetContentHeaderAsync(url, cancellationToken);
-        if (header == null) return ExternalApplicationManager.AllowedContentType.Unknown;
-        return ExternalApplicationManager.GetAppAllowedContentType(header.ContentType?.MediaType ?? "");
-    }
-
-    public static async Task<ExternalApplicationManager.AllowedContentType> GetVersionContentType(string url, CancellationToken cancellationToken)
-    {
-        if (!Common.CheckValidUri(url))
-            throw new Exception("[DownloadHandler] The given url (" + url + ") is not well formatted.");
-
-        HttpContentHeaders? header = await HttpService.GetContentHeaderAsync(url, cancellationToken);
-        if (header == null) return ExternalApplicationManager.AllowedContentType.Unknown;
-        return ExternalApplicationManager.GetVersionAllowedContentType(header.ContentType?.MediaType ?? "");
-    }
-    */
-
-    public static async Task DownloadFileAsync(string url, string filePath, CancellationToken cancellationToken, IProgress<double>? progress = null)
+    public static async Task DownloadFileAsync(string url, string filePath, CancellationToken cancellationToken, IProgress<double>? progress = null, string? sha = null)
     {
         /* Test
         //Debug.WriteLine(progress?.ToString());
@@ -141,6 +83,8 @@ internal class DownloadHandler
 
         try
         {
+            // todo: use sha for downloadurl
+
             using HttpResponseMessage response = await HttpService.Client.GetAsync(url, HttpCompletionOption.ResponseHeadersRead);
             response.EnsureSuccessStatusCode();
 
@@ -165,6 +109,9 @@ internal class DownloadHandler
                     progress?.Report((double)totalRead / totalBytes);
             }
 
+            if (sha != null)
+                await SaveVersionFile(Common.GetWorkingDirectory(filePath), sha);
+
             progress?.Report(1);
         }
         catch (Exception e)
@@ -173,12 +120,26 @@ internal class DownloadHandler
         }
     }
 
+    public static async Task SaveVersionFile(string appName, string hash)
+    {
+        UpdateTracker ut = new();
+        appName = Path.GetFileNameWithoutExtension(appName.ToLower());
+
+        await ut.Load(appName);
+        ut.AUIM?.Update(new AppUpdateInfosModel { Name = appName, Hash = hash, LastDifferentHash = hash, LastChecked = Common.GetCurrentUnixTimestamp() });
+        if (ut.AUIM != null)
+            await UpdateTracker.Save(ut.AUIM);
+    }
+
     #region Download content by type
-    public static async Task DownloadZipContent(string downloadUrl, string zipPath, string appPath, CancellationToken cancellationToken, IProgress<double> progress)
+    public static async Task DownloadZipContent(string downloadUrl, string appPath, CancellationToken cancellationToken, IProgress<double>? progress)
     {
         try
         {
-            await DownloadFileAsync(downloadUrl, zipPath, cancellationToken, progress);
+            string zipPath = GetDefaultZipPath(Common.GetWorkingDirectory(appPath));
+
+            string? sha = await GetZipCommit(downloadUrl);
+            await DownloadFileAsync(downloadUrl, zipPath, cancellationToken, progress, sha);
             DeleteFolder(appPath);
             ExtractZip(zipPath, appPath);
             DeleteFolder(zipPath);
@@ -193,22 +154,44 @@ internal class DownloadHandler
     }
 
     #region Raw download
-    public static async Task<bool> DownloadRaw(string downloadUrl, string appPath, int appId, CancellationToken cancellationToken, IProgress<double> progress)
+    public static async Task<string?> GetZipCommit(string url)
     {
-        try
+        string host = Common.GetUriHost(url);
+        // add more host in switch if needed
+
+        // no token used
+        string? sha = host switch
         {
-            (List<StandardRawModel> files, string hash) = await GetFilesDataByModelType(downloadUrl, appId, cancellationToken);
-            // Use Common.GetWorkingDirectory
-            return true;
-        }
-        catch (Exception e) {
-            Debug.WriteLine("Message:{0}", e.Message);
-            return false;
-        }
+            "github.com" => await GithubDownloadHandler.GetCommitShaNoToken(url),
+            _ => throw new Exception($"[DownloadHandler] url ({host}) hostname is not supported."),
+        };
+
+        // token used if empty
+        sha ??= host switch
+        {
+            "github.com" => await GithubDownloadHandler.GetCommitSha(url),
+            _ => throw new Exception($"[DownloadHandler] url ({host}) hostname is not supported."),
+        };
+
+        return sha;
     }
 
+    //public static async Task<bool> DownloadRaw(string downloadUrl, string appPath, string appName, CancellationToken cancellationToken, IProgress<double>? progress)
+    //{
+    //    try
+    //    {
+    //        (List<StandardRawModel> files, string hash) = await GetFilesDataByModelType(downloadUrl, appName, cancellationToken);
+    //        // Use Common.GetWorkingDirectory
+    //        return true;
+    //    }
+    //    catch (Exception e) {
+    //        Debug.WriteLine("Message:{0}", e.Message);
+    //        return false;
+    //    }
+    //}
+
     private static async Task<(List<StandardRawModel>, string)> GetFilesDataByModelType(string downloadUrl, string path, CancellationToken cancellationToken)
-    { // dupe
+    {
         string host = Common.GetUriHost(downloadUrl);
         string appName = Common.GetWorkingDirectory(path);
 
@@ -219,26 +202,17 @@ internal class DownloadHandler
         };
     }
 
-    public static async Task DownloadRawContent(string downloadUrl, string appPath, int appId, CancellationToken cancellationToken, IProgress<double> progress)
+    public static async Task DownloadRawContent(string downloadUrl, string appPath, CancellationToken cancellationToken, IProgress<double>? progress)
     {
-        (List<StandardRawModel> files, string hash) = await GetFilesDataByModelType(downloadUrl, appId, cancellationToken);
+        string appName = Common.GetWorkingDirectory(appPath);
+
+        (List<StandardRawModel> files, string hash) = await GetFilesDataByModelType(downloadUrl, appName, cancellationToken);
         if (files == null || files.Count <= 0) throw new Exception($"[DownloadHandler] url ({downloadUrl}) returned no file.");
 
-        await DownloadRawFiles(files, hash, appPath, appId, downloadUrl, cancellationToken, progress);
+        await DownloadRawFiles(files, hash, appPath, appName, downloadUrl, cancellationToken, progress);
     }
 
-    private static async Task<(List<StandardRawModel>, string)> GetFilesDataByModelType(string downloadUrl, int appId, CancellationToken cancellationToken)
-    {
-        string host = Common.GetUriHost(downloadUrl);
-
-        return host switch
-        {
-            "api.github.com" => await GithubDownloadHandler.GetGithubRawFiles(downloadUrl, appId, cancellationToken),
-            _ => throw new Exception($"[DownloadHandler] url ({downloadUrl}) hostname is not supported."),
-        };
-    }
-
-    public static async Task DownloadRawFiles(List<StandardRawModel> files, string hash, string appPath, int appId, string downloadUrl, CancellationToken cancellationToken, IProgress<double> progress)
+    public static async Task DownloadRawFiles(List<StandardRawModel> files, string hash, string appPath, string appName, string downloadUrl, CancellationToken cancellationToken, IProgress<double>? progress)
     {
         int totalBytes = files.Sum(x => x.Size) ?? 0;
         int totalRead = 0;
@@ -280,7 +254,7 @@ internal class DownloadHandler
             }
         }
 
-        await UpdateTracker.SetUpdateTrackerModelAsync(appId, hash, "", hash);
+        await SaveVersionFile(appName, hash);
 
         progress?.Report(1);
     }
@@ -344,6 +318,7 @@ internal class DownloadHandler
     }
     #endregion Download content by type
 
+    // TODO: Redo
     public static string GetDefaultZipPath(string fileName, bool createFolder = true)
     {
         string filePath = Path.Combine(AppPaths.CacheDirectory, "TempZip");
@@ -354,6 +329,7 @@ internal class DownloadHandler
         return filePath;
     }
 
+    // TODO: Redo
     public static string GetDefaultAppPath(string fileName, bool createFolder = true)
     {
         string filePath = AppPaths.DownloadedAppPath(fileName);
