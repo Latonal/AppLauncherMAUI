@@ -5,10 +5,80 @@ using AppLauncherMAUI.Utilities.Singletons;
 using System.Net.Sockets;
 using System.Text.Json;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace AppLauncherMAUI.Utilities;
 
-internal static class UpdateTracker
+public class AppUpdateInfosModelList
+{
+    public List<AppUpdateInfosModel> Apps { get; set; } = [];
+
+    public AppUpdateInfosModel Search(string domainName)
+    {
+        AppUpdateInfosModel? auim = GetData(domainName);
+        auim ??= Add(new AppUpdateInfosModel { Name = domainName });
+        return auim;
+    }
+
+    public AppUpdateInfosModel? GetData(string domainName)
+    {
+        return Apps.FirstOrDefault(a => a.Name == domainName);
+    }
+
+    public AppUpdateInfosModel Add(AppUpdateInfosModel auim)
+    {
+        AppUpdateInfosModel newAuim = new()
+        {
+            Name = auim.Name,
+            Hash = auim.Hash,
+            LastDifferentHash = auim.LastDifferentHash,
+            LastWorkingUrl = auim.LastWorkingUrl,
+            LastChecked = auim.LastChecked,
+        };
+
+        Apps.Add(newAuim);
+        return newAuim;
+    }
+}
+
+public class AppUpdateInfosModel
+{
+    public required string Name { get; set; }
+    public string Hash { get; set; } = "";
+    public string LastDifferentHash { get; set; } = "";
+    public string LastWorkingUrl { get; set; } = "";
+    public long LastChecked { get; set; }
+
+    public void Update(AppUpdateInfosModel auim)
+    {
+        if (auim.Name != default) Name = auim.Name;
+        if (auim.Hash != default) Hash = auim.Hash;
+        if (auim.LastDifferentHash != default) LastDifferentHash = auim.LastDifferentHash;
+        if (auim.LastWorkingUrl != default) LastWorkingUrl = auim.LastWorkingUrl;
+        if (auim.LastChecked != default) LastChecked = auim.LastChecked;
+    }
+
+    //public async Task<bool> CanCheckForUpdate(string appPath, string versionFileUrl, CancellationToken cancellationToken)
+    //{
+    //    if (CanCheckUpdate())
+    //        return await IsVersionDifferent(appPath, versionFileUrl, cancellationToken);
+
+    //    return false;
+    //}
+
+    public bool CanCheckUpdate(TimeSpan? elapsedTimeNeeded = null)
+    {
+        TimeSpan elapsedTime = elapsedTimeNeeded ?? TimeSpan.FromSeconds(AppConfig.CacheTime);
+        TimeSpan difference = DateTimeOffset.FromUnixTimeSeconds(Common.GetCurrentUnixTimestamp()) - DateTimeOffset.FromUnixTimeSeconds(LastChecked);
+
+        if (difference < elapsedTime)
+            return false;
+
+        return true;
+    }
+}
+
+internal class UpdateTracker
 {
     private static readonly string VersionFilePath = AppPaths.VersionTrackingFilePath;
     private static readonly JsonSerializerOptions s_writeIndentedOptions = new()
@@ -16,106 +86,54 @@ internal static class UpdateTracker
         WriteIndented = true,
     };
 
-    private static async Task<UpdateTrackerModel> LoadAsync()
+    public AppUpdateInfosModel? AUIM;
+
+    public UpdateTracker() { }
+
+    public async Task Load(string appName)
     {
         if (!File.Exists(VersionFilePath))
-            return new UpdateTrackerModel();
+        {
+            AUIM = new AppUpdateInfosModel { Name = appName };
+            return;
+        }
 
         string json = await File.ReadAllTextAsync(VersionFilePath);
-        return JsonSerializer.Deserialize<UpdateTrackerModel>(json) ?? new UpdateTrackerModel();
+        AppUpdateInfosModelList AUIMList = JsonSerializer.Deserialize<AppUpdateInfosModelList>(json) ?? new AppUpdateInfosModelList();
+
+        AUIM = AUIMList.Search(appName) ?? new AppUpdateInfosModel { Name = appName };
     }
 
-    private static async Task SaveAsync(UpdateTrackerModel model)
+    public static async Task Save(AppUpdateInfosModel auim)
     {
-        string json = JsonSerializer.Serialize(model, s_writeIndentedOptions);
+        AppUpdateInfosModelList AUIMList;
+
+        if (!File.Exists(VersionFilePath))
+        {
+            AUIMList = new();
+            AUIMList.Add(auim);
+        }
+        else
+        {
+            string original = await File.ReadAllTextAsync(VersionFilePath);
+            AUIMList = JsonSerializer.Deserialize<AppUpdateInfosModelList>(original) ?? new AppUpdateInfosModelList();
+            AUIMList.Search(auim.Name).Update(auim);
+        }
+
+        string json = JsonSerializer.Serialize(AUIMList, s_writeIndentedOptions);
         await File.WriteAllTextAsync(VersionFilePath, json);
     }
 
-    public static async Task<AppUpdateInfo?> GetModel(int appId)
+    public static async Task<bool> IsVersionDifferent(string appPath, string versionFileUrl, CancellationToken cancellationToken)
     {
-        UpdateTrackerModel model = await LoadAsync();
-        if (model.Apps == null) return null;
-        return model.Apps.TryGetValue(appId, out AppUpdateInfo? info) ? info : null;
-    }
+        // rework appPath
 
-    public static async Task<long> GetLastChecked(int appId)
-    {
-        AppUpdateInfo? info = await GetModel(appId);
-        if (info == null) return 0;
-        return info.LastChecked;
-    }
-
-    public static async Task<string?> GetHashAsync(int appId)
-    {
-        AppUpdateInfo? info = await GetModel(appId);
-        if (info == null) return null;
-        return info.Hash;
-    }
-
-    public static async Task<string?> GetLastWorkingUrl(int appId)
-    {
-        AppUpdateInfo? info = await GetModel(appId);
-        if (info == null) return null;
-        return info.LastWorkingUrl;
-    }
-
-    public static async Task<string?> GetLastDifferentHash(int appId)
-    {
-        AppUpdateInfo? info = await GetModel(appId);
-        if (info == null) return null;
-        return info.LastDifferentHash;
-    }
-
-    public static async Task SetUpdateTrackerModelAsync(int appId, string? hash = null, string? workingUrl = null, string? lastDifferentHash = null)
-    {
-        if (String.IsNullOrEmpty(hash)) hash = null;
-        if (String.IsNullOrEmpty(workingUrl)) workingUrl = null;
-        if (String.IsNullOrEmpty(lastDifferentHash)) lastDifferentHash = null;
-
-        UpdateTrackerModel model = await LoadAsync();
-        model.Apps ??= [];
-        AppUpdateInfo oldInfos = model.Apps.TryGetValue(appId, out AppUpdateInfo? value) ? value : new AppUpdateInfo();
-        model.Apps[appId] = new AppUpdateInfo
-        {
-            Hash = hash ?? oldInfos.Hash ?? "",
-            LastWorkingUrl = workingUrl ?? oldInfos.LastWorkingUrl ?? "",
-            LastDifferentHash = lastDifferentHash ?? oldInfos.LastDifferentHash ?? "",
-            LastChecked = Common.GetCurrentUnixTimestamp()
-        };
-        await SaveAsync(model);
-    }
-
-    /// <summary>
-    /// Return if we should check if the remote url is working
-    /// </summary>
-    /// <param name="elapsedTimeNeeded"></param>
-    /// <returns></returns>
-    public static async Task<bool> ShouldWeCheckValidity(int appId, TimeSpan? elapsedTimeNeeded)
-    {
-        AppUpdateInfo? infos = await GetModel(appId);
-        if (infos == null) return true;
-
-        TimeSpan elapsedTime = elapsedTimeNeeded ?? TimeSpan.FromSeconds(AppConfig.CacheTime);
-
-        DateTimeOffset unixCurrent = DateTimeOffset.FromUnixTimeSeconds(Common.GetCurrentUnixTimestamp());
-        DateTimeOffset unixSaved = DateTimeOffset.FromUnixTimeSeconds(infos.LastChecked);
-        TimeSpan difference = unixCurrent - unixSaved;
-
-        if (difference < elapsedTime)
-            return false;
-
-        return true;
-    }
-
-    public static async Task<bool> IsVersionDifferent(string appPath, int appId, string versionFileUrl, CancellationToken cancellationToken)
-    {
-
-        if (String.IsNullOrEmpty(versionFileUrl)) return false;
+        if (string.IsNullOrWhiteSpace(versionFileUrl)) return false;
         using HttpResponseMessage? response = await HttpService.GetResponseAsync(versionFileUrl, cancellationToken);
 
         if (response == null)
         {
-            Console.WriteLine($"[DownloadHandler] Url \"{versionFileUrl}\" seems to not work.");
+            Console.WriteLine($"[UpdateTracker] Url \"{versionFileUrl}\" does not seems to work.");
             return false;
         }
 
@@ -125,11 +143,10 @@ internal static class UpdateTracker
         return type switch
         {
             ExternalApplicationManager.AllowedContentType.Text => IsTxtDifferent(appPath, content),
-            ExternalApplicationManager.AllowedContentType.Json => await IsHashDifferent(appId, versionFileUrl, content),
+            ExternalApplicationManager.AllowedContentType.Json => await IsHashDifferent(appPath, content),
 
             _ => false
         };
-
     }
 
     private static bool IsTxtDifferent(string appPath, string remoteTxt)
@@ -141,20 +158,23 @@ internal static class UpdateTracker
         return localTxt != remoteTxt;
     }
 
-    private static async Task<bool> IsHashDifferent(int appId, string versionFileUrl, string json)
+    private static async Task<bool> IsHashDifferent(string appPath, string json)
     {
-        string localHash = await GetHashAsync(appId) ?? "";
+        await Task.FromResult(0);
+        return true;
 
-        string host = Common.GetUriHost(versionFileUrl);
-        string remoteHash = host switch
-        {
-            "api.github.com" => GithubDownloadHandler.GetSha(json),
-            _ => throw new Exception($"[DownloadHandler] url ({versionFileUrl}) hostname is not supported."),
-        };
+        //string localHash = await GetHashAsync(appId) ?? "";
 
-        if (localHash != remoteHash)
-            await SetUpdateTrackerModelAsync(appId, null, null, remoteHash);
+        //string host = Common.GetUriHost(versionFileUrl);
+        //string remoteHash = host switch
+        //{
+        //    "api.github.com" => GithubDownloadHandler.GetSha(json),
+        //    _ => throw new Exception($"[DownloadHandler] url ({versionFileUrl}) hostname is not supported."),
+        //};
 
-        return localHash != remoteHash;
+        //if (localHash != remoteHash)
+        //    await SetUpdateTrackerModelAsync(appId, null, null, remoteHash);
+
+        //return localHash != remoteHash;
     }
 }

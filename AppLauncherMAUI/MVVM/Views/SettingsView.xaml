@@ -31,13 +31,11 @@
                Text="Application need to restart for your changes to be fully applied." 
                IsVisible="False"/>
 
+        <CheckBox x:Name="ShouldCreateShortcut"
+                  CheckedChanged="OnShouldCreateShortcutChanged"
+                  IsChecked="True"/>
+        <Label Text="Create a shortcut to application after download."></Label>
 
-        <Label Text="Test color"
-               VerticalOptions="Center"
-               HorizontalOptions="Center" />
 
-        <Label
-            Text="Create a shortcut after a download" />
-        <!-- TODO -->
     </VerticalStackLayout>
 </ContentView>

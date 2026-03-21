@@ -63,7 +63,7 @@ internal static class ApplicationHandler
                         return files;
                     break;
                 case "name":
-                    // does not work
+                    // TODO: does not work
                     if (val == null) continue;
 
                     string[] matches = Directory.GetFiles(folderPath, $"*{val}*", SearchOption.TopDirectoryOnly);

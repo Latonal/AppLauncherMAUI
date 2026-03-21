@@ -14,6 +14,7 @@ public partial class SettingsView : ContentView
         BindingContext = new SettingsViewModel();
 
         ThemePicker.SelectedIndex = Preferences.Get("AppTheme", 0);
+        ShouldCreateShortcut.IsChecked = Preferences.Get("ShouldCreateShortcut", true);
         init = true;
     }
 
@@ -37,6 +38,15 @@ public partial class SettingsView : ContentView
             ItemStringIdPickerModel si = (ItemStringIdPickerModel)LanguagePicker.SelectedItem;
             viewModel.OnLanguagePickerChanged(si.Id);
             PlsRestart.IsVisible = true;
+        }
+    }
+
+    private void OnShouldCreateShortcutChanged(object sender, EventArgs e)
+    {
+        if (BindingContext is SettingsViewModel viewModel)
+        {
+            bool val = ShouldCreateShortcut.IsChecked;
+            viewModel.OnShortcutPickerChanged(val);
         }
     }
 }

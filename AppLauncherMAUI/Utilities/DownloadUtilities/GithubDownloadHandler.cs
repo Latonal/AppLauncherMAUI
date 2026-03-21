@@ -6,21 +6,27 @@ using System.Net.Http.Headers;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 
 namespace AppLauncherMAUI.Utilities.DownloadUtilities;
 
 internal class GithubDownloadHandler
 {
-    public static async Task<(List<StandardRawModel>, string)> GetGithubRawFiles(string downloadUrl, int appId, CancellationToken cancellationToken)
+    public static async Task<(List<StandardRawModel>, string)> GetGithubRawFiles(string downloadUrl, string appName, CancellationToken cancellationToken)
     {
         HttpClient client = HttpService.Client;
 
-        bool shouldWeCheckAgain = await UpdateTracker.ShouldWeCheckValidity(appId, null);
+        UpdateTracker ut = new();
+        await ut.Load(appName);
+
+        if (ut.AUIM == null) return new();
+
+        bool shouldWeCheckAgain = ut.AUIM.CanCheckUpdate();
         string sha = "";
 
         if (!shouldWeCheckAgain)
         {
-            sha = await UpdateTracker.GetLastDifferentHash(appId) ?? "";
+            sha = ut.AUIM.LastDifferentHash ?? "";
             if (String.IsNullOrEmpty(sha))
                 shouldWeCheckAgain = true;
             Console.WriteLine($"using sha: {sha}");
@@ -117,5 +123,45 @@ internal class GithubDownloadHandler
 
         byte[] hashBytes = SHA1.HashData(full);
         return Convert.ToHexStringLower(hashBytes);
+    }
+
+    public static async Task<string?> GetCommitShaNoToken(string url)
+    {
+        Uri uri = new(url);
+        string[] segments = uri.Segments;
+
+        string owner = segments[1].TrimEnd('/');
+        string repo = segments[2].TrimEnd('/');
+        string branch = segments[6].TrimEnd('/').Split(".")[0];
+
+        string finalUrl = $"https://github.com/{owner}/{repo}/info/refs?service=git-upload-pack";
+
+        using HttpResponseMessage response = await HttpService.Client.GetAsync(finalUrl, HttpCompletionOption.ResponseHeadersRead);
+        response.EnsureSuccessStatusCode();
+
+        string content = await response.Content.ReadAsStringAsync();
+        var match = Regex.Match(content, $@"([0-9a-f]{{40}})\srefs/heads/{branch}");
+
+        return match.Success ? match.Groups[1].Value : null;
+    }
+
+    public static async Task<string?> GetCommitSha(string url)
+    {
+        Uri uri = new(url);
+        string[] segments = uri.Segments;
+
+        string owner = segments[1].TrimEnd('/');
+        string repo = segments[2].TrimEnd('/');
+        string branch = segments[6].TrimEnd('/').Split(".")[0];
+
+        string finalUrl = $"https://api.github.com/repos/{owner}/{repo}/commits/{branch}";
+
+        using HttpResponseMessage response = await HttpService.Client.GetAsync(finalUrl, HttpCompletionOption.ResponseHeadersRead);
+        response.EnsureSuccessStatusCode();
+
+        string content = await response.Content.ReadAsStringAsync();
+        string? sha = JsonDocument.Parse(content).RootElement.GetProperty("sha").GetString();
+
+        return sha;
     }
 }

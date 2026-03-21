@@ -4,6 +4,7 @@ using AppLauncherMAUI.MVVM.Views.Controls;
 using AppLauncherMAUI.Utilities;
 using AppLauncherMAUI.Utilities.DownloadUtilities;
 using AppLauncherMAUI.Utilities.Singletons;
+using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Windows.Input;
@@ -21,8 +22,10 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
 
     private string _name = "DefaultAppName";
     public string Name { get { return _name; } set { _name = value; RaisePropertyChanged(() => Name); } }
-    private string? _downloadUrl;
-    public string? DownloadUrl { get { return _downloadUrl; } set { _downloadUrl = value; _ = SetCurrentAppState(); } }
+    private string[] _installUrls = [];
+    public string[] InstallUrls { get { return _installUrls; } set { _installUrls = value; _ = SetCurrentAppState(); } }
+    private string[] _updateUrls = [];
+    public string[] UpdateUrls { get { return _updateUrls; } set { _updateUrls = value; _ = SetCurrentAppState(); } }
     private string? _versionFileUrl;
     public string? VersionFileUrl { get { return _versionFileUrl; } set { _versionFileUrl = value; } }
 
@@ -68,7 +71,9 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
         // This line trigger the whole check (SetCurrentAppState())
         // Any value related to functional must be put above
         // Any value related to visual muse be put below
-        DownloadUrl = await GetWorkingDownloadUrl(data.DownloadUrls ?? []);
+
+        InstallUrls = Common.FilterUrls(Common.DistinctArrayValues(data.InstallUrls ?? []));
+        UpdateUrls = Common.FilterUrls(Common.DistinctArrayValues(data.UpdateUrls ?? []));
 
         // Visual
         Name = data.Name ?? "DefaultAppName";
@@ -117,34 +122,47 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
         return String.Empty;
     }
 
-    private async Task<string> GetWorkingDownloadUrl(string[] downloadUrls)
-    {
-        bool shouldWeCheckAgain = await UpdateTracker.ShouldWeCheckValidity(AppId, null);
-        if (!shouldWeCheckAgain)
-        {
-            string? lastWorkingUrl = await UpdateTracker.GetLastWorkingUrl(AppId);
-            if (!String.IsNullOrEmpty(lastWorkingUrl)) return lastWorkingUrl;
-        }
+    //private async Task<string> GetWorkingDownloadUrl(params string[] downloadUrls)
+    //{
+    //    // Check if url has been verified recently
+    //    //      If ok, return the string[] (it'll be reused later if during Downloading process the url stop working)
+    //    // Check if string is empty
+    //    // Merge string[] together and remove duplicate
+    //    // For each url, check if urls is working : number of token is OK and save the domain somewhere with number of token and timestamp of last checked
+    //    // Return string[]
+    //    //
+    //    //
 
-        if (downloadUrls.Length <= 0) return String.Empty;
+    //    bool shouldWeCheckAgain = await UpdateTracker.ShouldWeCheckValidity(AppId, null);
+    //    if (!shouldWeCheckAgain)
+    //    {
+    //        string? lastWorkingUrl = await UpdateTracker.GetLastWorkingUrl(AppId);
+    //        if (!String.IsNullOrEmpty(lastWorkingUrl)) return lastWorkingUrl;
+    //    }
 
-        foreach (string downloadUrl in downloadUrls)
-        {
-            if (!await DownloadHandler.CheckIfValidHeader(downloadUrl, cts.Token)) continue;
+    //    if (downloadUrls.Length <= 0) return String.Empty;
 
-            await UpdateTracker.SetUpdateTrackerModelAsync(AppId, "", downloadUrl);
-            return downloadUrl;
 
-            // Todo: save for session the current working downloadUrl
-            // with timestamp of the check.
-            // At the start, check if workingUrl has already been found
-            // (user changed page and went back), if so don't make
-            // another call. (this part is done)
-            // Also, save currently workings hosts (in case API is limited)?
-        }
 
-        return String.Empty;
-    }
+    //    foreach (string downloadUrl in downloadUrls)
+    //    {
+    //        if (!await DownloadHandler.CheckIfValidHeader(downloadUrl, cts.Token)) continue;
+
+    //        await UpdateTracker.SetUpdateTrackerModelAsync(AppId, "", downloadUrl);
+    //        return downloadUrl;
+
+    //        // Todo: save for session the current working downloadUrl
+    //        // with timestamp of the check.
+    //        // At the start, check if workingUrl has already been found
+    //        // (user changed page and went back), if so don't make
+    //        // another call. (this part is done)
+    //        // Also, save currently workings hosts (in case API is limited)?
+    //        //
+    //        // Save provider instead of url? (+ number of token)
+    //    }
+
+    //    return String.Empty;
+    //}
 
     private async Task SetCurrentAppState()
     {
@@ -163,7 +181,7 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
                 playable = true;
             }
 
-            if (DownloadUrl == String.Empty)
+            if (Common.IsNullOrEmpty(InstallUrls) && Common.IsNullOrEmpty(UpdateUrls))
             {
                 if (!playable)
                     DownloadButtonState = AppDownloadButtonStates.Disabled;
@@ -175,7 +193,7 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
                     DownloadButtonState = AppDownloadButtonStates.CanInstall;
                 else
                 {
-                    if (!String.IsNullOrEmpty(VersionFileUrl) && await UpdateTracker.IsVersionDifferent(DownloadHandler.GetDefaultAppPath(AppId.ToString()), AppId, VersionFileUrl, cts.Token))
+                    if (!String.IsNullOrEmpty(VersionFileUrl) && await UpdateTracker.IsVersionDifferent(DownloadHandler.GetDefaultAppPath(AppId.ToString()), VersionFileUrl, cts.Token))
                         DownloadButtonState = AppDownloadButtonStates.Update;
                 }
             }
@@ -189,13 +207,13 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
             switch (DownloadButtonState)
             {
                 case AppDownloadButtonStates.CanInstall:
-                    Download();
+                    Download(DownloadState.Install);
                     break;
                 case AppDownloadButtonStates.Playable:
                     LaunchApplication();
                     break;
                 case AppDownloadButtonStates.Update:
-                    Download();
+                    Download(DownloadState.Update);
                     break;
                 case AppDownloadButtonStates.Active:
                     KillApplication();
@@ -208,7 +226,7 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
                 CancelDownload();
         }
         else if (AppDownloadButtonCommand.Download == cmd)
-            Download();
+            Download(DownloadState.Install);
         else if (AppDownloadButtonCommand.OpenFolder == cmd)
             OpenAppFolder();
         else if (AppDownloadButtonCommand.Launch == cmd)
@@ -226,38 +244,62 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
         return !(foundFiles == null || foundFiles.Length == 0);
     }
 
-    private async void Download()
+    private async void Download(DownloadState ds = 0)
     {
-        if (DownloadUrl == String.Empty || DownloadUrl == null) return;
+        string[] workingUrls = ds switch
+        {
+            DownloadState.Update => Common.DistinctArrayValues(UpdateUrls, InstallUrls),
+            _ => Common.DistinctArrayValues(InstallUrls, UpdateUrls),
+        };
+        if (Common.IsNullOrEmpty(workingUrls)) return;
 
         DownloadButtonState = AppDownloadButtonStates.Downloading;
-        string zipPath = DownloadHandler.GetDefaultZipPath(AppId.ToString());
-        string appPath = DownloadHandler.GetDefaultAppPath(AppId.ToString());
 
         IProgress<double> progress = new Progress<double>(value => ProgressValue = value);
-        ExternalApplicationManager.AllowedContentType type = await DownloadHandler.GetAppContentType(DownloadUrl, cts.Token);
+        string appPath = DownloadHandler.GetDefaultAppPath(AppId.ToString());
 
-        if (type == ExternalApplicationManager.AllowedContentType.Zip)
-        {
-            await DownloadHandler.DownloadZipContent(DownloadUrl, zipPath, appPath, cts.Token, progress);
-        }
-        else if (type == ExternalApplicationManager.AllowedContentType.Json)
-        {
-            await DownloadHandler.DownloadRawContent(DownloadUrl, appPath, AppId, cts.Token, progress);
-        }
-        else
-        {
-            Console.Error.WriteLine("(SingleAppViewModel) Type '" + type + "' is not supported for downloading.");
-        }
+        bool done = await DownloadHandler.Download(appPath, workingUrls, cts.Token, progress);
 
         progress.Report(0);
+        //if (!done) do something
 
         // Create shortcut
         string[]? files = ApplicationHandler.ReturnFilesByPatterns(AppId.ToString(), ExecutionRules);
-        if (files?.Length > 0)
+        if (files?.Length > 0 && Preferences.Get("ShouldCreateShortcut", true) == true)
             Common.CreateShortcut(files[0], Name);
 
         await SetCurrentAppState();
+
+
+
+
+
+
+        //if (String.IsNullOrEmpty(InstallUrl) && String.IsNullOrEmpty(UpdateUrl)) return;
+
+        //GetWorkingDownloadUrl
+
+        //DownloadButtonState = AppDownloadButtonStates.Downloading;
+        //string zipPath = DownloadHandler.GetDefaultZipPath(AppId.ToString());
+        //string appPath = DownloadHandler.GetDefaultAppPath(AppId.ToString());
+
+        //IProgress<double> progress = new Progress<double>(value => ProgressValue = value);
+        //ExternalApplicationManager.AllowedContentType type = await DownloadHandler.GetAppContentType(InstallUrl ?? UpdateUrl, cts.Token);
+
+        //switch (type)
+        //{
+        //    case ExternalApplicationManager.AllowedContentType.Zip:
+        //        await DownloadHandler.DownloadZipContent(InstallUrl ?? UpdateUrl, zipPath, appPath, cts.Token, progress);
+        //        break;
+        //    case ExternalApplicationManager.AllowedContentType.Json:
+        //        await DownloadHandler.DownloadRawContent(InstallUrl ?? UpdateUrl, appPath, AppId, cts.Token, progress);
+        //        break;
+        //    default:
+        //        Console.Error.WriteLine("(SingleAppViewModel) Type '" + type + "' is not supported for downloading.");
+        //        break;
+        //}
+
+        //progress.Report(0);
     }
 
     private void CancelDownload()
@@ -307,5 +349,11 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
             SideButtonState = true;
         else
             SideButtonState = false;
+    }
+
+    public enum DownloadState
+    {
+        Install,
+        Update
     }
 }
