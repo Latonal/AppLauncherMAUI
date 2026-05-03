@@ -2,6 +2,7 @@
 using AppLauncherMAUI.MVVM.Models.UpdateTracker;
 using AppLauncherMAUI.Utilities.DownloadUtilities;
 using AppLauncherMAUI.Utilities.Singletons;
+using System;
 using System.Net.Sockets;
 using System.Text.Json;
 using System.Threading;
@@ -99,7 +100,7 @@ internal class UpdateTracker
         }
 
         string json = await File.ReadAllTextAsync(VersionFilePath);
-        AppUpdateInfosModelList AUIMList = JsonSerializer.Deserialize<AppUpdateInfosModelList>(json) ?? new AppUpdateInfosModelList();
+        AppUpdateInfosModelList AUIMList = JsonSerializer.Deserialize<AppUpdateInfosModelList>(json) ?? new();
 
         AUIM = AUIMList.Search(appName) ?? new AppUpdateInfosModel { Name = appName };
     }
@@ -124,10 +125,8 @@ internal class UpdateTracker
         await File.WriteAllTextAsync(VersionFilePath, json);
     }
 
-    public static async Task<bool> IsVersionDifferent(string appPath, string versionFileUrl, CancellationToken cancellationToken)
+    public static async Task<bool> IsVersionDifferent(string appId, string versionFileUrl, string[] updateUrl, CancellationToken cancellationToken)
     {
-        // rework appPath
-
         if (string.IsNullOrWhiteSpace(versionFileUrl)) return false;
         using HttpResponseMessage? response = await HttpService.GetResponseAsync(versionFileUrl, cancellationToken);
 
@@ -142,8 +141,8 @@ internal class UpdateTracker
 
         return type switch
         {
-            ExternalApplicationManager.AllowedContentType.Text => IsTxtDifferent(appPath, content),
-            ExternalApplicationManager.AllowedContentType.Json => await IsHashDifferent(appPath, content),
+            ExternalApplicationManager.AllowedContentType.Text => IsTxtDifferent(DownloadHandler.GetDefaultAppPath(appId), content),
+            ExternalApplicationManager.AllowedContentType.Json => await IsHashDifferent(updateUrl, appId),
 
             _ => false
         };
@@ -158,23 +157,29 @@ internal class UpdateTracker
         return localTxt != remoteTxt;
     }
 
-    private static async Task<bool> IsHashDifferent(string appPath, string json)
+    private static async Task<bool> IsHashDifferent(string[] urls, string appName)
     {
-        await Task.FromResult(0);
-        return true;
+        // Todo?
+        string? commit = null;
 
-        //string localHash = await GetHashAsync(appId) ?? "";
+        foreach (string url in urls)
+        {
+            commit = await DownloadHandler.GetCommit(url);
+            if (!String.IsNullOrEmpty(commit)) break;
+        }
 
-        //string host = Common.GetUriHost(versionFileUrl);
-        //string remoteHash = host switch
-        //{
-        //    "api.github.com" => GithubDownloadHandler.GetSha(json),
-        //    _ => throw new Exception($"[DownloadHandler] url ({versionFileUrl}) hostname is not supported."),
-        //};
+        if (String.IsNullOrEmpty(commit))
+        {
+            Console.WriteLine($"[UpdateTracker] Could not fetch commit from urls.");
+            return false;
+        }
 
-        //if (localHash != remoteHash)
-        //    await SetUpdateTrackerModelAsync(appId, null, null, remoteHash);
+        if (!File.Exists(VersionFilePath)) return true;
 
-        //return localHash != remoteHash;
+        string json = await File.ReadAllTextAsync(VersionFilePath);
+        AppUpdateInfosModelList AUIMList = JsonSerializer.Deserialize<AppUpdateInfosModelList>(json) ?? new();
+
+        string localHash = AUIMList.Search(appName).Hash;
+        return localHash != commit;
     }
 }

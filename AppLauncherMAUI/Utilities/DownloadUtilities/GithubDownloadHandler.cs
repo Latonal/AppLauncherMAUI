@@ -125,14 +125,9 @@ internal class GithubDownloadHandler
         return Convert.ToHexStringLower(hashBytes);
     }
 
-    public static async Task<string?> GetCommitShaNoToken(string url)
+    public static async Task<string?> GetCommitShaNoToken(string url, GithubUrlType guf = 0)
     {
-        Uri uri = new(url);
-        string[] segments = uri.Segments;
-
-        string owner = segments[1].TrimEnd('/');
-        string repo = segments[2].TrimEnd('/');
-        string branch = segments[6].TrimEnd('/').Split(".")[0];
+        (string owner, string repo, string branch) = GithubUrlFormat(url, guf);
 
         string finalUrl = $"https://github.com/{owner}/{repo}/info/refs?service=git-upload-pack";
 
@@ -145,14 +140,9 @@ internal class GithubDownloadHandler
         return match.Success ? match.Groups[1].Value : null;
     }
 
-    public static async Task<string?> GetCommitSha(string url)
+    public static async Task<string?> GetCommitSha(string url, GithubUrlType guf = 0)
     {
-        Uri uri = new(url);
-        string[] segments = uri.Segments;
-
-        string owner = segments[1].TrimEnd('/');
-        string repo = segments[2].TrimEnd('/');
-        string branch = segments[6].TrimEnd('/').Split(".")[0];
+        (string owner, string repo, string branch) = GithubUrlFormat(url, guf);
 
         string finalUrl = $"https://api.github.com/repos/{owner}/{repo}/commits/{branch}";
 
@@ -163,5 +153,37 @@ internal class GithubDownloadHandler
         string? sha = JsonDocument.Parse(content).RootElement.GetProperty("sha").GetString();
 
         return sha;
+    }
+
+    public static (string owner, string repo, string branch) GithubUrlFormat(string url, GithubUrlType guf)
+    {
+        Uri uri = new(url);
+        string[] segments = uri.Segments;
+        string owner;
+        string repo;
+        string branch;
+
+        switch (guf)
+        {
+            case GithubUrlType.github:
+                owner = segments[1].TrimEnd('/');
+                repo = segments[2].TrimEnd('/');
+                branch = segments[6].TrimEnd('/').Split(".")[0];
+                break;
+            case GithubUrlType.api:
+                owner = segments[2].TrimEnd('/');
+                repo = segments[3].TrimEnd('/');
+                branch = segments[5].TrimEnd('/');
+                break;
+            default:
+                throw new Exception($"[GithubDownloadHandler] url ({url}) is not supported.");
+        }
+
+        return (owner, repo, branch);
+    }
+
+    public enum GithubUrlType {
+        github, // github.com
+        api // api.github.com
     }
 }

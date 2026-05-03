@@ -138,7 +138,7 @@ internal class DownloadHandler
         {
             string zipPath = GetDefaultZipPath(Common.GetWorkingDirectory(appPath));
 
-            string? sha = await GetZipCommit(downloadUrl);
+            string? sha = await GetCommit(downloadUrl);
             await DownloadFileAsync(downloadUrl, zipPath, cancellationToken, progress, sha);
             DeleteFolder(appPath);
             ExtractZip(zipPath, appPath);
@@ -153,8 +153,7 @@ internal class DownloadHandler
         return;
     }
 
-    #region Raw download
-    public static async Task<string?> GetZipCommit(string url)
+    public static async Task<string?> GetCommit(string url)
     {
         string host = Common.GetUriHost(url);
         // add more host in switch if needed
@@ -162,34 +161,23 @@ internal class DownloadHandler
         // no token used
         string? sha = host switch
         {
-            "github.com" => await GithubDownloadHandler.GetCommitShaNoToken(url),
+            "github.com" => await GithubDownloadHandler.GetCommitShaNoToken(url, GithubDownloadHandler.GithubUrlType.github),
+            "api.github.com" => await GithubDownloadHandler.GetCommitShaNoToken(url, GithubDownloadHandler.GithubUrlType.api),
             _ => throw new Exception($"[DownloadHandler] url ({host}) hostname is not supported."),
         };
 
         // token used if empty
         sha ??= host switch
         {
-            "github.com" => await GithubDownloadHandler.GetCommitSha(url),
+            "github.com" => await GithubDownloadHandler.GetCommitShaNoToken(url, GithubDownloadHandler.GithubUrlType.github),
+            "api.github.com" => await GithubDownloadHandler.GetCommitShaNoToken(url, GithubDownloadHandler.GithubUrlType.api),
             _ => throw new Exception($"[DownloadHandler] url ({host}) hostname is not supported."),
         };
 
         return sha;
     }
 
-    //public static async Task<bool> DownloadRaw(string downloadUrl, string appPath, string appName, CancellationToken cancellationToken, IProgress<double>? progress)
-    //{
-    //    try
-    //    {
-    //        (List<StandardRawModel> files, string hash) = await GetFilesDataByModelType(downloadUrl, appName, cancellationToken);
-    //        // Use Common.GetWorkingDirectory
-    //        return true;
-    //    }
-    //    catch (Exception e) {
-    //        Debug.WriteLine("Message:{0}", e.Message);
-    //        return false;
-    //    }
-    //}
-
+    #region Raw download
     private static async Task<(List<StandardRawModel>, string)> GetFilesDataByModelType(string downloadUrl, string path, CancellationToken cancellationToken)
     {
         string host = Common.GetUriHost(downloadUrl);
@@ -392,13 +380,4 @@ internal class DownloadHandler
             Directory.Delete(innerFolder, true);
         }
     }
-
-    //public static async Task CheckLogic(string localAppPath, string remoteHashUrl)
-    //{
-    //    if (GetLocalHash(localAppPath) != await GetRemoteHash(remoteHashUrl))
-    //        //await DownloadFileAsync(localAppPath, remoteHashUrl); // wrong atm
-    //        Debug.WriteLine("Update app");
-    //    else
-    //        Debug.WriteLine("Launch app");
-    //}
 }
