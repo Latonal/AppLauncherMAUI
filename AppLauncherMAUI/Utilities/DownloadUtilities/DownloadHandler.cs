@@ -163,16 +163,19 @@ internal class DownloadHandler
         {
             "github.com" => await GithubDownloadHandler.GetCommitShaNoToken(url, GithubDownloadHandler.GithubUrlType.github),
             "api.github.com" => await GithubDownloadHandler.GetCommitShaNoToken(url, GithubDownloadHandler.GithubUrlType.api),
-            _ => throw new Exception($"[DownloadHandler] url ({host}) hostname is not supported."),
+            _ => null,
         };
 
         // token used if empty
         sha ??= host switch
         {
-            "github.com" => await GithubDownloadHandler.GetCommitShaNoToken(url, GithubDownloadHandler.GithubUrlType.github),
-            "api.github.com" => await GithubDownloadHandler.GetCommitShaNoToken(url, GithubDownloadHandler.GithubUrlType.api),
-            _ => throw new Exception($"[DownloadHandler] url ({host}) hostname is not supported."),
+            "github.com" => await GithubDownloadHandler.GetCommitSha(url, GithubDownloadHandler.GithubUrlType.github),
+            "api.github.com" => await GithubDownloadHandler.GetCommitSha(url, GithubDownloadHandler.GithubUrlType.api),
+            _ => null,
         };
+
+        if (sha == null)
+            throw new Exception($"[DownloadHandler] url ({host}) hostname is not supported.");
 
         return sha;
     }

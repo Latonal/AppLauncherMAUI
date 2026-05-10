@@ -2,43 +2,58 @@
   {
     "Id": 1,
     "Name": "App 1 !!! yaaaaay",
-    "InstallUrls": [
-      "https://www.youtube.com/"
-    ],
-    "UpdateUrls": [
-      "https://www.youtube.com/"
-    ],
-    "Description": {
-      "Fr": "un peu de texte pour décrire l'app",
-      "En": "some text about the first app"
+    "Download": {
+      "Install": [
+        "https://www.youtube.com/"
+      ],
+      "Update": [
+        "https://www.youtube.com/"
+      ],
+      "Version": {
+        "Remote": [
+          ""
+        ],
+        "Local": ""
+      }
     },
-    "Banners": {
-      "Mini": "",
-      "MiniDescription": {
-        "Fr": "Une description de l'application sélectionnée suivie d'une description de l'image.",
-        "En": "A description of the application followed by the description of the Mini picture."
+    "Appearance": {
+      "Description": {
+        "Fr": "un peu de texte pour décrire l'app",
+        "En": "some text about the first app"
       },
-      "Full": "urltoimg",
-      "FullDescription": {
-        "Fr": "Description de l'image complète",
-        "En": "A description of the full picture"
+      "Banners": {
+        "Mini": "",
+        "MiniDescription": {
+          "Fr": "Une description de l'application sélectionnée suivie d'une description de l'image.",
+          "En": "A description of the application followed by the description of the Mini picture."
+        },
+        "Full": "urltoimg",
+        "FullDescription": {
+          "Fr": "Description de l'image complète",
+          "En": "A description of the full picture"
+        }
       }
     }
   },
   {
     "Id": 3,
-    "Name": "Favs",
-    "InstallUrls": [
-      "test url not working",
-      "https://github.com/Latonal/Favs/archive/refs/heads/main.zip"
-    ],
-    "UpdateUrls": [
-      "test url not working",
-      "https://github.com/Latonal/Favs/archive/refs/heads/main.zip"
-    ],
-    "VersionUrls": [
-      "https://raw.githubusercontent.com/Latonal/Favs/refs/heads/main/LICENSE.txt"
-    ],
+    "Download": {
+      "Install": [
+        "test url not working",
+        "https://github.com/Latonal/Favs/archive/refs/heads/main.zip"
+      ],
+      "Update": [
+        "test url not working",
+        "https://github.com/Latonal/Favs/archive/refs/heads/main.zip"
+      ],
+      "Version": {
+        "Local": "LICENSE.txt",
+        "Remote": [
+          "url",
+          "https://raw.githubusercontent.com/Latonal/Favs/refs/heads/main/LICENSE.txt"
+        ]
+      }
+    },
     "ExecutionRules": [
       {
         "Type": "Extension",
@@ -51,41 +66,49 @@
         ]
       }
     ],
-    "Description": {
-      "Fr": "2 un peu de texte pour décrire l'app",
-      "En": "2 some text about the first app"
-    },
-    "Banners": {
-      "Mini": "dotnet_bot.png",
-      "MiniDescription": {
-        "Fr": "2 Une description de l'application sélectionnée suivie d'une description de l'image.",
-        "En": "2 A description of the application followed by the description of the Mini picture."
+    "Appearance": {
+      "Name": "Favs",
+      "Description": {
+        "Fr": "2 un peu de texte pour décrire l'app",
+        "En": "2 some text about the first app"
       },
-      "Full": "dotnet_bot.png",
-      "FullDescription": {
-        "Fr": "2 Description de l'image complète",
-        "En": "2 A description of the full picture"
+      "Banners": {
+        "Mini": "dotnet_bot.png",
+        "MiniDescription": {
+          "Fr": "2 Une description de l'application sélectionnée suivie d'une description de l'image.",
+          "En": "2 A description of the application followed by the description of the Mini picture."
+        },
+        "Full": "dotnet_bot.png",
+        "FullDescription": {
+          "Fr": "2 Description de l'image complète",
+          "En": "2 A description of the full picture"
+        }
       }
     }
   },
   {
     "Id": 4,
     "Name": "Totally not Favs",
-    "InstallUrls": [
-      "https://github.com/Latonal/Favs/archive/refs/heads/main.zip",
-      "https://api.github.com/repos/Latonal/Favs/branches/main",
-      "test url not working !!!!2"
-    ],
-    "UpdateUrls": [
-      "https://api.github.com/repos/Latonal/Favs/branches/main",
-      "test url not working !!!!2",
-      "https://github.com/Latonal/Favs/archive/refs/heads/main.zip"
-    ],
-    "VersionUrls": [
-      "url",
-      "https://api.github.com/repos/Latonal/Favs/branches/main",
-      "https://raw.githubusercontent.com/Latonal/Favs/refs/heads/main/LICENSE.txt"
-    ],
+    "Download": {
+      "Install": [
+        "https://github.com/Latonal/Favs/archive/refs/heads/main.zip",
+        "https://api.github.com/repos/Latonal/Favs/branches/main",
+        "test url not working !!!!2"
+      ],
+      "Update": [
+        "https://api.github.com/repos/Latonal/Favs/branches/main",
+        "test url not working !!!!2",
+        "https://github.com/Latonal/Favs/archive/refs/heads/main.zip"
+      ],
+      "Version": {
+        "Remote": [
+          "url",
+          "https://raw.githubusercontent.com/Latonal/Favs/refs/heads/main/LICENSE.txt",
+          "https://api.github.com/repos/Latonal/Favs/branches/main"
+        ],
+        "Local": "LICENSE.txt"
+      }
+    },
     "ExecutionRules": [
       {
         "Type": "Extension",
@@ -102,70 +125,76 @@
         ]
       }
     ],
-    "Description": {
-      "Fr": "Une description un peu plus complète de l'application.\n\rTest du saut de ligne.\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra",
-      "En": "A more complete description of the application.\n\rTesting line break.\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra"
-    },
-    "Banners": {
-      "Mini": "dotnet_bot.png",
-      "MiniDescription": {
-        "Fr": "2 Une description de l'application sélectionnée suivie d'une description de l'image.",
-        "En": "2 A description of the application followed by the description of the Mini picture."
+    "Appearance": {
+      "Description": {
+        "Fr": "Une description un peu plus complète de l'application.\n\rTest du saut de ligne.\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra",
+        "En": "A more complete description of the application.\n\rTesting line break.\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra\n\ra"
       },
-      "Full": "dotnet_bot.png",
-      "FullDescription": {
-        "Fr": "2 Description de l'image complète",
-        "En": "2 A description of the full picture"
-      }
-    },
-    "Medias": [
-      {
-        "Title": "Random title",
-        "Url": "https://www.youtube.com/"
+      "Banners": {
+        "Mini": "dotnet_bot.png",
+        "MiniDescription": {
+          "Fr": "2 Une description de l'application sélectionnée suivie d'une description de l'image.",
+          "En": "2 A description of the application followed by the description of the Mini picture."
+        },
+        "Full": "dotnet_bot.png",
+        "FullDescription": {
+          "Fr": "2 Description de l'image complète",
+          "En": "2 A description of the full picture"
+        }
       },
-      {
-        "Title": "Another random title",
-        "Url": "https://learn.microsoft.com/en-us/dotnet/maui/platform-integration/appmodel/open-browser?view=net-maui-9.0&tabs=windows"
-      }
-    ]
+      "Medias": [
+        {
+          "Title": "Random title",
+          "Url": "https://www.youtube.com/"
+        },
+        {
+          "Title": "Another random title",
+          "Url": "https://learn.microsoft.com/en-us/dotnet/maui/platform-integration/appmodel/open-browser?view=net-maui-9.0&tabs=windows"
+        }
+      ]
+    }
   },
   {
     "Id": 5,
-    "Name": "App 2!!!",
-    "Description": {
-      "Fr": "2 un peu de texte pour décrire l'app",
-      "En": "2 some text about the first app"
-    },
-    "Banners": {
-      "Mini": "dotnet_bot.png",
-      "MiniDescription": {
-        "Fr": "2 Une description de l'application sélectionnée suivie d'une description de l'image.",
-        "En": "2 A description of the application followed by the description of the Mini picture."
+    "Appearance": {
+      "Name": "App 2!!!",
+      "Description": {
+        "Fr": "2 un peu de texte pour décrire l'app",
+        "En": "2 some text about the first app"
       },
-      "Full": "dotnet_bot.png",
-      "FullDescription": {
-        "Fr": "2 Description de l'image complète",
-        "En": "2 A description of the full picture"
+      "Banners": {
+        "Mini": "dotnet_bot.png",
+        "MiniDescription": {
+          "Fr": "2 Une description de l'application sélectionnée suivie d'une description de l'image.",
+          "En": "2 A description of the application followed by the description of the Mini picture."
+        },
+        "Full": "dotnet_bot.png",
+        "FullDescription": {
+          "Fr": "2 Description de l'image complète",
+          "En": "2 A description of the full picture"
+        }
       }
     }
   },
   {
     "Id": 6,
-    "Name": "App 2!!!",
-    "Description": {
-      "Fr": "2 un peu de texte pour décrire l'app",
-      "En": "2 some text about the first app"
-    },
-    "Banners": {
-      "Mini": "dotnet_bot.png",
-      "MiniDescription": {
-        "Fr": "2 Une description de l'application sélectionnée suivie d'une description de l'image.",
-        "En": "2 A description of the application followed by the description of the Mini picture."
+    "Appearance": {
+      "Name": "App 2!!!",
+      "Description": {
+        "Fr": "2 un peu de texte pour décrire l'app",
+        "En": "2 some text about the first app"
       },
-      "Full": "dotnet_bot.png",
-      "FullDescription": {
-        "Fr": "2 Description de l'image complète",
-        "En": "2 A description of the full picture"
+      "Banners": {
+        "Mini": "dotnet_bot.png",
+        "MiniDescription": {
+          "Fr": "2 Une description de l'application sélectionnée suivie d'une description de l'image.",
+          "En": "2 A description of the application followed by the description of the Mini picture."
+        },
+        "Full": "dotnet_bot.png",
+        "FullDescription": {
+          "Fr": "2 Description de l'image complète",
+          "En": "2 A description of the full picture"
+        }
       }
     }
   }

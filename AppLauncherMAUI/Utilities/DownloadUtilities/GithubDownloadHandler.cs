@@ -2,6 +2,7 @@
 using AppLauncherMAUI.Utilities.Interfaces;
 using AppLauncherMAUI.Utilities.Singletons;
 using Microsoft.Maui.Graphics.Text;
+using System.Diagnostics;
 using System.Net.Http.Headers;
 using System.Security.Cryptography;
 using System.Text;
@@ -93,24 +94,6 @@ internal class GithubDownloadHandler
         return branchInfo?.Commit?.Sha ?? "";
     }
 
-    public static bool CheckDownloadAvailability(HttpResponseMessage header)
-    {
-        HttpResponseHeaders headers = header.Headers;
-        int requestsNeeded = 5;
-
-        int remainingCount = headers.TryGetValues("X-RateLimit-Remaining", out IEnumerable<string>? rem) ? int.Parse(rem.First()) : 0;
-
-        if (remainingCount >= requestsNeeded)
-            return true;
-
-        // Todo : set a popup
-        //long resetTime = header.TryGetValues("X-RateLimit-Reset", out IEnumerable<string>? res) ? int.Parse(res.First()) : 0;
-        // if not ok : set x-ratelimit-reset - currentUnixTimestamp in popup with
-        //Common.GetRemainingTime(resetTime);
-
-        return false;
-    }
-
     public static string GetGitFileSha1(string filePath)
     {
         byte[] content = File.ReadAllBytes(filePath);
@@ -152,6 +135,8 @@ internal class GithubDownloadHandler
         string content = await response.Content.ReadAsStringAsync();
         string? sha = JsonDocument.Parse(content).RootElement.GetProperty("sha").GetString();
 
+        Debug.WriteLine($"Token left for {guf}: " + GetTokenLeft(response));
+
         return sha;
     }
 
@@ -180,6 +165,31 @@ internal class GithubDownloadHandler
         }
 
         return (owner, repo, branch);
+    }
+
+    public static bool CheckDownloadAvailability(HttpResponseMessage header)
+    {
+        HttpResponseHeaders headers = header.Headers;
+        int requestsNeeded = 5;
+
+        int remainingCount = headers.TryGetValues("X-RateLimit-Remaining", out IEnumerable<string>? rem) ? int.Parse(rem.First()) : 0;
+
+        if (remainingCount >= requestsNeeded)
+            return true;
+
+        // Todo : set a popup
+        //long resetTime = header.TryGetValues("X-RateLimit-Reset", out IEnumerable<string>? res) ? int.Parse(res.First()) : 0;
+        // if not ok : set x-ratelimit-reset - currentUnixTimestamp in popup with
+        //Common.GetRemainingTime(resetTime);
+
+        return false;
+    }
+
+    public static int GetTokenLeft(HttpResponseMessage header)
+    {
+        HttpResponseHeaders headers = header.Headers;
+
+        return headers.TryGetValues("X-RateLimit-Remaining", out IEnumerable<string>? rem) ? int.Parse(rem.First()) : 0;
     }
 
     public enum GithubUrlType {

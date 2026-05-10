@@ -125,14 +125,14 @@ internal class UpdateTracker
         await File.WriteAllTextAsync(VersionFilePath, json);
     }
 
-    public static async Task<bool> IsVersionDifferent(string appId, string versionFileUrl, string[] updateUrl, CancellationToken cancellationToken)
+    public static async Task<bool> IsVersionDifferent(string appId, string versionFileRemoteUrl, string? versionFileLocalPath, string[] updateUrl, CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(versionFileUrl)) return false;
-        using HttpResponseMessage? response = await HttpService.GetResponseAsync(versionFileUrl, cancellationToken);
+        if (string.IsNullOrWhiteSpace(versionFileRemoteUrl)) return false;
+        using HttpResponseMessage? response = await HttpService.GetResponseAsync(versionFileRemoteUrl, cancellationToken);
 
         if (response == null)
         {
-            Console.WriteLine($"[UpdateTracker] Url \"{versionFileUrl}\" does not seems to work.");
+            Console.WriteLine($"[UpdateTracker] Url \"{versionFileRemoteUrl}\" does not seems to work.");
             return false;
         }
 
@@ -141,16 +141,16 @@ internal class UpdateTracker
 
         return type switch
         {
-            ExternalApplicationManager.AllowedContentType.Text => IsTxtDifferent(DownloadHandler.GetDefaultAppPath(appId), content),
+            ExternalApplicationManager.AllowedContentType.Text => IsTxtDifferent(DownloadHandler.GetDefaultAppPath(appId), content, versionFileLocalPath),
             ExternalApplicationManager.AllowedContentType.Json => await IsHashDifferent(updateUrl, appId),
 
             _ => false
         };
     }
 
-    private static bool IsTxtDifferent(string appPath, string remoteTxt)
+    private static bool IsTxtDifferent(string appPath, string remoteTxt, string? localPath)
     {
-        string versionFilePath = Path.Combine(appPath, "version.txt");
+        string versionFilePath = Path.Combine(appPath, localPath ?? "version.txt");
         if (!File.Exists(versionFilePath)) return false;
         string localTxt = File.ReadAllText(versionFilePath);
 
@@ -159,7 +159,6 @@ internal class UpdateTracker
 
     private static async Task<bool> IsHashDifferent(string[] urls, string appName)
     {
-        // Todo?
         string? commit = null;
 
         foreach (string url in urls)

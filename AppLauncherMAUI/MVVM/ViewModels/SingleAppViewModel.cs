@@ -26,8 +26,10 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
     public string[] InstallUrls { get { return _installUrls; } set { _installUrls = value; } }
     private string[] _updateUrls = [];
     public string[] UpdateUrls { get { return _updateUrls; } set { _updateUrls = value; _ = SetCurrentAppState(); } }
-    private string? _versionFileUrl;
-    public string? VersionFileUrl { get { return _versionFileUrl; } set { _versionFileUrl = value; } }
+    private string? _versionFileRemoteUrl;
+    public string? VersionFileRemoteUrl { get { return _versionFileRemoteUrl; } set { _versionFileRemoteUrl = value; } }
+    private string? _versionFileLocalPath;
+    public string? VersionFileLocalPath { get { return _versionFileLocalPath; } set { _versionFileLocalPath = value; } }
 
     private string? _fullBanner;
     public string? FullBanner { get { return _fullBanner; } set { _fullBanner = value; RaisePropertyChanged(() => FullBanner); } }
@@ -66,28 +68,29 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
         if (executionRules != null)
             ExecutionRules = executionRules;
 
-        VersionFileUrl = GetWorkingVersionFile(data.VersionUrls ?? []);
-        InstallUrls = Common.FilterUrls(Common.DistinctArrayValues(data.InstallUrls ?? []));
+        VersionFileRemoteUrl = GetWorkingVersionFile(data.Download?.Version?.Remote ?? []);
+        VersionFileLocalPath = data.Download?.Version?.Local;
+        InstallUrls = Common.FilterUrls(Common.DistinctArrayValues(data.Download?.Install ?? []));
 
+        UpdateUrls = Common.FilterUrls(Common.DistinctArrayValues(data.Download?.Update ?? []));
         // This line trigger the whole check (SetCurrentAppState())
         // Any value related to functional must be put above
         // Any value related to visual muse be put below
 
-        UpdateUrls = Common.FilterUrls(Common.DistinctArrayValues(data.UpdateUrls ?? []));
 
         // Visual
-        Name = data.Name ?? "DefaultAppName";
-        FullBanner = data.Banners?.Full;
+        Name = data.Appearance?.Name ?? "DefaultAppName";
+        FullBanner = data.Appearance?.Banners?.Full;
 
-        LanguagesModel? description = data.Description;
+        LanguagesModel? description = data.Appearance?.Description;
         if (description != null)
             Text = Common.GetTranslatedJsonText(description);
 
-        LanguagesModel? desc = data.Banners?.FullDescription;
+        LanguagesModel? desc = data.Appearance?.Banners?.FullDescription;
         if (desc != null)
             AppCardFullDescription = Common.GetTranslatedJsonText(desc);
 
-        SetMedias(data.Medias);
+        SetMedias(data.Appearance?.Medias);
     }
 
     private static async Task<AppDataModel> GetData(int id)
@@ -151,7 +154,8 @@ internal partial class SingleAppViewModel : ExtendedBindableObject
                     DownloadButtonState = AppDownloadButtonStates.CanInstall;
                 else
                 {
-                    if (!String.IsNullOrEmpty(VersionFileUrl) && await UpdateTracker.IsVersionDifferent(AppId.ToString(), VersionFileUrl, UpdateUrls, cts.Token))
+                    if (!String.IsNullOrEmpty(VersionFileRemoteUrl) &&
+                        await UpdateTracker.IsVersionDifferent(AppId.ToString(), VersionFileRemoteUrl, VersionFileLocalPath, UpdateUrls, cts.Token))
                         DownloadButtonState = AppDownloadButtonStates.Update;
                 }
             }
