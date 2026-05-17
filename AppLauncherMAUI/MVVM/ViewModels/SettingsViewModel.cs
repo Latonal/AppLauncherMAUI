@@ -22,6 +22,7 @@ internal partial class SettingsViewModel : ExtendedBindableObject
         ];
 
         string savedLangId = Preferences.Get("AppLanguage", "en");
+        bool savedShortcut = Preferences.Get("ShouldCreateShortcut", true);
         _currentLanguageId = CurrentLanguageId = LanguageItems.FirstOrDefault(lang => lang.Id == savedLangId) ?? LanguageItems.First();
     }
 
