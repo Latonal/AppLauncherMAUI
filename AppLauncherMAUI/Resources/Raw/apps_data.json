@@ -103,8 +103,8 @@
       "Version": {
         "Remote": [
           "url",
-          "https://raw.githubusercontent.com/Latonal/Favs/refs/heads/main/LICENSE.txt",
-          "https://api.github.com/repos/Latonal/Favs/branches/main"
+          "https://api.github.com/repos/Latonal/Favs/branches/main",
+          "https://raw.githubusercontent.com/Latonal/Favs/refs/heads/main/LICENSE.txt"
         ],
         "Local": "LICENSE.txt"
       }

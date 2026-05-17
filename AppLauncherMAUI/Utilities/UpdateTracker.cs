@@ -127,7 +127,27 @@ internal class UpdateTracker
 
     public static async Task<bool> IsVersionDifferent(string appId, string versionFileRemoteUrl, string? versionFileLocalPath, string[] updateUrl, CancellationToken cancellationToken)
     {
+        // Todo: make it better
+
         if (string.IsNullOrWhiteSpace(versionFileRemoteUrl)) return false;
+
+        // extensions
+        string extension = Path.GetExtension(versionFileRemoteUrl);
+        string? content;
+        if (!string.IsNullOrWhiteSpace(extension))
+        {
+            if (extension == ".txt")
+            {
+                content = await GetContent(versionFileRemoteUrl, cancellationToken);
+                if (!string.IsNullOrEmpty(content)) return IsTxtDifferent(DownloadHandler.GetDefaultAppPath(appId), content, versionFileLocalPath);
+            }
+        }
+
+        // try get commit
+        string? commit = await DownloadHandler.GetCommit(versionFileRemoteUrl);
+        if (!string.IsNullOrWhiteSpace(commit)) return await GetLocalHash(appId) != commit;
+
+        // others
         using HttpResponseMessage? response = await HttpService.GetResponseAsync(versionFileRemoteUrl, cancellationToken);
 
         if (response == null)
@@ -137,7 +157,7 @@ internal class UpdateTracker
         }
 
         ExternalApplicationManager.AllowedContentType type = ExternalApplicationManager.GetVersionAllowedContentType(response.Content.Headers.ContentType?.MediaType ?? "");
-        string content = await response.Content.ReadAsStringAsync(cancellationToken);
+        content = await response.Content.ReadAsStringAsync(cancellationToken);
 
         return type switch
         {
@@ -146,6 +166,19 @@ internal class UpdateTracker
 
             _ => false
         };
+    }
+
+    private static async Task<string?> GetContent(string url, CancellationToken cancellationToken)
+    {
+        using HttpResponseMessage? response = await HttpService.GetResponseAsync(url, cancellationToken);
+
+        if (response == null)
+        {
+            Console.WriteLine($"[UpdateTracker] Url \"{url}\" does not seems to work.");
+            return null;
+        }
+
+        return await response.Content.ReadAsStringAsync(cancellationToken);
     }
 
     private static bool IsTxtDifferent(string appPath, string remoteTxt, string? localPath)
@@ -173,12 +206,19 @@ internal class UpdateTracker
             return false;
         }
 
-        if (!File.Exists(VersionFilePath)) return true;
+        string? localHash = await GetLocalHash(appName);
+        if (string.IsNullOrEmpty(localHash)) return false;
+
+        return localHash != commit;
+    }
+
+    private static async Task<string?> GetLocalHash(string appName)
+    {
+        if (!File.Exists(VersionFilePath)) return null;
 
         string json = await File.ReadAllTextAsync(VersionFilePath);
         AppUpdateInfosModelList AUIMList = JsonSerializer.Deserialize<AppUpdateInfosModelList>(json) ?? new();
 
-        string localHash = AUIMList.Search(appName).Hash;
-        return localHash != commit;
+        return AUIMList.Search(appName).Hash;
     }
 }
